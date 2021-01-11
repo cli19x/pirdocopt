@@ -17,6 +17,9 @@ Options:
 
 """
 
-import test
-doc = ''
-test.docstring(__doc__)
+from docopt import docopt
+
+
+if __name__ == '__main__':
+    arguments = docopt(__doc__, version="test 2.0")
+

@@ -1,4 +1,4 @@
-
+import json
 # Get docstring from python: import sys; file print(__doc__)
 def docstring(doc):
     print(doc)
@@ -11,5 +11,14 @@ print(a)
 a_r = a.split('|')
 print(a_r)
 
+dictionary = {
+    "id": "04",
+    "name": "sunil",
+    "depatment": "HR"
+}
+
+# Serializing json
+json_object = json.dumps(dictionary, indent=1)
+print(json_object)
 
 
