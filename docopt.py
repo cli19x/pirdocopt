@@ -1,13 +1,25 @@
 import json
 import warnings
+import sys
 
 Name = ""
 Version = ""
 Usages = []
 Options = []
 
+Arguments = []
 
-def processing_string(doc):
+
+def dictionary_builder(name, version, usage, options):
+    global Name
+    global Version
+    Name = name
+    Version = version
+    Usages.extend(usage.split("\n"))
+    Options.extend(options.split("\n"))
+
+
+def processing_string(doc, help_message, version):
     usage = ""
     options = ""
     partition_string = doc.strip().split('\n\n')
@@ -25,9 +37,19 @@ def processing_string(doc):
     if len(options) == 0:
         warnings.warn('No options indicated from docstring')
 
+    if help_message:
+        output = name + "\n\n"
+        if version is not None:
+            output += "Version:\n  " + version + "\n\n"
+        output += usage + "\n\n"
+        output += options + "\n\n"
+        print(output)
+    dictionary_builder(name, version, usage, options)
+
 
 def docopt(doc, msg="", argv=None, help_message=True, version=None):
-    processing_string(doc)
+    Arguments.extend(sys.argv)
+    processing_string(doc, help_message, version)
     return doc
 
 
