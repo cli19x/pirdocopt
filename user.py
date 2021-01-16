@@ -1,6 +1,5 @@
-"""Naval Fate.
 
-Usage:
+"""Usage:
   naval_fate.py ship new <name>...
   naval_fate.py ship <name> move <x> <y> [--speed=<kn>]
   naval_fate.py ship shoot <x> <y>
