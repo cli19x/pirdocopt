@@ -1,5 +1,4 @@
 import json
-import warnings
 import sys
 
 Name = ""
@@ -16,6 +15,9 @@ class Token:
         self.r = right
 
     def __str__(self):
+        return self.txt
+
+    def __repr__(self):
         return self.txt
 
 class Option:
@@ -143,6 +145,32 @@ def getCommands(tokens):
                         commands.append(token.txt)
     return commands
 
+def getOneOrMore(tokens):
+    oneOrMore = []
+    for token in tokens:
+        # If ellipsis occurs in its own token
+        if token.txt == '...':
+            oneOrMore.append(token.l.txt)
+        else:
+            # If ellipsis occurs in same token as another element
+            if '...' in token.txt:
+                index = token.txt.index('...')
+                oneOrMore.append(token.txt[:index].strip("<>")) # Append part of token that does not include ellipsis
+    return oneOrMore
+
+def printElements(args, options, commands, count):
+    print(f"---------- Pattern {count+1} ----------\n")
+    print("Arguments:", end=" ")
+    for arg in args:
+        print(arg, end="\t")
+    print("\nOptions:\n----------------------")
+    for option in options:
+        print(option)
+    print("Commands:", end=" ")
+    for command in commands:
+        print(command, end="\t")
+    print("\n\n")
+
 def dictionary_builder(name, version, usage, options):
     global Name
     global Version
@@ -197,23 +225,21 @@ def process_Paren(tokens, open):
             if closed in token.txt:
                 complete = True
                 token.txt = token.txt.strip(closed)
-                requiredTokens.append(token)
+                requiredTokens.append(token.txt)
 
             else:                                                               #   TO DO: SEARCH FOR PIPE
-                tempRequired = []
-                tempRequired.append(token)
+                tempRequired = token.txt
 
                 index = tokens.index(token)
                 token = token.right
                 # search for closed parenthesis until we find it or reach the end of the pattern
                 while complete is False and token is not None:
-                    tempRequired.append(token)
+                    tempRequired = tempRequired + " " + token.txt
                     if closed in token.txt:
                         complete = True
                         token.txt = token.txt.strip(closed)
                     else:
                         token = token.right
-
                 requiredTokens.append(tempRequired)
     return requiredTokens
 
@@ -235,8 +261,16 @@ def parse_usage():
         # Process optional tokens
         optionalTokens = process_Paren(tokenObjs, '[')
 
+        for token in tokenObjs:
+            if token not in optionalTokens:
+                requiredTokens.append(token)
+
+        #for token in optionalTokens:
+         #   print(token, end=" ")
+        #print()
+
         # Retrieve mutually exclusive elements
-        mutex = getMutex(requiredTokens + optionalTokens)
+        #mutex = getMutex(requiredTokens + optionalTokens)
         
         # Get arguments
         args = getArgs(tokenObjs)
@@ -247,23 +281,21 @@ def parse_usage():
         # Get commands
         commands = getCommands(tokenObjs)
 
-        print(f"---------- Pattern {count+1} ----------\n")
-        print("Arguments:", end=" ")
-        for arg in args:
-            print(arg, end="\t")
-        print("\nOptions:\n----------------------")
-        for option in options:
-            print(option)
-        print("Commands:", end=" ")
-        for command in commands:
-            print(command, end="\t")
-        print("\n\n")
+        # Get elements that can occur one or more times (...)
+        oneOrMore = getOneOrMore(tokenObjs)
+
+        # Check user arguments against each pattern
+        
+
+
+        # Print args, options, and commands for each pattern
+        printElements(args, options, commands, count)
         
 
 
 
 def docopt(doc, argv=None, help_message=True, version=None):
-    Arguments.extend(sys.argv)
+    Arguments.extend(sys.argv[1:])
     processing_string(doc, help_message, version)
     parse_usage()
     return doc
