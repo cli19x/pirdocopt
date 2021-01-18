@@ -9,6 +9,7 @@ Options = []
 
 Arguments = []
 
+
 class Token:
     def __init__(self, text, left, right):
         self.txt = text
@@ -17,6 +18,7 @@ class Token:
 
     def __str__(self):
         return self.txt
+
 
 class Option:
     def __init__(self, text, argument, length):
@@ -29,6 +31,7 @@ class Option:
             return "Option: " + self.txt + "\tArgument: " + self.arg + "\tLength: " + self.length
         else:
             return "Option: " + self.txt + "\tLength: " + self.length
+
 
 # Split token by '|' into two mutually exclusive Token objects
 def splitToken(token):
@@ -43,16 +46,17 @@ def splitToken(token):
                 tokenObj = Token(x, res[index], None)
             else:
                 print(index)
-                tokenObj = Token(x, res[index], token.r)            
+                tokenObj = Token(x, res[index], token.r)
             res[index].r = tokenObj
             index += 1
     return res
+
 
 # Extract raw tokens from pattern and convert them to Token objects
 def convertTokens(pattern, name):
     # Split pattern into individual tokens and remove leading empty space
     tokensRaw = pattern.split(" ")
-    tokensRaw.pop(0) 
+    tokensRaw.pop(0)
     tokensRaw.pop(0)
 
     tokenObjs = list()
@@ -64,7 +68,7 @@ def convertTokens(pattern, name):
             if not tokenObjs:
                 tokenObj = Token(tokenRaw, None, None)
                 tokenObjs.append(tokenObj)
-                    
+
             else:
                 tokenObj = Token(tokenRaw, tokenObjs[index], None)
                 tokenObjs[index].right = tokenObj
@@ -72,26 +76,28 @@ def convertTokens(pattern, name):
                 index += 1
     return tokenObjs
 
+
 # Returns a list of mutually exclusive elements taken from tokens
 # Elements in the returned list may be Tokens or lists of Tokens
 def getMutex(tokens):
     mutex = []
     for token in tokens:
-            if type(token) is Token:
-                if '|' in token.txt:
-                    mutex.append(splitToken(token))
-            else:
-                if type(token) is list:
-                    found = False
-                    for t in token:
-                        if t.txt == '|':
-                            found = True
-                            index = token.index(t)
-                            break
-                    if found:
-                        token.remove(token[index])
-                        mutex.append(token)
+        if type(token) is Token:
+            if '|' in token.txt:
+                mutex.append(splitToken(token))
+        else:
+            if type(token) is list:
+                found = False
+                for t in token:
+                    if t.txt == '|':
+                        found = True
+                        index = token.index(t)
+                        break
+                if found:
+                    token.remove(token[index])
+                    mutex.append(token)
     return mutex
+
 
 # Returns a list of arguments extracted from tokens
 def getArgs(tokens):
@@ -100,11 +106,12 @@ def getArgs(tokens):
         if '<' in token.txt:
             startIndex = token.txt.index('<') + 1
             endIndex = token.txt.index('>')
-            args.append(token.txt[startIndex : endIndex])
+            args.append(token.txt[startIndex: endIndex])
         else:
             if token.txt.isupper():
                 args.append(token.txt)
     return args
+
 
 # Returns a list of Option objects extracted from tokens
 def getOptions(tokens):
@@ -116,7 +123,7 @@ def getOptions(tokens):
             # If option has an argument
             if '=' in token.txt:
                 index = token.txt.index('=')
-                argument = token.txt[index+2 : len(token.txt)-1]
+                argument = token.txt[index + 2: len(token.txt) - 1]
                 options.append(Option(token.txt[:index], argument, "LONG"))
             else:
                 options.append(Option(token.txt, argument, "LONG"))
@@ -125,6 +132,7 @@ def getOptions(tokens):
                 # Handle short option
                 options.append(Option(token.txt, argument, "SHORT"))
     return options
+
 
 def getCommands(tokens):
     commands = []
@@ -142,6 +150,7 @@ def getCommands(tokens):
                     else:
                         commands.append(token.txt)
     return commands
+
 
 def dictionary_builder(name, version, usage, options):
     global Name
@@ -179,6 +188,7 @@ def processing_string(doc, help_message, version):
         print(output)
     dictionary_builder(name, version, usage, options)
 
+
 # Process optional ( [] ) and required ( () ) elements
 # Arguments: tokens = list of Token objects, character = '(' or '['
 # Returns a list of either optional or required elements
@@ -199,7 +209,7 @@ def process_Paren(tokens, open):
                 token.txt = token.txt.strip(closed)
                 requiredTokens.append(token)
 
-            else:                                                               #   TO DO: SEARCH FOR PIPE
+            else:  # TO DO: SEARCH FOR PIPE
                 tempRequired = []
                 tempRequired.append(token)
 
@@ -217,12 +227,13 @@ def process_Paren(tokens, open):
                 requiredTokens.append(tempRequired)
     return requiredTokens
 
+
 def parse_usage():
     # Extract program name
     Usages.pop(0)
     s = Usages[1].split(" ")
     name = s[2]
-    
+
     # Parse each pattern in Usages
     for count, pattern in enumerate(Usages):
 
@@ -237,7 +248,7 @@ def parse_usage():
 
         # Retrieve mutually exclusive elements
         mutex = getMutex(requiredTokens + optionalTokens)
-        
+
         # Get arguments
         args = getArgs(tokenObjs)
 
@@ -247,7 +258,7 @@ def parse_usage():
         # Get commands
         commands = getCommands(tokenObjs)
 
-        print(f"---------- Pattern {count+1} ----------\n")
+        print(f"---------- Pattern {count + 1} ----------\n")
         print("Arguments:", end=" ")
         for arg in args:
             print(arg, end="\t")
@@ -258,8 +269,6 @@ def parse_usage():
         for command in commands:
             print(command, end="\t")
         print("\n\n")
-        
-
 
 
 def docopt(doc, argv=None, help_message=True, version=None):
@@ -267,10 +276,3 @@ def docopt(doc, argv=None, help_message=True, version=None):
     processing_string(doc, help_message, version)
     parse_usage()
     return doc
-
-
-
-
-
-
-
