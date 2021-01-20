@@ -11,6 +11,8 @@ Arguments = []
 
 Usage_dic = {}
 
+Patterns = []
+
 class Token:
     def __init__(self, text, left, right, ty):
         self.txt = text
@@ -107,9 +109,11 @@ def getArgs(tokens):
             startIndex = token.txt.index('<') + 1
             endIndex = token.txt.index('>')
             args.append(token.txt[startIndex : endIndex])
+            token.type = "Argument"
         else:
             if token.txt.isupper():
                 args.append(token.txt)
+                token.type = "Argument"
     return args
 
 # Returns a list of Option objects extracted from tokens
@@ -124,12 +128,15 @@ def getOptions(tokens):
                 index = token.txt.index('=')
                 argument = token.txt[index+2 : len(token.txt)-1]
                 options.append(Option(token.txt[:index], argument, "LONG"))
+                token.type = "Option"
             else:
                 options.append(Option(token.txt, argument, "LONG"))
+                token.type = "Option"
         else:
             if token.txt.startswith('-') is True:
                 # Handle short option
                 options.append(Option(token.txt, argument, "SHORT"))
+                token.type = "Option"
     return options
 
 def getCommands(tokens):
@@ -145,8 +152,10 @@ def getCommands(tokens):
                         rawSplit = token.txt.split('|')
                         for item in rawSplit:
                             commands.append(item)
+                            token.type = "Command"
                     else:
                         commands.append(token.txt)
+                        token.type = "Command"
     return commands
 
 def getOneOrMore(tokens):
@@ -312,15 +321,49 @@ def parse_usage():
         # Determine token type (Argument, Option, or Command)
         # Still need to fix options with arguments, anything with '|', and ellipsis
         for token in tokenObjs:
-            if token.txt.strip("<>") in args:
-                token.type = "Argument"
-            elif any(opt.txt == token.txt for opt in options):
-                token.type = "Option"
-            elif token.txt in commands:
-                token.type = "Command"
+            '''text = token.txt
+
+            # Handle |
+            if text == '|':
+                continue
+            elif '|' in text:
+                text = text[:text.find('|')]
+
+            # Handle ...
+            if text != "..." and text.endswith("..."):
+                text = token.txt[:-3]
+            
+            # Check if argument
+            if text.strip("<>") in args:
+                    token.type = "Argument"
+            
+            # Handle options with arguments
+            elif "=" in token.txt:
+                text = token.txt[:token.txt.find("=")]
+            
+            # Check if option
+            if any(opt.txt == text for opt in options):
+                    token.type = "Option"
+
+            # Check if command
+            elif text in commands:
+                token.type = "Command"'''
             #print(f"Token: {token.txt}\tType: {token.type}")
 
-    print(Usage_dic)
+        # For each pattern
+        # List with expected input (Ex: [ command_name <anything> --optionName])
+        '''patternInput = []
+        for token in tokenObjs:
+            if token.type == "Argument":
+                patternInput.append("anything")
+            elif token.type == "Option":
+                patternInput.append("option")
+            elif token.type == "Command":
+                patternInput.append(token.txt)'''
+        
+        Patterns.append(tokenObjs)
+
+    #print(Usage_dic)
 
 
         # Print args, options, and commands for each pattern
@@ -333,6 +376,30 @@ def docopt(doc, argv=None, help_message=True, version=None):
     Arguments.extend(sys.argv[1:])
     processing_string(doc, help_message, version)
     parse_usage()
+
+    patternToUse = None
+
+    for num, p in enumerate(Patterns):
+        foundConflict = False
+        for index, token in enumerate(p):
+            if index >= len(Arguments):
+                foundConflict = True
+                break
+            if token.type == "Command":
+                if Arguments[index] == token:
+                    continue
+                else:
+                    foundConflict = True
+                    break
+            if token.type == "Option" and Arguments[index].startswith('-') is False:
+                foundConflict = True
+                break
+        if foundConflict is False:
+            patternToUse = num
+            break
+
+    print(patternToUse)
+
     return doc
 
 
