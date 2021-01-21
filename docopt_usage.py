@@ -19,6 +19,7 @@ class Token:
         self.l = left
         self.r = right
         self.type = ty
+        self.isReq = False
 
     def __str__(self):
         return self.txt
@@ -50,8 +51,11 @@ def splitToken(token):
             if index < (len(res) - 1):
                 tokenObj = Token(x, res[index], None, None)
             else:
-                print(index)
-                tokenObj = Token(x, res[index], token.r, None)            
+                tokenObj = Token(x, res[index], token.r, None)
+            if tokenObj.txt.startswith('-'):
+                tokenObj.type = "Option"
+            else:
+                tokenObj.type = "Command"            
             res[index].r = tokenObj
             index += 1
     return res
@@ -75,7 +79,7 @@ def convertTokens(pattern, name):
                     
             else:
                 tokenObj = Token(tokenRaw, tokenObjs[index], None, None)
-                tokenObjs[index].right = tokenObj
+                tokenObjs[index].r = tokenObj
                 tokenObjs.append(tokenObj)
                 index += 1
     return tokenObjs
@@ -87,7 +91,8 @@ def getMutex(tokens):
     for token in tokens:
             if type(token) is Token:
                 if '|' in token.txt:
-                    mutex.append(splitToken(token))
+                    token = splitToken(token)
+                    mutex.append(token)
             else:
                 if type(token) is list:
                     found = False
@@ -238,22 +243,28 @@ def process_Paren(tokens, open):
             if closed in token.txt:
                 complete = True
                 token.txt = token.txt.strip(closed)
-                requiredTokens.append(token.txt)
+                token.isReq = True
+                requiredTokens.append(token)
 
-            else:                                                               #   TO DO: SEARCH FOR PIPE
-                tempRequired = token.txt
+            else:
+                token.isReq = True
+                tempRequired = [token]
 
                 index = tokens.index(token)
-                token = token.right
+                token = token.r
                 # search for closed parenthesis until we find it or reach the end of the pattern
                 while complete is False and token is not None:
-                    tempRequired = tempRequired + " " + token.txt
+                    token.isReq = True
+                    tempRequired.append(token)
                     if closed in token.txt:
                         complete = True
                         token.txt = token.txt.strip(closed)
                     else:
-                        token = token.right
-                requiredTokens.append(tempRequired)
+                        token = token.r
+                if complete is True:
+                    requiredTokens.append(tempRequired)
+                else:
+                    warnings.warn("Could not find closed paren or bracket.")
     return requiredTokens
 
 def parse_usage():
@@ -274,16 +285,9 @@ def parse_usage():
         # Process optional tokens
         optionalTokens = process_Paren(tokenObjs, '[')
 
-        for token in tokenObjs:
-            if token not in optionalTokens:
-                requiredTokens.append(token)
-
-        #for token in optionalTokens:
-         #   print(token, end=" ")
-        #print()
-
         # Retrieve mutually exclusive elements
-        #mutex = getMutex(requiredTokens + optionalTokens)
+        mutex = getMutex(requiredTokens + optionalTokens)
+        #print(mutex)
         
         # Get arguments
         args = getArgs(tokenObjs)
@@ -318,48 +322,13 @@ def parse_usage():
             if com not in Usage_dic:
                 Usage_dic[com] = False
 
-        # Determine token type (Argument, Option, or Command)
-        # Still need to fix options with arguments, anything with '|', and ellipsis
-        for token in tokenObjs:
-            '''text = token.txt
-
-            # Handle |
-            if text == '|':
-                continue
-            elif '|' in text:
-                text = text[:text.find('|')]
-
-            # Handle ...
-            if text != "..." and text.endswith("..."):
-                text = token.txt[:-3]
-            
-            # Check if argument
-            if text.strip("<>") in args:
-                    token.type = "Argument"
-            
-            # Handle options with arguments
-            elif "=" in token.txt:
-                text = token.txt[:token.txt.find("=")]
-            
-            # Check if option
-            if any(opt.txt == text for opt in options):
-                    token.type = "Option"
-
-            # Check if command
-            elif text in commands:
-                token.type = "Command"'''
-            #print(f"Token: {token.txt}\tType: {token.type}")
-
-        # For each pattern
-        # List with expected input (Ex: [ command_name <anything> --optionName])
-        '''patternInput = []
-        for token in tokenObjs:
-            if token.type == "Argument":
-                patternInput.append("anything")
-            elif token.type == "Option":
-                patternInput.append("option")
-            elif token.type == "Command":
-                patternInput.append(token.txt)'''
+        for index, token in enumerate(tokenObjs):
+            if token.txt == '|':
+                tokenObjs[index-1] = [token.l, token.r]
+                tokenObjs.remove(token.r)
+                tokenObjs.remove(token)
+            elif '|' in token.txt:
+                tokenObjs[index] = splitToken(token)
         
         Patterns.append(tokenObjs)
 
@@ -385,13 +354,19 @@ def docopt(doc, argv=None, help_message=True, version=None):
             if index >= len(Arguments):
                 foundConflict = True
                 break
-            if token.type == "Command":
-                if Arguments[index] == token:
+            if type(token) is list:
+                foundMutexMatch = False
+                for t in token:
+                    if Arguments[index] == t.txt:
+                        foundMutexMatch = True
+                        break
+            elif token.type == "Command":
+                if Arguments[index] == token.txt:
                     continue
                 else:
                     foundConflict = True
                     break
-            if token.type == "Option" and Arguments[index].startswith('-') is False:
+            elif token.type == "Option" and Arguments[index].startswith('-') is False:
                 foundConflict = True
                 break
         if foundConflict is False:
