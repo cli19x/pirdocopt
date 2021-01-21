@@ -16,12 +16,15 @@ Options:
   --speed=<kn> -s KN  Speed in knots [default: 10].
   --moored      Moored (anchored) mine.
   --drifting    Drifting mine.
+  --rr     Show version.
+  --fff=<tt> -s KN  Speed in knots [default: 10].
+  --aaa      Moored (anchored) mine.
+  --yyy    Drifting mine.
 
 """
 
 from docopt import docopt
 
-
 if __name__ == '__main__':
-    arguments = docopt(__doc__, version="test 2.0", help_message=True)
-
+    arguments = docopt(__doc__, version="test 2.0", help_message=True,
+                       argv=['--help', '--moored', '--output=default.pdf'])

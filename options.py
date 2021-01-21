@@ -7,6 +7,10 @@ Options:
   --speed=<kn> -s KN  Speed in knots [default: 10].
   --moored      Moored (anchored) mine.
   --drifting    Drifting mine.
+  --rr     Show version.
+  --fff=<tt> -s KN  Speed in knots [default: 10].
+  --aaa      Moored (anchored) mine.
+  --yyy    Drifting mine.
 """
 import re
 import json
