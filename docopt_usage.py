@@ -19,7 +19,7 @@ class Token:
         self.l = left
         self.r = right
         self.type = ty
-        self.isReq = False
+        self.isReq = True
 
     def __str__(self):
         return self.txt
@@ -231,8 +231,10 @@ def processing_string(doc, help_message, version):
 def process_Paren(tokens, open):
     if open == '(':
         closed = ')'
+        isReq = True
     else:
         closed = ']'
+        isReq = False
     requiredTokens = []
     for token in tokens:
         if open in token.txt:
@@ -243,18 +245,19 @@ def process_Paren(tokens, open):
             if closed in token.txt:
                 complete = True
                 token.txt = token.txt.strip(closed)
-                token.isReq = True
+                token.isReq = isReq
                 requiredTokens.append(token)
 
             else:
-                token.isReq = True
+
+                token.isReq = isReq
                 tempRequired = [token]
 
                 index = tokens.index(token)
                 token = token.r
                 # search for closed parenthesis until we find it or reach the end of the pattern
                 while complete is False and token is not None:
-                    token.isReq = True
+                    token.isReq = isReq
                     tempRequired.append(token)
                     if closed in token.txt:
                         complete = True
@@ -284,6 +287,8 @@ def parse_usage():
 
         # Process optional tokens
         optionalTokens = process_Paren(tokenObjs, '[')
+
+        
 
         # Retrieve mutually exclusive elements
         mutex = getMutex(requiredTokens + optionalTokens)
@@ -322,6 +327,10 @@ def parse_usage():
             if com not in Usage_dic:
                 Usage_dic[com] = False
 
+        
+        # Handle mutex tokens
+        # Replace tokens containing mutex elements with a single list of mutex tokens
+        # Ex: [--moored | --drifting] gets replaced with [[--moored, --drifting]]
         for index, token in enumerate(tokenObjs):
             if token.txt == '|':
                 tokenObjs[index-1] = [token.l, token.r]
@@ -329,7 +338,7 @@ def parse_usage():
                 tokenObjs.remove(token)
             elif '|' in token.txt:
                 tokenObjs[index] = splitToken(token)
-        
+
         Patterns.append(tokenObjs)
 
     #print(Usage_dic)
@@ -351,24 +360,54 @@ def docopt(doc, argv=None, help_message=True, version=None):
     for num, p in enumerate(Patterns):
         foundConflict = False
         for index, token in enumerate(p):
+
             if index >= len(Arguments):
+                inputToken = None
+            else:
+                inputToken = Arguments[index]
+            print(f"Pattern #{num}: PToken: {token} InputToken: {inputToken}")
+
+            # Skip if too many input tokens than tokens in the pattern
+            if len(Arguments) > len(p):
                 foundConflict = True
                 break
+
+            # ERROR TO FIX: TOO FEW INPUT TOKENS BUT NO OPTIONAL ELEMENTS
+            
+            # Handle mutex tokens, input token must match only one of them
             if type(token) is list:
                 foundMutexMatch = False
                 for t in token:
+                    # Check if token is optional
+                    if t.isReq is False:
+                        break
                     if Arguments[index] == t.txt:
                         foundMutexMatch = True
+
+                        # Check if next input token is also in mutex list
+                        if index+1 < len(Arguments):
+                            if any(n.txt == Arguments[index+1] for n in token):
+                                foundConflict = True
+
                         break
+            
+            # If input doesn't contain an optional token
+            elif token.isReq is False and index >= len(Arguments):
+                continue
+
+            # If pattern token is a command, check if input token matches
             elif token.type == "Command":
                 if Arguments[index] == token.txt:
                     continue
                 else:
                     foundConflict = True
                     break
+
+            # If pattern token is an option, check if input token is also an option
             elif token.type == "Option" and Arguments[index].startswith('-') is False:
                 foundConflict = True
                 break
+
         if foundConflict is False:
             patternToUse = num
             break
