@@ -13,6 +13,7 @@ Usage_dic = {}
 
 Patterns = []
 
+
 class Token:
     def __init__(self, text, left, right, ty):
         self.txt = text
@@ -27,6 +28,7 @@ class Token:
     def __repr__(self):
         return self.txt
 
+
 class Option:
     def __init__(self, text, argument, length):
         self.txt = text
@@ -38,6 +40,7 @@ class Option:
             return "Option: " + self.txt + "\tArgument: " + self.arg + "\tLength: " + self.length
         else:
             return "Option: " + self.txt + "\tLength: " + self.length
+
 
 # Split token by '|' into two mutually exclusive Token objects
 def splitToken(token):
@@ -224,6 +227,7 @@ def processing_string(doc, help_message, version):
         output += options + "\n\n"
         print(output)
     dictionary_builder(name, version, usage, options)
+
 
 # Process optional ( [] ) and required ( () ) elements
 # Arguments: tokens = list of Token objects, character = '(' or '['

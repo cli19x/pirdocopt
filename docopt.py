@@ -383,29 +383,56 @@ def printing_output_dictionary():
 # @param length the total length for the output usage and options dictionary
 # @param dic_list reformat the dictionary into a array
 def output_formatter(rows, length, dic_list):
-    row_content = [' '] * rows
-    for j in range(0, 3):
-        for i in range(0, rows):
-            if length > i + (j * rows):
-                if i == 0 and j == 0:
-                    row_content[0] = '{'
-                if type(Dictionary[dic_list[i + (j * rows)]]) == int or type(
-                        Dictionary[dic_list[i + (j * rows)]]) == float or type(
-                        Dictionary[dic_list[i + (j * rows)]]) == bool:
-                    row_content[i] += '\'{}\': {}\t' \
-                        .format(dic_list[i + (j * rows)],
-                                Dictionary[dic_list[i + (j * rows)]])
-                else:
-                    row_content[i] += '\'{}\': \'{}\'\t' \
-                        .format(dic_list[i + (j * rows)],
-                                Dictionary[dic_list[i + (j * rows)]])
-            else:
-                continue
-    row_content[rows - 1] = row_content[rows - 1].rstrip() + '}'
-    spaces = len(max(max(row_content, key=len).split('\t'), key=len))
-    for k in row_content:
-        tmp = k.split('\t')
-        out = ''
-        for t in tmp:
-            out += t.ljust(spaces) + ' ' * 4
-        print(out.rstrip())
+    col1 = [' '] * rows
+    col2 = [' '] * rows
+    col3 = [' '] * rows
+    col1[0] = '{'
+    for i in range(0, rows):
+        if length > i:
+            col1[i] += insert_content(dic_list, i, rows, 0)
+        if length > i + rows:
+            col2[i] += insert_content(dic_list, i, rows, 1)
+        if length > i + (2 * rows):
+            col3[i] += insert_content(dic_list, i, rows, 2)
+
+    print_output_from_rows(col1, col2, col3, rows)
+
+
+# Helper function for inserting the key value pairs into output dictionary
+# @param dic_list a dictionary the built from user argument but reform to a list
+# @param idx the current row index
+# @param rows count of the rows
+# @col_idx index of the col
+# @return return the key value pair in a outputting form according to the type of values
+def insert_content(dic_list, idx, rows, col_idx):
+    if check_value_type(Dictionary[dic_list[idx + (col_idx * rows)]]):
+        return '\'{}\': {}'.format(dic_list[idx + (col_idx * rows)],
+                                   Dictionary[dic_list[idx + (col_idx * rows)]])
+    else:
+        return '\'{}\': \'{}\''.format(dic_list[idx + (col_idx * rows)],
+                                       Dictionary[dic_list[idx + (col_idx * rows)]])
+
+
+# Helper method for defining whether the value is a string or a primitive type
+# @param value the value for current key in the dictionary
+def check_value_type(value):
+    return type(value) == int or type(value) == float or type(value) == bool
+
+
+# Helper method for printing out dictionary as a json string to user
+# @param row1 hold the values for output column one
+# @param row1 hold the values for output column two
+# @param row1 hold the values for output column three
+# @param rows2 counter for number of rows
+def print_output_from_rows(col1, col2, col3, rows):
+    spaces1 = len(max(col1, key=len))
+    spaces2 = len(max(col2, key=len))
+
+    for k in range(rows):
+        out = col1[k].ljust(spaces1) + ' ' * 4 \
+              + col2[k].ljust(spaces2) + ' ' * 4 \
+              + col3[k].ljust(spaces2)
+        if k == rows - 1:
+            print(out.rstrip() + '}')
+        else:
+            print(out.rstrip())

@@ -1,4 +1,6 @@
 import json
+
+
 # Get docstring from python: import sys; file print(__doc__)
 def docstring(doc):
     print(doc)
