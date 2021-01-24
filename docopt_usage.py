@@ -13,7 +13,6 @@ Usage_dic = {}
 
 Patterns = []
 
-
 class Token:
     def __init__(self, text, left, right, ty):
         self.txt = text
@@ -28,7 +27,6 @@ class Token:
     def __repr__(self):
         return self.txt
 
-
 class Option:
     def __init__(self, text, argument, length):
         self.txt = text
@@ -40,7 +38,6 @@ class Option:
             return "Option: " + self.txt + "\tArgument: " + self.arg + "\tLength: " + self.length
         else:
             return "Option: " + self.txt + "\tLength: " + self.length
-
 
 # Split token by '|' into two mutually exclusive Token objects
 def splitToken(token):
@@ -228,7 +225,6 @@ def processing_string(doc, help_message, version):
         print(output)
     dictionary_builder(name, version, usage, options)
 
-
 # Process optional ( [] ) and required ( () ) elements
 # Arguments: tokens = list of Token objects, character = '(' or '['
 # Returns a list of either optional or required elements
@@ -315,7 +311,7 @@ def parse_usage():
             if arg not in Usage_dic:
                 Usage_dic[arg] = None
 
-        # Create key value pairs for options
+        '''# Create key value pairs for options
         for opt in options:
             if opt.txt not in Usage_dic:
                 # Handle options without arguments
@@ -324,7 +320,7 @@ def parse_usage():
                 # Handle options with arguments by setting dict value to value previously found in args
                 else:
                     Usage_dic[opt.txt] = Usage_dic[opt.arg]
-                    del Usage_dic[opt.arg]  # Remove unneccesary argument
+                    del Usage_dic[opt.arg]  # Remove unneccesary argument'''
 
         # Create key value pairs for commands
         for com in commands:
@@ -345,8 +341,6 @@ def parse_usage():
 
         Patterns.append(tokenObjs)
 
-    #print(Usage_dic)
-
 
         # Print args, options, and commands for each pattern
         #printElements(args, options, commands, count)
@@ -363,20 +357,34 @@ def docopt(doc, argv=None, help_message=True, version=None):
 
     for num, p in enumerate(Patterns):
         foundConflict = False
+
+        # Determine if too few input tokens for a pattern p, skip p if true
+        if len(Arguments) < len(p):
+            tooFew = True
+            for token in p:
+                # check for optional tokens whether token is a Token or a list
+                if type(token) is list:
+                    if token[0].isReq is False:
+                        print("Found optional")
+                        tooFew = False
+                else:
+                    if token.isReq is False:
+                        tooFew = False
+            if tooFew is True:
+                continue
+
         for index, token in enumerate(p):
 
             if index >= len(Arguments):
                 inputToken = None
             else:
                 inputToken = Arguments[index]
-            print(f"Pattern #{num}: PToken: {token} InputToken: {inputToken}")
+            #print(f"Pattern #{num}: PToken: {token} InputToken: {inputToken}")
 
             # Skip if too many input tokens than tokens in the pattern
             if len(Arguments) > len(p):
                 foundConflict = True
                 break
-
-            # ERROR TO FIX: TOO FEW INPUT TOKENS BUT NO OPTIONAL ELEMENTS
             
             # Handle mutex tokens, input token must match only one of them
             if type(token) is list:
@@ -384,6 +392,7 @@ def docopt(doc, argv=None, help_message=True, version=None):
                 for t in token:
                     # Check if token is optional
                     if t.isReq is False:
+                        foundMutexMatch = True  # Bypass check later on
                         break
                     if Arguments[index] == t.txt:
                         foundMutexMatch = True
@@ -392,8 +401,9 @@ def docopt(doc, argv=None, help_message=True, version=None):
                         if index+1 < len(Arguments):
                             if any(n.txt == Arguments[index+1] for n in token):
                                 foundConflict = True
-
                         break
+                if foundMutexMatch is False:
+                    foundConflict = True
             
             # If input doesn't contain an optional token
             elif token.isReq is False and index >= len(Arguments):
@@ -407,16 +417,40 @@ def docopt(doc, argv=None, help_message=True, version=None):
                     foundConflict = True
                     break
 
-            # If pattern token is an option, check if input token is also an option
-            elif token.type == "Option" and Arguments[index].startswith('-') is False:
-                foundConflict = True
-                break
+            # If pattern token is an option, check if input token matches
+            elif token.type == "Option":
+                inputToken = Arguments[index]
+                pToken = token.txt
+                # Ignore option arguments
+                if '=' in Arguments[index] and '=' in token.txt:
+                    inputToken = Arguments[index][:Arguments[index].find('=')]
+                    pToken = pToken[:pToken.find('=')]
+                if inputToken != pToken:
+                    foundConflict = True
+                    break
 
         if foundConflict is False:
             patternToUse = num
             break
 
-    print(patternToUse)
+    
+    # ERROR TO FIX: LIST OUT OF RANGE WHEN OPTIONAL ARGS NOT PRESENT
+    # ERROR TO FIX: COMMANDS NOT RECOGNIZED IF MUTEX
+    if patternToUse is not None:
+        # Fill Usage_dic with appropriate values
+        for index, token in enumerate(Patterns[patternToUse]):
+            if type(token) is list:
+                if token[0].type == "Command":
+                    Usage_dic[Arguments[index]] = True
+            else:
+                if token.type == "Argument":
+                    Usage_dic[token.txt.strip('<>')] = Arguments[index]
+                elif token.type == "Command":
+                    Usage_dic[token.txt] = True
+        print(Usage_dic)
+    else:
+        print("No pattern found")
+    
 
     return doc
 
