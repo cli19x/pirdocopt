@@ -157,7 +157,7 @@ def getCommands(tokens):
                         rawSplit = token.txt.split('|')
                         for item in rawSplit:
                             commands.append(item)
-                            token.type = "Command"
+                        token.type = "Command"
                     else:
                         commands.append(token.txt)
                         token.type = "Command"
@@ -311,15 +311,11 @@ def parse_usage():
             if arg not in Usage_dic:
                 Usage_dic[arg] = None
 
-        '''# Create key value pairs for options
+        # Remove optional arguments
+        # Find options with arguments and remove that argument from Usage_dic
         for opt in options:
             if opt.txt not in Usage_dic:
-                # Handle options without arguments
-                if opt.arg is None:
-                    Usage_dic[opt.txt] = False
-                # Handle options with arguments by setting dict value to value previously found in args
-                else:
-                    Usage_dic[opt.txt] = Usage_dic[opt.arg]
+                if opt.arg is not None:
                     del Usage_dic[opt.arg]  # Remove unneccesary argument'''
 
         # Create key value pairs for commands
@@ -365,7 +361,6 @@ def docopt(doc, argv=None, help_message=True, version=None):
                 # check for optional tokens whether token is a Token or a list
                 if type(token) is list:
                     if token[0].isReq is False:
-                        print("Found optional")
                         tooFew = False
                 else:
                     if token.isReq is False:
@@ -379,7 +374,7 @@ def docopt(doc, argv=None, help_message=True, version=None):
                 inputToken = None
             else:
                 inputToken = Arguments[index]
-            #print(f"Pattern #{num}: PToken: {token} InputToken: {inputToken}")
+            print(f"Pattern #{num}: PToken: {token} InputToken: {inputToken}")
 
             # Skip if too many input tokens than tokens in the pattern
             if len(Arguments) > len(p):
@@ -403,6 +398,12 @@ def docopt(doc, argv=None, help_message=True, version=None):
                                 foundConflict = True
                         break
                 if foundMutexMatch is False:
+                    if token[0].isReq is True:
+                        foundConflict = True
+                        break
+                    else:
+                        Arguments.insert(index, "None")
+                        continue
                     foundConflict = True
             
             # If input doesn't contain an optional token
@@ -414,8 +415,12 @@ def docopt(doc, argv=None, help_message=True, version=None):
                 if Arguments[index] == token.txt:
                     continue
                 else:
-                    foundConflict = True
-                    break
+                    if token.isReq is True:
+                        foundConflict = True
+                        break
+                    else:
+                        Arguments.insert(index, "None")
+                        continue
 
             # If pattern token is an option, check if input token matches
             elif token.type == "Option":
@@ -426,27 +431,32 @@ def docopt(doc, argv=None, help_message=True, version=None):
                     inputToken = Arguments[index][:Arguments[index].find('=')]
                     pToken = pToken[:pToken.find('=')]
                 if inputToken != pToken:
-                    foundConflict = True
-                    break
+                    if token.isReq is True:
+                        foundConflict = True
+                        break
+                    else:
+                        Arguments.insert(index, "None")
+                        continue
 
         if foundConflict is False:
             patternToUse = num
             break
 
     
-    # ERROR TO FIX: LIST OUT OF RANGE WHEN OPTIONAL ARGS NOT PRESENT
-    # ERROR TO FIX: COMMANDS NOT RECOGNIZED IF MUTEX
+    # ERROR TO FIX: OPTIONAL MUTEX COMMANDS IN MIDDLE OF PATTERN
     if patternToUse is not None:
         # Fill Usage_dic with appropriate values
         for index, token in enumerate(Patterns[patternToUse]):
             if type(token) is list:
-                if token[0].type == "Command":
+                if token[0].type != "Option":
                     Usage_dic[Arguments[index]] = True
             else:
                 if token.type == "Argument":
                     Usage_dic[token.txt.strip('<>')] = Arguments[index]
                 elif token.type == "Command":
-                    Usage_dic[token.txt] = True
+                    # Check if input ignores optional command
+                    if Arguments[index] != "None":
+                        Usage_dic[token.txt] = True
         print(Usage_dic)
     else:
         print("No pattern found")
