@@ -45,19 +45,28 @@ def splitToken(token):
     res = []
     index = 0
     for x in rawSplit:
+
+        # Create first Token object
         if index == 0:
-            res.append(Token(x, token.l, None, None))
+            tokenObj = Token(x, token.l, None, None)
+            res.append(tokenObj)
+
+        # Create rest of the Token objects
         else:
             if index < (len(res) - 1):
                 tokenObj = Token(x, res[index], None, None)
             else:
                 tokenObj = Token(x, res[index], token.r, None)
-            if tokenObj.txt.startswith('-'):
-                tokenObj.type = "Option"
-            else:
-                tokenObj.type = "Command"            
-            res[index].r = tokenObj
+            res.append(tokenObj)       # NEW LINE   
+            res[index].r = tokenObj     # Link previous token to new token
             index += 1
+        
+        # Set type for split tokens
+        if tokenObj.txt.startswith('-'):
+            tokenObj.type = "Option"
+        else:
+            tokenObj.type = "Command" 
+
     return res
 
 # Extract raw tokens from pattern and convert them to Token objects
@@ -106,20 +115,14 @@ def getMutex(tokens):
                         mutex.append(token)
     return mutex
 
-# Returns a list of arguments extracted from tokens
+# Sets type attribute for all argument tokens to Argument
 def getArgs(tokens):
-    args = []
     for token in tokens:
-        if '<' in token.txt:
-            startIndex = token.txt.index('<') + 1
-            endIndex = token.txt.index('>')
-            args.append(token.txt[startIndex : endIndex])
+        if token.txt.startswith('<') is True and token.txt.endswith('>') is True:
             token.type = "Argument"
         else:
             if token.txt.isupper():
-                args.append(token.txt)
                 token.type = "Argument"
-    return args
 
 # Returns a list of Option objects extracted from tokens
 def getOptions(tokens):
@@ -129,14 +132,14 @@ def getOptions(tokens):
         if token.txt.startswith('--') is True:
             # Handle long option
             # If option has an argument
+            token.type = "Option"
             if '=' in token.txt:
                 index = token.txt.index('=')
                 argument = token.txt[index+2 : len(token.txt)-1]
                 options.append(Option(token.txt[:index], argument, "LONG"))
-                token.type = "Option"
             else:
                 options.append(Option(token.txt, argument, "LONG"))
-                token.type = "Option"
+                
         else:
             if token.txt.startswith('-') is True:
                 # Handle short option
@@ -144,23 +147,16 @@ def getOptions(tokens):
                 token.type = "Option"
     return options
 
+# Sets type attribute for all 
 def getCommands(tokens):
     commands = []
     for token in tokens:
-        # Check if token is a lone '|'
+        # Ignore lone '|' tokens
         if token.txt != '|':
-            # Check if token is an argument
-            if '<' not in token.txt and token.txt.isupper() is False:
-                # Check if token is an option
-                if token.txt.startswith('-') is False:
-                    if '|' in token.txt:
-                        rawSplit = token.txt.split('|')
-                        for item in rawSplit:
-                            commands.append(item)
-                        token.type = "Command"
-                    else:
-                        commands.append(token.txt)
-                        token.type = "Command"
+            # If token isn't an argument or an option, it must be a command
+            if token.type != "Argument" and token.type != "Option":
+                if '|' not in token.txt:
+                    token.type = "Command"
     return commands
 
 def getOneOrMore(tokens):
@@ -228,6 +224,7 @@ def processing_string(doc, help_message, version):
 # Process optional ( [] ) and required ( () ) elements
 # Arguments: tokens = list of Token objects, character = '(' or '['
 # Returns a list of either optional or required elements
+# Labels each token as required or optional under the isReq parameter
 def process_Paren(tokens, open):
     if open == '(':
         closed = ')'
@@ -252,8 +249,6 @@ def process_Paren(tokens, open):
 
                 token.isReq = isReq
                 tempRequired = [token]
-
-                index = tokens.index(token)
                 token = token.r
                 # search for closed parenthesis until we find it or reach the end of the pattern
                 while complete is False and token is not None:
@@ -283,45 +278,19 @@ def parse_usage():
         tokenObjs = convertTokens(pattern, name)
 
         # Process required tokens
-        requiredTokens = process_Paren(tokenObjs, '(')
+        process_Paren(tokenObjs, '(')
 
         # Process optional tokens
-        optionalTokens = process_Paren(tokenObjs, '[')
-
-        
-
-        # Retrieve mutually exclusive elements
-        mutex = getMutex(requiredTokens + optionalTokens)
-        #print(mutex)
+        process_Paren(tokenObjs, '[')
         
         # Get arguments
-        args = getArgs(tokenObjs)
+        getArgs(tokenObjs)
 
         # Get options
-        options = getOptions(tokenObjs)
+        getOptions(tokenObjs)
 
         # Get commands
-        commands = getCommands(tokenObjs)
-
-        # Get elements that can occur one or more times (...)
-        oneOrMore = getOneOrMore(tokenObjs)
-
-        # Create key value pairs for arguments
-        for arg in args:
-            if arg not in Usage_dic:
-                Usage_dic[arg] = None
-
-        # Remove optional arguments
-        # Find options with arguments and remove that argument from Usage_dic
-        for opt in options:
-            if opt.txt not in Usage_dic:
-                if opt.arg is not None:
-                    del Usage_dic[opt.arg]  # Remove unneccesary argument'''
-
-        # Create key value pairs for commands
-        for com in commands:
-            if com not in Usage_dic:
-                Usage_dic[com] = False
+        getCommands(tokenObjs)
 
         
         # Handle mutex tokens
@@ -334,6 +303,21 @@ def parse_usage():
                 tokenObjs.remove(token)
             elif '|' in token.txt:
                 tokenObjs[index] = splitToken(token)
+
+        # Populate Usage_dic with default argument and command values
+        for token in tokenObjs:
+            if type(token) is list:
+                for t in token:
+                    if t.type == "Argument":
+                        Usage_dic[t.txt.strip("<>")] = None
+                    elif t.type == "Command":
+                        Usage_dic[t.txt] = False
+            else:
+                if token.type == "Argument":
+                    Usage_dic[token.txt.strip("<>")] = None
+                if token.type == "Command":
+                    Usage_dic[token.txt] = False
+            
 
         Patterns.append(tokenObjs)
 
@@ -374,7 +358,7 @@ def docopt(doc, argv=None, help_message=True, version=None):
                 inputToken = None
             else:
                 inputToken = Arguments[index]
-            print(f"Pattern #{num}: PToken: {token} InputToken: {inputToken}")
+            #print(f"Pattern #{num}: PToken: {token} InputToken: {inputToken}")
 
             # Skip if too many input tokens than tokens in the pattern
             if len(Arguments) > len(p):
