@@ -17,8 +17,8 @@ Options:
   --moored      Moored (anchored) mine.
   --drifting    Drifting mine.
   --rr     Show version.
-  --fff=<tt> -s KN  Speed in knots [default: 10].
-  --aaa      Moored (anchored) mine.
+  -s KN  Speed in knots [default: 10].
+  --aaa=<file>      Moored (anchored) mine [default: 20].
   --yyy    Drifting mine.
 
 """

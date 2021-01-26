@@ -1,26 +1,45 @@
-import json
+"""Perfect
+
+Usage:
+  naval_fate.py ship new <name>...
+  naval_fate.py ship <name> move <x> <y> [--speed=<kn>]
+  naval_fate.py ship shoot <x> <y>
+  naval_fate.py mine (set|remove) <x> <y> [--moored | --drifting]
+  naval_fate.py (-h | --help)
+  naval_fate.py --version
+
+Options:
+  -h --help --helping --haha -hhh --ooooo  Show this screen.
+  --sorted  Show sorted.
+  -o FILE --output=<file>  Speed in knots [default: ./test.txt].
+  --version     Show version.
+  --speed=<kn> -s KN  Speed in knots [default: 10].
+  --moored      Moored (anchored) mine.
+  --drifting    Drifting mine.
+  --rr     Show version.
+  --fff=<tt> -s KN  Speed in knots.
+  --aaa=<file>      Moored (anchored) mine [default: haha.pdf].
+  --yyy    Drifting mine.
+
+"""
+from docopt import docopt
 
 
-# Get docstring from python: import sys; file print(__doc__)
-def docstring(doc):
-    print(doc)
+def testing_parentheses(array):
+    pass
 
 
-# To return text between parenthesis: s[s.find("(")+1:s.find(")")]
-s = "naval_fate.py mine (set|remove) <x> <y> [--moored | --drifting]"
-a = s[s.find("(")+1:s.find(")")]
-print(a)
-a_r = a.split('|')
-print(a_r)
+def testing_usages(array):
+    pass
 
-dictionary = {
-    "id": "04",
-    "name": "sunil",
-    "depatment": "HR"
-}
 
-# Serializing json
-json_object = json.dumps(dictionary, indent=1)
-print(json_object)
+def testing_options(array):
+    pass
+
+
+if __name__ == '__main__':
+    testing = docopt(__doc__, version="test 2.0", help_message=False,
+                     argv=['--help', '--moored'])
+    print(testing)
 
 

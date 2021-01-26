@@ -23,8 +23,15 @@ Options_dic = {}
 # A global dictionary for the final output dictionary
 # that contains both usages and options
 Dictionary = {}
+# A global variable that holds the output dictionary to user
+FinalOutput = ""
+# These two variable is built for testing purposes
+TestOutput = []
+test = False
 
 
+#########################################################################
+##########################################################################
 # Main function for docopt.
 # @param doc docstring that pass from the user program
 # @param argv programmer can pre-pass some parameters into docopt and
@@ -38,9 +45,14 @@ def docopt(doc, argv=None, help_message=True, version=None):
     processing_string(doc, help_message, version)
     options_parser(argv)
     printing_output_dictionary()
-    return doc
+    if test:
+        return TestOutput
+    else:
+        return FinalOutput
 
 
+#####################################################################
+######################################################################
 # Main Controller for processing the docstring.
 # @param doc docstring pass from the main function
 # @param help_message to tell docopt whether user want to
@@ -119,19 +131,22 @@ def print_help(name, version, usage, options):
     print(output)
 
 
+####################################################################
+###################################################################
 # Main function for checking options
 def options_parser(argv):
     check_option_lines()
     global Options_dic
     if argv is not None:
         Options_dic = test_options(Options_dic, argv, False)
-        print("This is a option dictionary before user command line "
-              "(but includes programmer's default arguments):")
-        print(Options_dic)
-        print("=" * len(str(Options_dic)))
-        print("=" * len(str(Options_dic)))
+        # if not test:
+        #     print("This is a option dictionary before user command line "
+        #           "(but includes programmer's default arguments):")
+        #     print(Options_dic)
+        #     print("=" * len(str(Options_dic)))
+        #     print("=" * len(str(Options_dic)))
     Options_dic = building_output_options_dictionary()
-    print("This is a option dictionary after user command line:")
+    # print("This is a option dictionary after user command line:")
 
 
 # Process options from docstring, treat lines that
@@ -269,6 +284,9 @@ def building_output_options_dictionary():
             else:
                 output_dic = {key if key != k else put: value for key, value in
                               output_dic.items()}
+        elif '=' in k:
+            output_dic = {key if key != k else k.split('=')[0]: value for
+                          key, value in output_dic.items()}
     return output_dic
 
 
@@ -357,6 +375,9 @@ def check_key_contain_equal(element, remove_duplicate, output_dic):
     return output_dic
 
 
+####################################################################
+###################################################################
+# Main function for building output strings to user
 # {'--drifting': False,    'mine': False,
 #  '--help': False,        'move': True,
 #  '--moored': False,      'new': False,
@@ -416,7 +437,8 @@ def insert_content(dic_list, idx, rows, col_idx):
 # Helper method for defining whether the value is a string or a primitive type
 # @param value the value for current key in the dictionary
 def check_value_type(value):
-    return type(value) == int or type(value) == float or type(value) == bool
+    return type(value) == int or type(value) == float \
+           or type(value) == bool or value is None
 
 
 # Helper method for printing out dictionary as a json string to user
@@ -425,6 +447,7 @@ def check_value_type(value):
 # @param row1 hold the values for output column three
 # @param rows2 counter for number of rows
 def print_output_from_rows(col1, col2, col3, rows):
+    global TestOutput, FinalOutput
     spaces1 = len(max(col1, key=len))
     spaces2 = len(max(col2, key=len))
 
@@ -433,6 +456,12 @@ def print_output_from_rows(col1, col2, col3, rows):
               + col2[k].ljust(spaces2) + ' ' * 4 \
               + col3[k].ljust(spaces2)
         if k == rows - 1:
-            print(out.rstrip() + '}')
+            if test:
+                TestOutput.append(out.rstrip() + '}')
+            else:
+                FinalOutput += (out.rstrip() + '}\n')
         else:
-            print(out.rstrip())
+            if test:
+                TestOutput.append(out.rstrip())
+            else:
+                FinalOutput += (out.rstrip() + '\n')
