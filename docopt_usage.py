@@ -27,18 +27,6 @@ class Token:
     def __repr__(self):
         return self.txt
 
-class Option:
-    def __init__(self, text, argument, length):
-        self.txt = text
-        self.arg = argument
-        self.length = length
-
-    def __str__(self):
-        if self.arg is not None:
-            return "Option: " + self.txt + "\tArgument: " + self.arg + "\tLength: " + self.length
-        else:
-            return "Option: " + self.txt + "\tLength: " + self.length
-
 # Split token by '|' into two mutually exclusive Token objects
 def splitToken(token):
     rawSplit = token.txt.split('|')
@@ -49,6 +37,7 @@ def splitToken(token):
         # Create first Token object
         if index == 0:
             tokenObj = Token(x, token.l, None, None)
+            tokenObj.isReq = token.isReq
             res.append(tokenObj)
 
         # Create rest of the Token objects
@@ -57,7 +46,8 @@ def splitToken(token):
                 tokenObj = Token(x, res[index], None, None)
             else:
                 tokenObj = Token(x, res[index], token.r, None)
-            res.append(tokenObj)       # NEW LINE   
+            tokenObj.isReq = token.isReq
+            res.append(tokenObj)  
             res[index].r = tokenObj     # Link previous token to new token
             index += 1
         
@@ -93,30 +83,8 @@ def convertTokens(pattern, name):
                 index += 1
     return tokenObjs
 
-# Returns a list of mutually exclusive elements taken from tokens
-# Elements in the returned list may be Tokens or lists of Tokens
-def getMutex(tokens):
-    mutex = []
-    for token in tokens:
-            if type(token) is Token:
-                if '|' in token.txt:
-                    token = splitToken(token)
-                    mutex.append(token)
-            else:
-                if type(token) is list:
-                    found = False
-                    for t in token:
-                        if t.txt == '|':
-                            found = True
-                            index = token.index(t)
-                            break
-                    if found:
-                        token.remove(token[index])
-                        mutex.append(token)
-    return mutex
-
 # Sets type attribute for all argument tokens to Argument
-def getArgs(tokens):
+def parseArgs(tokens):
     for token in tokens:
         if token.txt.startswith('<') is True and token.txt.endswith('>') is True:
             token.type = "Argument"
@@ -124,31 +92,14 @@ def getArgs(tokens):
             if token.txt.isupper():
                 token.type = "Argument"
 
-# Returns a list of Option objects extracted from tokens
-def getOptions(tokens):
-    options = []
+# Sets type attribute for all option tokens to Option
+def parseOptions(tokens):
     for token in tokens:
-        argument = None
-        if token.txt.startswith('--') is True:
-            # Handle long option
-            # If option has an argument
+        if token.txt.startswith('-') is True:
             token.type = "Option"
-            if '=' in token.txt:
-                index = token.txt.index('=')
-                argument = token.txt[index+2 : len(token.txt)-1]
-                options.append(Option(token.txt[:index], argument, "LONG"))
-            else:
-                options.append(Option(token.txt, argument, "LONG"))
-                
-        else:
-            if token.txt.startswith('-') is True:
-                # Handle short option
-                options.append(Option(token.txt, argument, "SHORT"))
-                token.type = "Option"
-    return options
 
-# Sets type attribute for all 
-def getCommands(tokens):
+# Sets type attribute for all command tokens to Command
+def parseCommands(tokens):
     commands = []
     for token in tokens:
         # Ignore lone '|' tokens
@@ -159,31 +110,32 @@ def getCommands(tokens):
                     token.type = "Command"
     return commands
 
-def getOneOrMore(tokens):
-    oneOrMore = []
-    for token in tokens:
-        # If ellipsis occurs in its own token
-        if token.txt == '...':
-            oneOrMore.append(token.l.txt)
-        else:
-            # If ellipsis occurs in same token as another element
-            if '...' in token.txt:
-                index = token.txt.index('...')
-                oneOrMore.append(token.txt[:index].strip("<>")) # Append part of token that does not include ellipsis
-    return oneOrMore
+# Handle mutex tokens
+# Replace tokens containing mutex elements with a single list of mutex tokens
+# Ex: "[--moored | --drifting]" gets replaced with [[--moored, --drifting]]
+def parseMutex(tokenObjs):
+    for index, token in enumerate(tokenObjs):
+        if token.txt == '|':
+            tokenObjs[index-1] = [token.l, token.r]
+            tokenObjs.remove(token.r)
+            tokenObjs.remove(token)
+        elif '|' in token.txt:
+            tokenObjs[index] = splitToken(token)
 
-def printElements(args, options, commands, count):
-    print(f"---------- Pattern {count+1} ----------\n")
-    print("Arguments:", end=" ")
-    for arg in args:
-        print(arg, end="\t")
-    print("\nOptions:\n----------------------")
-    for option in options:
-        print(option)
-    print("Commands:", end=" ")
-    for command in commands:
-        print(command, end="\t")
-    print("\n\n")
+# Populate Usage_dic with default argument and command values
+def buildUsageDic(tokenObjs):
+    for token in tokenObjs:
+        if type(token) is list:
+            for t in token:
+                if t.type == "Argument":
+                    Usage_dic[t.txt.strip("<>")] = None
+                elif t.type == "Command":
+                    Usage_dic[t.txt] = False
+        else:
+            if token.type == "Argument":
+                Usage_dic[token.txt.strip("<>")] = None
+            if token.type == "Command":
+                Usage_dic[token.txt] = False
 
 def dictionary_builder(name, version, usage, options):
     global Name
@@ -246,7 +198,6 @@ def process_Paren(tokens, open):
                 requiredTokens.append(token)
 
             else:
-
                 token.isReq = isReq
                 tempRequired = [token]
                 token = token.r
@@ -272,7 +223,7 @@ def parse_usage():
     name = s[2]
     
     # Parse each pattern in Usages
-    for count, pattern in enumerate(Usages):
+    for pattern in Usages:
 
         # Convert tokens in pattern to a linked list
         tokenObjs = convertTokens(pattern, name)
@@ -282,51 +233,48 @@ def parse_usage():
 
         # Process optional tokens
         process_Paren(tokenObjs, '[')
-        
-        # Get arguments
-        getArgs(tokenObjs)
 
-        # Get options
-        getOptions(tokenObjs)
+        parseArgs(tokenObjs)
 
-        # Get commands
-        getCommands(tokenObjs)
+        parseOptions(tokenObjs)
 
-        
-        # Handle mutex tokens
-        # Replace tokens containing mutex elements with a single list of mutex tokens
-        # Ex: [--moored | --drifting] gets replaced with [[--moored, --drifting]]
-        for index, token in enumerate(tokenObjs):
-            if token.txt == '|':
-                tokenObjs[index-1] = [token.l, token.r]
-                tokenObjs.remove(token.r)
-                tokenObjs.remove(token)
-            elif '|' in token.txt:
-                tokenObjs[index] = splitToken(token)
+        parseCommands(tokenObjs)
 
-        # Populate Usage_dic with default argument and command values
-        for token in tokenObjs:
-            if type(token) is list:
-                for t in token:
-                    if t.type == "Argument":
-                        Usage_dic[t.txt.strip("<>")] = None
-                    elif t.type == "Command":
-                        Usage_dic[t.txt] = False
-            else:
-                if token.type == "Argument":
-                    Usage_dic[token.txt.strip("<>")] = None
-                if token.type == "Command":
-                    Usage_dic[token.txt] = False
+        # Handle mutually exclusive elements
+        parseMutex(tokenObjs)
+
+        # Build the usage dic using finalized token objects
+        buildUsageDic(tokenObjs)
             
-
+        # Append the finalized token list to the list of patterns
         Patterns.append(tokenObjs)
 
+def checkMutex(index, token):
+    foundConflict = False
+    if type(token) is list:
+        if token[0].isReq is False and index >= len(Arguments):
+            Arguments.insert(index, "None")
+        foundMutexMatch = False
+        for t in token:
+            # Check if token is optional
+            if t.isReq is False:
+                foundMutexMatch = True  # Bypass check later on
+                break
+            if Arguments[index] == t.txt:
+                foundMutexMatch = True
 
-        # Print args, options, and commands for each pattern
-        #printElements(args, options, commands, count)
-        
-
-
+                # Check if next input token is also in mutex list
+                if index+1 < len(Arguments):
+                    if any(n.txt == Arguments[index+1] for n in token):
+                        foundConflict = True
+                break
+        if foundMutexMatch is False:
+            if token[0].isReq is True:
+                foundConflict = True
+            else:
+                Arguments.insert(index, "None")
+            foundConflict = True
+    return foundConflict
 
 def docopt(doc, argv=None, help_message=True, version=None):
     Arguments.extend(sys.argv[1:])
@@ -335,8 +283,9 @@ def docopt(doc, argv=None, help_message=True, version=None):
 
     patternToUse = None
 
+    # Explore each pattern to determine which one matches the input
     for num, p in enumerate(Patterns):
-        foundConflict = False
+        foundConflict = False   # Used to check if the pattern does not match, success if foundConflict remains False
 
         # Determine if too few input tokens for a pattern p, skip p if true
         if len(Arguments) < len(p):
@@ -352,48 +301,29 @@ def docopt(doc, argv=None, help_message=True, version=None):
             if tooFew is True:
                 continue
 
+        # Skip if too many input tokens than tokens in the pattern
+        if len(Arguments) > len(p):
+            continue
+
         for index, token in enumerate(p):
 
-            if index >= len(Arguments):
-                inputToken = None
-            else:
-                inputToken = Arguments[index]
-            #print(f"Pattern #{num}: PToken: {token} InputToken: {inputToken}")
-
-            # Skip if too many input tokens than tokens in the pattern
-            if len(Arguments) > len(p):
-                foundConflict = True
-                break
+            #if index >= len(Arguments):
+                #inputToken = None
+            #else:
+                #inputToken = Arguments[index]
+            #print(f"Pattern #{num}: PToken: {token} InputToken: {inputToken}")'''
             
-            # Handle mutex tokens, input token must match only one of them
             if type(token) is list:
-                foundMutexMatch = False
-                for t in token:
-                    # Check if token is optional
-                    if t.isReq is False:
-                        foundMutexMatch = True  # Bypass check later on
-                        break
-                    if Arguments[index] == t.txt:
-                        foundMutexMatch = True
-
-                        # Check if next input token is also in mutex list
-                        if index+1 < len(Arguments):
-                            if any(n.txt == Arguments[index+1] for n in token):
-                                foundConflict = True
-                        break
-                if foundMutexMatch is False:
-                    if token[0].isReq is True:
-                        foundConflict = True
-                        break
-                    else:
-                        Arguments.insert(index, "None")
-                        continue
-                    foundConflict = True
+                foundConflict = checkMutex(index, token)
+                if foundConflict is True:
+                    break
             
-            # If input doesn't contain an optional token
+            # Check if input doesn't contain trailing optional token
             elif token.isReq is False and index >= len(Arguments):
+                Arguments.insert(index, "None")
                 continue
 
+            
             # If pattern token is a command, check if input token matches
             elif token.type == "Command":
                 if Arguments[index] == token.txt:
@@ -427,7 +357,6 @@ def docopt(doc, argv=None, help_message=True, version=None):
             break
 
     
-    # ERROR TO FIX: OPTIONAL MUTEX COMMANDS IN MIDDLE OF PATTERN
     if patternToUse is not None:
         # Fill Usage_dic with appropriate values
         for index, token in enumerate(Patterns[patternToUse]):
