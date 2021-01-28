@@ -27,7 +27,7 @@ Dictionary = {}
 FinalOutput = ""
 # These two variable is built for testing purposes
 TestOutput = []
-test = False
+test = True
 
 
 #########################################################################
@@ -61,6 +61,11 @@ def docopt(doc, argv=None, help_message=True, version=None):
 def processing_string(doc, help_message, version):
     usage = ""
     options = ""
+
+    if doc is None:
+        warnings.warn('No docstring found')
+        return
+
     partition_string = doc.strip().split('\n\n')
     name = partition_string[0]
     if "Usage:" in name:
@@ -166,10 +171,7 @@ def check_option_lines():
         old_key = None
 
         for count in range(len(tmp_array)):
-            if tmp_array[count][:2] == '--':
-                old_key = process_options(tmp_array, count, found, old_key)
-                found = True
-            elif tmp_array[count][:1] == '-':
+            if tmp_array[count][:1] == '-':
                 old_key = process_options(tmp_array, count, found, old_key)
                 found = True
         find_default_value(line, old_key)
@@ -450,18 +452,15 @@ def print_output_from_rows(col1, col2, col3, rows):
     global TestOutput, FinalOutput
     spaces1 = len(max(col1, key=len))
     spaces2 = len(max(col2, key=len))
-
+    if test:
+        TestOutput = col1 + col2 + col3
     for k in range(rows):
         out = col1[k].ljust(spaces1) + ' ' * 4 \
               + col2[k].ljust(spaces2) + ' ' * 4 \
               + col3[k].ljust(spaces2)
         if k == rows - 1:
-            if test:
-                TestOutput.append(out.rstrip() + '}')
-            else:
+            if not test:
                 FinalOutput += (out.rstrip() + '}\n')
         else:
-            if test:
-                TestOutput.append(out.rstrip())
-            else:
+            if not test:
                 FinalOutput += (out.rstrip() + '\n')
