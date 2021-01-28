@@ -216,6 +216,9 @@ def process_Paren(tokens, open):
                     warnings.warn("Could not find closed paren or bracket.")
     return requiredTokens
 
+# Examine each usage pattern and label each token appropriately (argument, option, or command; optional or required)
+# Builds Usage_dic using these Token objects
+# Fills Patterns global object with finalized lists of tokens
 def parse_usage():
     # Extract program name
     Usages.pop(0)
@@ -249,6 +252,8 @@ def parse_usage():
         # Append the finalized token list to the list of patterns
         Patterns.append(tokenObjs)
 
+# Check if input token matches one (and only one) of the mutually exclusive tokens
+# Returns true if a conflict is found, false otherwise
 def checkMutex(index, token):
     foundConflict = False
     if type(token) is list:
@@ -276,87 +281,93 @@ def checkMutex(index, token):
             foundConflict = True
     return foundConflict
 
-def docopt(doc, argv=None, help_message=True, version=None):
-    Arguments.extend(sys.argv[1:])
-    processing_string(doc, help_message, version)
-    parse_usage()
+# Check individual arg, command, and optional tokens for a match with corresponding input token
+# Returns true if a conflict is found, false otherwise
+def checkTokens(index, token):
+    foundConflict = False
+    # Handle missing optional arguments
+    if token.type == "Argument" and token.isReq is False:
+        if Arguments[index] == (token.r.txt if type(token.r) is Token else token.r[0].txt):
+            Arguments.insert(index, "None")
+            
+    # If pattern token is a command, check if input token matches
+    elif token.type == "Command":
+        if Arguments[index] != token.txt:
+            # Ignore if optional, break if required
+            if token.isReq is True:
+                foundConflict = True
+            else:
+                Arguments.insert(index, "None")
 
+    # If pattern token is an option, check if input token matches
+    elif token.type == "Option":
+        inputToken = Arguments[index]
+        pToken = token.txt
+        # Ignore option arguments
+        if '=' in Arguments[index] and '=' in token.txt:
+            inputToken = Arguments[index][:Arguments[index].find('=')]
+            pToken = pToken[:pToken.find('=')]
+        if inputToken != pToken:
+            # Ignore if optional, break if required
+            if token.isReq is True:
+                foundConflict = True
+            else:
+                Arguments.insert(index, "None")
+    return foundConflict
+
+# Compare input tokens with a Usage pattern p, return True if a conflict is found, False otherwise
+def findConflict(p):
+    foundConflict = False   # Used to check if the pattern does not match, success if foundConflict remains False
+    for index, token in enumerate(p): 
+
+        if type(token) is list:
+            foundConflict = checkMutex(index, token)
+            if foundConflict is True:
+                break
+            
+        # Check if input doesn't contain trailing optional token
+        elif token.isReq is False and index >= len(Arguments):
+            Arguments.insert(index, "None")
+            continue
+
+        else:
+            foundConflict = checkTokens(index, token)
+            if foundConflict is True:
+                break
+
+    return foundConflict
+
+# Examines each Usage pattern and returns index of first match found
+# If no match found, function returns None
+def findMatchingPattern():
     patternToUse = None
 
     # Explore each pattern to determine which one matches the input
     for num, p in enumerate(Patterns):
-        foundConflict = False   # Used to check if the pattern does not match, success if foundConflict remains False
 
-        # Determine if too few input tokens for a pattern p, skip p if true
-        if len(Arguments) < len(p):
-            tooFew = True
-            for token in p:
-                # check for optional tokens whether token is a Token or a list
-                if type(token) is list:
-                    if token[0].isReq is False:
-                        tooFew = False
-                else:
-                    if token.isReq is False:
-                        tooFew = False
-            if tooFew is True:
-                continue
+        numReq = 0
+        # Get number of req tokens for each pattern
+        for t in p:
+            if type(t) is Token:
+                if t.isReq is True:
+                    numReq += 1
+            else:
+                if t[0].isReq is True:
+                    numReq += 1
 
-        # Skip if too many input tokens than tokens in the pattern
+        if len(Arguments) < numReq:
+            continue
+
+        # Skip if more input tokens than tokens in the pattern
         if len(Arguments) > len(p):
             continue
 
-        for index, token in enumerate(p):
-
-            #if index >= len(Arguments):
-                #inputToken = None
-            #else:
-                #inputToken = Arguments[index]
-            #print(f"Pattern #{num}: PToken: {token} InputToken: {inputToken}")'''
-            
-            if type(token) is list:
-                foundConflict = checkMutex(index, token)
-                if foundConflict is True:
-                    break
-            
-            # Check if input doesn't contain trailing optional token
-            elif token.isReq is False and index >= len(Arguments):
-                Arguments.insert(index, "None")
-                continue
-
-            
-            # If pattern token is a command, check if input token matches
-            elif token.type == "Command":
-                if Arguments[index] == token.txt:
-                    continue
-                else:
-                    if token.isReq is True:
-                        foundConflict = True
-                        break
-                    else:
-                        Arguments.insert(index, "None")
-                        continue
-
-            # If pattern token is an option, check if input token matches
-            elif token.type == "Option":
-                inputToken = Arguments[index]
-                pToken = token.txt
-                # Ignore option arguments
-                if '=' in Arguments[index] and '=' in token.txt:
-                    inputToken = Arguments[index][:Arguments[index].find('=')]
-                    pToken = pToken[:pToken.find('=')]
-                if inputToken != pToken:
-                    if token.isReq is True:
-                        foundConflict = True
-                        break
-                    else:
-                        Arguments.insert(index, "None")
-                        continue
-
-        if foundConflict is False:
+        if findConflict(p) is False:
             patternToUse = num
             break
+    return patternToUse
 
-    
+def populateUsageDic(patternToUse):
     if patternToUse is not None:
         # Fill Usage_dic with appropriate values
         for index, token in enumerate(Patterns[patternToUse]):
@@ -373,6 +384,14 @@ def docopt(doc, argv=None, help_message=True, version=None):
         print(Usage_dic)
     else:
         print("No pattern found")
+
+def docopt(doc, argv=None, help_message=True, version=None):
+    Arguments.extend(sys.argv[1:])
+    processing_string(doc, help_message, version)
+
+    parse_usage()
+    patternToUse = findMatchingPattern()  
+    populateUsageDic(patternToUse)
     
 
     return doc
