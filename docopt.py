@@ -6,28 +6,7 @@ import sys
 import re
 import math
 
-# A global variable for storing the name of the user project
-Name = ""
-# A global variable for storing the version of the user project
-Version = ""
-# A global array for storing the usage paragraphs line by line
-Usages = []
-# A global array for storing the options paragraphs line by line
-Options = []
-# A global array for storing the arguments that passed by the user command line
-Arguments = []
-# A global dictionary for storing the key and value for the usages in docstring
-Usage_dic = {}
-# A global dictionary for storing the key and value for the options in docstring
-Options_dic = {}
-# A global dictionary for the final output dictionary
-# that contains both usages and options
-Dictionary = {}
-# A global variable that holds the output dictionary to user
-FinalOutput = ""
-# These two variable is built for testing purposes
-TestOutput = []
-test = True
+TEST = False
 
 
 #########################################################################
@@ -41,14 +20,10 @@ test = True
 # @param version programmers can specify the version of
 # the project and display to user
 def docopt(doc, argv=None, help_message=True, version=None):
-    Arguments.extend(sys.argv)
-    processing_string(doc, help_message, version)
-    options_parser(argv)
-    printing_output_dictionary()
-    if test:
-        return TestOutput
-    else:
-        return FinalOutput
+    usages, options = processing_string(doc, help_message, version)
+    options_dic = options_parser(argv, sys.argv, options)
+    usage_dic = []
+    return printing_output_dictionary(usage_dic, options_dic)
 
 
 #####################################################################
@@ -59,13 +34,20 @@ def docopt(doc, argv=None, help_message=True, version=None):
 # display help message when the program executes
 # @param version The version string pass from main function
 def processing_string(doc, help_message, version):
-    usage = ""
-    options = ""
-
     if doc is None:
         warnings.warn('No docstring found')
         return
+    name, usage, options = get_usage_and_options(doc)
+    check_warnings(usage, options)
+    if help_message:
+        print_help(name, version, usage, options)
+    return usage.split("\n"), options.split("\n")
 
+
+# Helper function for getting usage, options and name strings from doc
+def get_usage_and_options(doc):
+    usage = ""
+    options = ""
     partition_string = doc.strip().split('\n\n')
     name = partition_string[0]
     if "Usage:" in name:
@@ -85,26 +67,7 @@ def processing_string(doc, help_message, version):
         for i in range(2, len(partition_string)):
             if len(partition_string[i]) > 0:
                 options = partition_string[i].strip()
-
-    check_warnings(usage, options)
-    if help_message:
-        print_help(name, version, usage, options)
-    dictionary_builder(name, version, usage, options)
-
-
-# Function for building an array for usages, options from docstring
-# and gets the name and version from docstring.
-# @param name the project name specify in the docstring
-# @param version the version passed from the main function
-# @param usage a string that retrieve from the docstring
-# @param options a string that retrieve from the docstring
-def dictionary_builder(name, version, usage, options):
-    global Name
-    global Version
-    Name = name
-    Version = version
-    Usages.extend(usage.split("\n"))
-    Options.extend(options.split("\n"))
+    return name, usage, options
 
 
 # Function for testing whether the docstring contains
@@ -139,49 +102,47 @@ def print_help(name, version, usage, options):
 ####################################################################
 ###################################################################
 # Main function for checking options
-def options_parser(argv):
-    check_option_lines()
-    global Options_dic
+def options_parser(argv, user_argv, options):
+    options_dic = check_option_lines(options)
     if argv is not None:
-        Options_dic = test_options(Options_dic, argv, False)
-        # if not test:
-        #     print("This is a option dictionary before user command line "
-        #           "(but includes programmer's default arguments):")
-        #     print(Options_dic)
-        #     print("=" * len(str(Options_dic)))
-        #     print("=" * len(str(Options_dic)))
-    Options_dic = building_output_options_dictionary()
-    # print("This is a option dictionary after user command line:")
+        output_dic = options_dic.copy()
+        options_dic = test_options(output_dic, options_dic, argv, False)
+    return building_output_options_dictionary(user_argv, options_dic)
 
 
 # Process options from docstring, treat lines that
 # starts with '-' or '--' as options
-def check_option_lines():
-    for line in Options:
+def check_option_lines(options):
+    options_dic = {}
+    for line in options:
         tmp_array = line.split()
         # Skip the line that is not starts with '-' or '--'
         if len(tmp_array) > 0 and tmp_array[0].strip()[:1] != '-':
             continue
 
-        # This value will set to ture if a keyword for a option command is
-        # found and inserted into the dictionary
         found = False
-        # This key will keep updating while there is more keyword choices
-        # for the same option command
         old_key = None
-
         for count in range(len(tmp_array)):
             if tmp_array[count][:1] == '-':
-                old_key = process_options(tmp_array, count, found, old_key)
+                if not found:
+                    old_key, tmp_dic = check_first_option(tmp_array, count)
+                    options_dic.update(tmp_dic)
+                else:
+                    old_key, new_key = check_other_option(tmp_array, count, old_key)
+                    # This line is for updating the key in the option dictionary
+                    options_dic = {key if key != old_key else new_key: value for key, value in
+                                   options_dic.items()}
+                    old_key = new_key
                 found = True
-        find_default_value(line, old_key)
+        options_dic = find_default_value(line, old_key, options_dic)
+    return options_dic
 
 
 # A function for finding whether the current line of option has
 # a default value that specify by the programmer
 # @param line a string that holds the current line
 # @param old_key a string that holds the current key for the options dictionary
-def find_default_value(line, old_key):
+def find_default_value(line, old_key, options_dic):
     default_value = line[line.find("[") + 1:line.find("]")]
     if default_value is not None:
         default_value.strip()
@@ -197,23 +158,8 @@ def find_default_value(line, old_key):
                     tmp_dic = {old_key: float(default_value.split()[1])}
                 except ValueError:
                     tmp_dic = {old_key: default_value.split()[1]}
-            Options_dic.update(tmp_dic)
-
-
-# Check if the option dictionary already exists the same option
-# (different keyword but same option command e.g."-h --help")
-# @param tmp_array the current checking line from options in the docstring
-# @param count specify the location of array for the string
-# that is split by space
-# @param found a boolean to show whether the keyword for command
-# is exists in the dictionary already
-# @param old_key the current key string in options dictionary
-# @return return the current new key for the dictionary for the current line
-def process_options(tmp_array, count, found, old_key):
-    if not found:
-        return check_first_option(tmp_array, count)
-    else:
-        return check_other_option(tmp_array, count, old_key)
+            options_dic.update(tmp_dic)
+        return options_dic
 
 
 # Insert the option into dictionary with no same option command
@@ -236,8 +182,7 @@ def check_first_option(tmp_array, count):
         old_key = tmp_array[count]
         tmp_dic = {old_key: False}
 
-    Options_dic.update(tmp_dic)
-    return old_key
+    return old_key, tmp_dic
 
 
 # Insert the option into dictionary with same option command
@@ -250,8 +195,6 @@ def check_first_option(tmp_array, count):
 # in options dictionary
 # @return return the current new key for the dictionary for the current line
 def check_other_option(tmp_array, count, old_key):
-    global Options_dic
-
     if '=' in tmp_array[count]:
         new_key = old_key + " " + tmp_array[count]
     elif len(tmp_array) > count + 1 and tmp_array[count + 1].isupper():
@@ -263,10 +206,7 @@ def check_other_option(tmp_array, count, old_key):
     else:
         new_key = old_key + " " + tmp_array[count]
 
-    # This line is for updating the key in the option dictionary
-    Options_dic = {key if key != old_key else new_key: value for key, value in
-                   Options_dic.items()}
-    return new_key
+    return old_key, new_key
 
 
 # Update the options dictionary with new value according to user arguments,
@@ -274,9 +214,9 @@ def check_other_option(tmp_array, count, old_key):
 # after the new dictionary is built
 # @return return the new dictionary and set values according
 # to the user command line
-def building_output_options_dictionary():
-    output_dic = Options_dic.copy()
-    output_dic = test_options(output_dic, Arguments, True)
+def building_output_options_dictionary(user_argv, options_dic):
+    output_dic = options_dic.copy()
+    output_dic = test_options(output_dic, options_dic, user_argv, True)
     for k in list(output_dic):
         if ' ' in k:
             put = sorted(k.split(), key=len, reverse=True)[0]
@@ -296,13 +236,13 @@ def building_output_options_dictionary():
 # the argument has a value (contains a equals sign)
 # @param output_dic a copy of the options dic
 # @return return the updated output_dic according to the user arguments
-def test_options(output_dic, arguments, remove_duplicate):
+def test_options(output_dic, options_dic, arguments, remove_duplicate):
     for e in arguments:
         ne = e.strip()
         if ne[:1] == "-" and '=' not in ne:
-            output_dic = check_keys(ne, False, output_dic, remove_duplicate)
+            output_dic = check_keys(ne, False, output_dic, options_dic, remove_duplicate)
         elif ne[:1] == "-" and '=' in ne:
-            output_dic = check_keys(ne, True, output_dic, remove_duplicate)
+            output_dic = check_keys(ne, True, output_dic, options_dic, remove_duplicate)
         else:
             continue
     return output_dic
@@ -320,12 +260,12 @@ def test_options(output_dic, arguments, remove_duplicate):
 # duplicate keyword for options
 # @return returns a updated value dictionary according the arguments
 # in the user command line
-def check_keys(element, is_contain_equal, output_dic, remove_duplicate):
+def check_keys(element, is_contain_equal, output_dic, options_dic, remove_duplicate):
     if not is_contain_equal:
-        output_dic = check_key_without_equal(element, remove_duplicate,
+        output_dic = check_key_without_equal(element, remove_duplicate, options_dic,
                                              output_dic)
     else:
-        output_dic = check_key_contain_equal(element, remove_duplicate,
+        output_dic = check_key_contain_equal(element, remove_duplicate, options_dic,
                                              output_dic)
     return output_dic
 
@@ -337,8 +277,8 @@ def check_keys(element, is_contain_equal, output_dic, remove_duplicate):
 # duplicate keyword for options
 # @return returns a updated value dictionary according the arguments
 # in the user command line
-def check_key_without_equal(element, remove_duplicate, output_dic):
-    for k in Options_dic:
+def check_key_without_equal(element, remove_duplicate, options_dic, output_dic):
+    for k in options_dic:
         put = sorted(k.split(), key=len, reverse=True)
         if element in put:
             if remove_duplicate:
@@ -358,8 +298,8 @@ def check_key_without_equal(element, remove_duplicate, output_dic):
 # duplicate keyword for options
 # @return returns a updated value dictionary according the arguments
 # in the user command line
-def check_key_contain_equal(element, remove_duplicate, output_dic):
-    for k in Options_dic:
+def check_key_contain_equal(element, remove_duplicate, options_dic, output_dic):
+    for k in options_dic:
         if '=' in k:
             put = sorted(k.split(), key=len, reverse=True)
             for tmp in put:
@@ -389,36 +329,37 @@ def check_key_contain_equal(element, remove_duplicate, output_dic):
 #  '<x>': '100',           'shoot': False,
 #  '<y>': '150'}
 #  print('We are the {} who say "{}!"'.format('knights', 'Ni'))
-def printing_output_dictionary():
-    Dictionary.update(Usage_dic)
-    Dictionary.update(Options_dic)
-    dic_list = list(Dictionary)
-    length = len(Dictionary)
+def printing_output_dictionary(usage_dic, options_dic):
+    dictionary_total = {}
+    dictionary_total.update(usage_dic)
+    dictionary_total.update(options_dic)
+    dic_list = list(dictionary_total)
+    length = len(dictionary_total)
     if length > 24:
         rows = math.ceil(length / 3)
     else:
         rows = 8
-    output_formatter(rows, length, dic_list)
+    return output_formatter(rows, length, dic_list, dictionary_total)
 
 
 # A helper function for display a nice looking dictionary to the user
 # @param rows count for how many rows I need
 # @param length the total length for the output usage and options dictionary
 # @param dic_list reformat the dictionary into a array
-def output_formatter(rows, length, dic_list):
+def output_formatter(rows, length, dic_list, dictionary_total):
     col1 = [' '] * rows
     col2 = [' '] * rows
     col3 = [' '] * rows
     col1[0] = '{'
     for i in range(0, rows):
         if length > i:
-            col1[i] += insert_content(dic_list, i, rows, 0)
+            col1[i] += insert_content(dic_list, i, rows, 0, dictionary_total)
         if length > i + rows:
-            col2[i] += insert_content(dic_list, i, rows, 1)
+            col2[i] += insert_content(dic_list, i, rows, 1, dictionary_total)
         if length > i + (2 * rows):
-            col3[i] += insert_content(dic_list, i, rows, 2)
+            col3[i] += insert_content(dic_list, i, rows, 2, dictionary_total)
 
-    print_output_from_rows(col1, col2, col3, rows)
+    return print_output_from_rows(col1, col2, col3, rows)
 
 
 # Helper function for inserting the key value pairs into output dictionary
@@ -427,13 +368,13 @@ def output_formatter(rows, length, dic_list):
 # @param rows count of the rows
 # @col_idx index of the col
 # @return return the key value pair in a outputting form according to the type of values
-def insert_content(dic_list, idx, rows, col_idx):
-    if check_value_type(Dictionary[dic_list[idx + (col_idx * rows)]]):
+def insert_content(dic_list, idx, rows, col_idx, dictionary_total):
+    if check_value_type(dictionary_total[dic_list[idx + (col_idx * rows)]]):
         return '\'{}\': {}'.format(dic_list[idx + (col_idx * rows)],
-                                   Dictionary[dic_list[idx + (col_idx * rows)]])
+                                   dictionary_total[dic_list[idx + (col_idx * rows)]])
     else:
         return '\'{}\': \'{}\''.format(dic_list[idx + (col_idx * rows)],
-                                       Dictionary[dic_list[idx + (col_idx * rows)]])
+                                       dictionary_total[dic_list[idx + (col_idx * rows)]])
 
 
 # Helper method for defining whether the value is a string or a primitive type
@@ -449,18 +390,18 @@ def check_value_type(value):
 # @param row1 hold the values for output column three
 # @param rows2 counter for number of rows
 def print_output_from_rows(col1, col2, col3, rows):
-    global TestOutput, FinalOutput
     spaces1 = len(max(col1, key=len))
     spaces2 = len(max(col2, key=len))
-    if test:
-        TestOutput = col1 + col2 + col3
+    if TEST:
+        return col1 + col2 + col3
+    final_output = ""
     for k in range(rows):
         out = col1[k].ljust(spaces1) + ' ' * 4 \
               + col2[k].ljust(spaces2) + ' ' * 4 \
               + col3[k].ljust(spaces2)
-        if k == rows - 1:
-            if not test:
-                FinalOutput += (out.rstrip() + '}\n')
-        else:
-            if not test:
-                FinalOutput += (out.rstrip() + '\n')
+        if not TEST:
+            if k == rows - 1:
+                final_output += (out.rstrip() + '}\n')
+            else:
+                final_output += (out.rstrip() + '\n')
+    return final_output
