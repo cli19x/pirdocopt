@@ -23,7 +23,7 @@ def docopt(doc, argv=None, help_message=True, version=None):
     usages, options = processing_string(doc, help_message, version)
     options_dic = options_parser(argv, sys.argv, options)
     usage_dic = []
-    return printing_output_dictionary(usage_dic, options_dic)
+    return print_output_dictionary(usage_dic, options_dic)
 
 
 #####################################################################
@@ -40,7 +40,7 @@ def processing_string(doc, help_message, version):
     name, usage, options = get_usage_and_options(doc)
     check_warnings(usage, options)
     if help_message:
-        print_help(name, version, usage, options)
+        print(show_help(name, version, usage, options))
     return usage.split("\n"), options.split("\n")
 
 
@@ -78,8 +78,11 @@ def get_usage_and_options(doc):
 def check_warnings(usage, options):
     if len(usage) == 0:
         warnings.warn('No usage indicated from docstring')
+        return 1
     if len(options) == 0:
         warnings.warn('No options indicated from docstring')
+        return 2
+    return 0
 
 
 # This function will be involved when user program specify help=True.
@@ -88,7 +91,7 @@ def check_warnings(usage, options):
 # @param version version information that retrieve from the docstring
 # @param usage usage string that retrieve from the docstring
 # @param options options string that retrieve from the docstring
-def print_help(name, version, usage, options):
+def show_help(name, version, usage, options):
     output = ""
     if len(name) > 0:
         output += name + "\n\n"
@@ -96,7 +99,7 @@ def print_help(name, version, usage, options):
         output += "Version:\n  " + version + "\n\n"
     output += usage + "\n\n"
     output += options + "\n\n"
-    print(output)
+    return output
 
 
 ####################################################################
@@ -106,8 +109,8 @@ def options_parser(argv, user_argv, options):
     options_dic = check_option_lines(options)
     if argv is not None:
         output_dic = options_dic.copy()
-        options_dic = test_options(output_dic, options_dic, argv, False)
-    return building_output_options_dictionary(user_argv, options_dic)
+        options_dic = check_option_contain_value(output_dic, options_dic, argv, False)
+    return build_output_options_dictionary(user_argv, options_dic)
 
 
 # Process options from docstring, treat lines that
@@ -214,9 +217,9 @@ def check_other_option(tmp_array, count, old_key):
 # after the new dictionary is built
 # @return return the new dictionary and set values according
 # to the user command line
-def building_output_options_dictionary(user_argv, options_dic):
+def build_output_options_dictionary(user_argv, options_dic):
     output_dic = options_dic.copy()
-    output_dic = test_options(output_dic, options_dic, user_argv, True)
+    output_dic = check_option_contain_value(output_dic, options_dic, user_argv, True)
     for k in list(output_dic):
         if ' ' in k:
             put = sorted(k.split(), key=len, reverse=True)[0]
@@ -236,7 +239,7 @@ def building_output_options_dictionary(user_argv, options_dic):
 # the argument has a value (contains a equals sign)
 # @param output_dic a copy of the options dic
 # @return return the updated output_dic according to the user arguments
-def test_options(output_dic, options_dic, arguments, remove_duplicate):
+def check_option_contain_value(output_dic, options_dic, arguments, remove_duplicate):
     for e in arguments:
         ne = e.strip()
         if ne[:1] == "-" and '=' not in ne:
@@ -329,7 +332,7 @@ def check_key_contain_equal(element, remove_duplicate, options_dic, output_dic):
 #  '<x>': '100',           'shoot': False,
 #  '<y>': '150'}
 #  print('We are the {} who say "{}!"'.format('knights', 'Ni'))
-def printing_output_dictionary(usage_dic, options_dic):
+def print_output_dictionary(usage_dic, options_dic):
     dictionary_total = {}
     dictionary_total.update(usage_dic)
     dictionary_total.update(options_dic)
