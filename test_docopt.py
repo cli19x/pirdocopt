@@ -28,7 +28,39 @@ Options:
 
 """
 
+name = """Perfect"""
 
+usage = """
+Usage:
+  naval_fate.py ship new <name>...
+  naval_fate.py ship <name> move <x> <y> [--speed=<kn>]
+  naval_fate.py ship shoot <x> <y>
+  naval_fate.py mine (set|remove) <x> <y> [--moored | --drifting]
+  naval_fate.py (-h | --help)
+  naval_fate.py --version
+"""
+
+options = """
+Options:
+  -h --help --helping --haha -hhh --ooooo  Show this screen.
+  --sorted  Show sorted.
+  -o FILE --output=<file>  Speed in knots [default: ./test.txt].
+  --version     Show version.
+  --speed=<kn> -s KN  Speed in knots [default: 10].
+  --moored      Moored (anchored) mine.
+  --drifting    Drifting mine.
+  --rr     Show version.
+  --fff=<tt> -s KN  Speed in knots.
+  --aaa=<file>      Moored (anchored) mine [default: haha.pdf].
+  --yyy    Drifting mine.
+"""
+
+version = """test 2.1"""
+
+
+#################################################################################
+#################################################################################
+# Main function test
 def test_docopt():
     res = docopt.docopt(doc=doc, version="test 2.0", help_message=True,
                         argv=['--help', '--moored', '--output=ttt.pdf'])
@@ -50,6 +82,72 @@ def test_show_help():
     res = docopt.show_help(name="", version="", usage="", options="")
 
 
+#################################################################################
+#################################################################################
+# Usage function test
+def test_usage_parser():
+    res = docopt.usage_parser(usages="", arguments="")
+
+
+def test_split_token():
+    res = docopt.split_token(token="")
+
+
+def test_convert_tokens():
+    res = docopt.convert_tokens(pattern="", name="")
+
+
+def test_parse_args():
+    res = docopt.parse_args(tokens="")
+
+
+def test_parse_options():
+    res = docopt.parse_options(tokens="")
+
+
+def test_parse_commands():
+    res = docopt.parse_commands(tokens="")
+
+
+def test_parse_mutex():
+    res = docopt.parse_mutex(tokenObjects="")
+
+
+def test_build_usage_dic():
+    res = docopt.build_usage_dic(tokenObjects="")
+
+
+def test_process_paren():
+    res = docopt.process_paren(tokens="", op="")
+
+
+def test_parse_usage():
+    res = docopt.parse_usage(usages="")
+
+
+def test_check_mutex():
+    res = docopt.check_mutex(index="", token="", arguments="")
+
+
+def test_check_tokens():
+    res = docopt.check_tokens(index="", token="", arguments="")
+
+
+def test_find_conflict():
+    res = docopt.find_conflict(p="", arguments="")
+
+
+def test_find_matching_pattern():
+    res = docopt.find_matching_pattern(patterns="", arguments="")
+
+
+def test_populate_usage_dic():
+    res = docopt.populate_usage_dic(patternToUse="", patterns="", arguments="", usage_dic="")
+
+
+##########################################################################################
+##########################################################################################
+# Option function test
 def test_options_parser():
     res = docopt.options_parser(argv="", user_argv="", options="")
 

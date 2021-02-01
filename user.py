@@ -26,6 +26,6 @@ Options:
 from docopt import docopt
 
 if __name__ == '__main__':
-    arguments = docopt(__doc__, version="test 2.0", help_message=True,
+    arguments = docopt(__doc__, version="test 2.0", help_message=False,
                        argv=['--help', '--moored', '--output=ttt.pdf'])
     print(arguments)

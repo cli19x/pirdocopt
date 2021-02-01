@@ -1,5 +1,6 @@
 """
-  docopt is for the ...
+  docopt is for displaying the usages and options table that written by the programmer
+  to the users. this program allows....
 """
 import warnings
 import sys
@@ -18,7 +19,7 @@ TEST = False
 class Token:
     def __init__(self, text, left, right, ty):
         self.txt = text
-        self.l = left
+        self.lf = left
         self.r = right
         self.type = ty
         self.isReq = True
@@ -28,6 +29,7 @@ class Token:
 
     def __repr__(self):
         return self.txt
+
 
 #########################################################################
 ##########################################################################
@@ -65,6 +67,7 @@ def processing_string(doc, help_message, version):
 
 
 # Helper function for getting usage, options and name strings from doc
+# @param doc docstring that passed from main function
 def get_usage_and_options(doc):
     usage = ""
     options = ""
@@ -111,6 +114,7 @@ def check_warnings(usage, options):
 # @param version version information that retrieve from the docstring
 # @param usage usage string that retrieve from the docstring
 # @param options options string that retrieve from the docstring
+# @return return the help message to caller function
 def show_help(name, version, usage, options):
     output = ""
     if len(name) > 0:
@@ -124,7 +128,374 @@ def show_help(name, version, usage, options):
 
 ####################################################################
 ###################################################################
+# Main function for checking usage
+# After execution, Usage_dic is populated with appropriate values if successful
+def usage_parser(usages, arguments):
+    patterns, usage_dic = parse_usage(usages)
+    patternToUse = find_matching_pattern(patterns, arguments)
+    populate_usage_dic(patternToUse, patterns, arguments, usage_dic)
+    return usage_dic
+
+
+# Split token by '|' into two mutually exclusive Token objects
+# @param token is a Token object of the form "token1|token2"
+# Returns a list object with the split tokens, i.e. ["token1", "token2"]
+def split_token(token):
+    rawSplit = token.txt.split('|')
+    res = []
+    index = 0
+    for x in rawSplit:
+
+        # Create first Token object
+        if index == 0:
+            tokenObj = Token(x, token.lf, None, None)
+            tokenObj.isReq = token.isReq
+            res.append(tokenObj)
+
+        # Create rest of the Token objects
+        else:
+            if index < (len(res) - 1):
+                tokenObj = Token(x, res[index], None, None)
+            else:
+                tokenObj = Token(x, res[index], token.r, None)
+            tokenObj.isReq = token.isReq
+            res.append(tokenObj)
+            res[index].r = tokenObj  # Link previous token to new token
+            index += 1
+
+        # Set type for split tokens
+        if tokenObj.txt.startswith('-'):
+            tokenObj.type = "Option"
+        else:
+            tokenObj.type = "Command"
+
+    return res
+
+
+# Extract raw tokens from pattern and convert them to Token objects
+# @param pattern is a string containing a single usage pattern
+# @param name the name of the program - used to ignore the program name when creating the tokens
+# Returns a linked list of Token objects
+def convert_tokens(pattern, name):
+    # Split pattern into individual tokens and remove leading empty space
+    tokensRaw = pattern.split(" ")
+    tokensRaw.pop(0)
+    tokensRaw.pop(0)
+
+    tokenObjects = list()
+    index = 0
+
+    # Convert raw token to Token format, maintained as a linked list
+    for tokenRaw in tokensRaw:
+        if tokenRaw != name:
+            if not tokenObjects:
+                tokenObj = Token(tokenRaw, None, None, None)
+                tokenObjects.append(tokenObj)
+            else:
+                tokenObj = Token(tokenRaw, tokenObjects[index], None, None)
+                tokenObjects[index].r = tokenObj
+                tokenObjects.append(tokenObj)
+                index += 1
+    return tokenObjects
+
+
+# Sets type attribute for all argument tokens to Argument
+# @param tokens is the list of Token objects for a given pattern
+# Simply modifies the existing tokens, no return value
+def parse_args(tokens):
+    for token in tokens:
+        if token.txt.startswith('<') is True and token.txt.endswith('>') is True:
+            token.type = "Argument"
+        else:
+            if token.txt.isupper():
+                token.type = "Argument"
+
+
+# Sets type attribute for all option tokens to Option
+# @param tokens is the list of Token objects for a given pattern
+# Simply modifies the existing tokens, no return value
+def parse_options(tokens):
+    for token in tokens:
+        if token.txt.startswith('-') is True:
+            token.type = "Option"
+
+
+# Sets type attribute for all command tokens to Command
+# @param tokens is the list of Token objects for a given pattern
+# Simply modifies the existing tokens, no return value
+def parse_commands(tokens):
+    commands = []
+    for token in tokens:
+        # Ignore lone '|' tokens
+        if token.txt != '|':
+            # If token isn't an argument or an option, it must be a command
+            if token.type != "Argument" and token.type != "Option":
+                if '|' not in token.txt:
+                    token.type = "Command"
+    return commands
+
+
+# Handle mutex tokens
+# Replace tokens containing mutex elements with a single list of mutex tokens
+# Ex: "[--moored | --drifting]" gets replaced with [[--moored, --drifting]]
+# @param tokenObjects the list of Token objects for a given pattern
+# No return value
+def parse_mutex(tokenObjects):
+    for index, token in enumerate(tokenObjects):
+        if token.txt == '|':
+            tokenObjects[index - 1] = [token.lf, token.r]
+            tokenObjects.remove(token.r)
+            tokenObjects.remove(token)
+        elif '|' in token.txt:
+            tokenObjects[index] = split_token(token)
+
+
+# Populate global Usage_dic with default argument and command values
+# @param tokenObjects the finalized list of Token objects for a given pattern
+# No return value
+def build_usage_dic(tokenObjects):
+    usage_dic = {}
+    for token in tokenObjects:
+        if type(token) is list:
+            for t in token:
+                if t.type == "Argument":
+                    usage_dic[t.txt.strip("<>")] = None
+                elif t.type == "Command":
+                    usage_dic[t.txt] = False
+        else:
+            if token.type == "Argument":
+                usage_dic[token.txt.strip("<>")] = None
+            if token.type == "Command":
+                usage_dic[token.txt] = False
+    return usage_dic
+
+
+# Process optional ( [] ) and required ( () ) elements
+# @param tokens a list of Token objects for a given pattern
+# @param o the open character used to denote whether to process () or []
+# Labels each token as required or optional under the isReq parameter
+# No return value
+def process_paren(tokens, op):
+    if op == '(':
+        closed = ')'
+        isReq = True
+    else:
+        closed = ']'
+        isReq = False
+    for token in tokens:
+        if op in token.txt:
+            complete = False
+            token.txt = token.txt.strip(op)
+            # if closed parenthesis is in the same token
+            if closed in token.txt:
+                token.txt = token.txt.strip(closed)
+                token.isReq = isReq
+            else:
+                token.isReq = isReq
+                tempRequired = [token]
+                token = token.r
+                # search for closed parenthesis until we find it or reach the end of the pattern
+                while complete is False and token is not None:
+                    token.isReq = isReq
+                    tempRequired.append(token)
+                    if closed in token.txt:
+                        complete = True
+                        token.txt = token.txt.strip(closed)
+                    else:
+                        token = token.r
+                if complete is False:
+                    warnings.warn("Could not find closed paren or bracket.")
+
+
+# Examine each usage pattern and label each token appropriately (argument, option, or command; optional or required)
+# Builds Usage_dic using these Token objects
+# Fills Patterns global object with finalized lists of tokens
+def parse_usage(usages):
+    # Extract program name
+    usages.pop(0)
+    s = usages[1].split(" ")
+    name = s[2]
+    patterns = []
+    usage_dic = {}
+
+    # Parse each pattern in Usages
+    for pattern in usages:
+        # Convert tokens in pattern to a linked list
+        tokenObjects = convert_tokens(pattern, name)
+
+        # Process required tokens
+        process_paren(tokenObjects, '(')
+
+        # Process optional tokens
+        process_paren(tokenObjects, '[')
+
+        parse_args(tokenObjects)
+        parse_options(tokenObjects)
+        parse_commands(tokenObjects)
+
+        # Handle mutually exclusive elements
+        parse_mutex(tokenObjects)
+
+        # Build the usage dic using finalized token objects
+        usage_dic.update(build_usage_dic(tokenObjects))
+
+        # Append the finalized token list to the list of patterns
+        patterns.append(tokenObjects)
+
+    return patterns, usage_dic
+
+
+# Check if input token matches one (and only one) of the mutually exclusive tokens
+# @param index the index of which token we are examining, used to retrieve input token in Arguments
+# @param token the token we are examining
+# Returns true if a conflict is found, false otherwise
+def check_mutex(index, token, arguments):
+    foundConflict = False
+    if type(token) is list:
+        if token[0].isReq is False and index >= len(arguments):
+            arguments.insert(index, "None")
+        foundMutexMatch = False
+        for t in token:
+            # Check if token is optional
+            if t.isReq is False:
+                foundMutexMatch = True  # Bypass check later on
+                break
+            if arguments[index] == t.txt:
+                foundMutexMatch = True
+
+                # Check if next input token is also in mutex list
+                if index + 1 < len(arguments):
+                    if any(n.txt == arguments[index + 1] for n in token):
+                        foundConflict = True
+                break
+        if foundMutexMatch is False:
+            if token[0].isReq is not True:
+                arguments.insert(index, "None")
+            foundConflict = True
+    return foundConflict
+
+
+# Check individual arg, command, and optional tokens for a match with corresponding input token
+# @param index the index of which token we are examining, used to retrieve input token in Arguments
+# @param token the token we are examining
+# Returns true if a conflict is found, false otherwise
+def check_tokens(index, token, arguments):
+    foundConflict = False
+    # Handle missing optional arguments
+    if token.type == "Argument" and token.isReq is False:
+        if arguments[index] == (token.r.txt if type(token.r) is Token else token.r[0].txt):
+            arguments.insert(index, "None")
+
+    # If pattern token is a command, check if input token matches
+    elif token.type == "Command":
+        if arguments[index] != token.txt:
+            # Ignore if optional, break if required
+            if token.isReq is True:
+                foundConflict = True
+            else:
+                arguments.insert(index, "None")
+
+    # If pattern token is an option, check if input token matches
+    elif token.type == "Option":
+        inputToken = arguments[index]
+        pToken = token.txt
+        # Ignore option arguments
+        if '=' in arguments[index] and '=' in token.txt:
+            inputToken = arguments[index][:arguments[index].find('=')]
+            pToken = pToken[:pToken.find('=')]
+        if inputToken != pToken:
+            # Ignore if optional, break if required
+            if token.isReq is True:
+                foundConflict = True
+            else:
+                arguments.insert(index, "None")
+    return foundConflict
+
+
+# Compare input tokens with a Usage pattern p
+# @param p the usage pattern we are checking, a list of Token objects
+# Returns True if a conflict is found, False otherwise
+def find_conflict(p, arguments):
+    foundConflict = False  # Used to check if the pattern does not match, success if foundConflict remains False
+    for index, token in enumerate(p):
+
+        if type(token) is list:
+            foundConflict = check_mutex(index, token, arguments)
+            if foundConflict is True:
+                break
+
+        # Check if input doesn't contain trailing optional token
+        elif token.isReq is False and index >= len(arguments):
+            arguments.insert(index, "None")
+            continue
+
+        else:
+            foundConflict = check_tokens(index, token, arguments)
+            if foundConflict is True:
+                break
+
+    return foundConflict
+
+
+# Finds which Usage pattern matches the input
+# Returns index of first match found
+# If no match found, function returns None
+def find_matching_pattern(patterns, arguments):
+    patternToUse = None
+
+    # Explore each pattern to determine which one matches the input
+    for num, p in enumerate(patterns):
+
+        numReq = 0
+        # Get number of req tokens for each pattern
+        for t in p:
+            if type(t) is Token:
+                if t.isReq is True:
+                    numReq += 1
+            else:
+                if t[0].isReq is True:
+                    numReq += 1
+
+        if len(arguments) < numReq:
+            continue
+
+        # Skip if more input tokens than tokens in the pattern
+        if len(arguments) > len(p):
+            continue
+
+        if find_conflict(p, arguments) is False:
+            patternToUse = num
+            break
+    return patternToUse
+
+
+# Fill Usage_dic with appropriate values from the input
+# @param patternToUse an integer denoting which Usage pattern matches the input
+# No return value
+def populate_usage_dic(patternToUse, patterns, arguments, usage_dic):
+    if patternToUse is not None:
+        for index, token in enumerate(patterns[patternToUse]):
+            if type(token) is list:
+                if token[0].type != "Option":
+                    usage_dic[arguments[index]] = True
+            else:
+                if token.type == "Argument":
+                    usage_dic[token.txt.strip('<>')] = arguments[index]
+                elif token.type == "Command":
+                    # Check if input ignores optional command
+                    if arguments[index] != "None":
+                        usage_dic[token.txt] = True
+    else:
+        warnings.warn(f"Unexpected pattern in:\n {patterns}")
+
+
+####################################################################
+###################################################################
 # Main function for checking options
+# @param argv the default arguments that specify by the programmer
+# @param user_argv the  arguments passed from user command line
+# @param options the options strings from docstring
+# @return return the built options dictionary from another method
 def options_parser(argv, user_argv, options):
     options_dic = check_option_lines(options)
     if argv is not None:
@@ -135,6 +506,8 @@ def options_parser(argv, user_argv, options):
 
 # Process options from docstring, treat lines that
 # starts with '-' or '--' as options
+# @param options the options strings from docstring
+# @return return the updated options dictionary to caller function
 def check_option_lines(options):
     options_dic = {}
     for line in options:
@@ -165,6 +538,8 @@ def check_option_lines(options):
 # a default value that specify by the programmer
 # @param line a string that holds the current line
 # @param old_key a string that holds the current key for the options dictionary
+# @options_dic a dictionary that passed from main function, needs to do updates on it from this function
+# @return return the updated options dic to the caller function
 def find_default_value(line, old_key, options_dic):
     default_value = line[line.find("[") + 1:line.find("]")]
     if default_value is not None:
@@ -191,6 +566,7 @@ def find_default_value(line, old_key, options_dic):
 # @param count specify the location of array for the string
 # that is split by space
 # @return return the current new key for the dictionary for the current line
+# and the old_key from matching the stored pattern in the dictionary for updating
 def check_first_option(tmp_array, count):
     if '=' in tmp_array[count]:
         old_key = tmp_array[count]
@@ -217,6 +593,7 @@ def check_first_option(tmp_array, count):
 # @param old_key specify the current key for updating the key
 # in options dictionary
 # @return return the current new key for the dictionary for the current line
+# and the old_key from matching the stored pattern in the dictionary for updating
 def check_other_option(tmp_array, count, old_key):
     if '=' in tmp_array[count]:
         new_key = old_key + " " + tmp_array[count]
@@ -235,6 +612,8 @@ def check_other_option(tmp_array, count, old_key):
 # Update the options dictionary with new value according to user arguments,
 # remove the duplicated option keys
 # after the new dictionary is built
+# @param user_argv passed in arguments from user command line
+# @param options_dic passed in the options dictionary from main function
 # @return return the new dictionary and set values according
 # to the user command line
 def build_output_options_dictionary(user_argv, options_dic):
@@ -258,6 +637,9 @@ def build_output_options_dictionary(user_argv, options_dic):
 # Matching the input options and separate them by whether
 # the argument has a value (contains a equals sign)
 # @param output_dic a copy of the options dic
+# @param options_dic the original options dictionary from main function
+# @param remove_duplicate a boolean to indicate whether needs to remove the duplicate keywords
+# in the dictionary
 # @return return the updated output_dic according to the user arguments
 def check_option_contain_value(output_dic, options_dic, arguments, remove_duplicate):
     for e in arguments:
@@ -279,6 +661,7 @@ def check_option_contain_value(output_dic, options_dic, arguments, remove_duplic
 # @param is_contain_equal a boolean for whether the argument
 # from command line contains a value
 # @param output_dic a copy of the options dic
+# @param options_dic the original options dictionary from main function
 # @param remove_duplicate indicate whether the dictionary needs to remove
 # duplicate keyword for options
 # @return returns a updated value dictionary according the arguments
@@ -295,9 +678,10 @@ def check_keys(element, is_contain_equal, output_dic, options_dic, remove_duplic
 
 # Helper function for check keys that not contains a value
 # @param element one of the argument that pass in by the user command line
-# @param output_dic a copy of the options dic
 # @param remove_duplicate indicate whether the dictionary needs to remove
 # duplicate keyword for options
+# @param options_dic the original options dictionary from main function
+# @param output_dic a copy of the options dic
 # @return returns a updated value dictionary according the arguments
 # in the user command line
 def check_key_without_equal(element, remove_duplicate, options_dic, output_dic):
@@ -316,9 +700,10 @@ def check_key_without_equal(element, remove_duplicate, options_dic, output_dic):
 
 # Helper function for check keys that contains a value
 # @param element one of the argument that pass in by the user command line
-# @param output_dic a copy of the options dic
 # @param remove_duplicate indicate whether the dictionary needs to remove
 # duplicate keyword for options
+# @param options_dic the original options dictionary from main function
+# @param output_dic a copy of the options dic
 # @return returns a updated value dictionary according the arguments
 # in the user command line
 def check_key_contain_equal(element, remove_duplicate, options_dic, output_dic):
@@ -343,15 +728,9 @@ def check_key_contain_equal(element, remove_duplicate, options_dic, output_dic):
 ####################################################################
 ###################################################################
 # Main function for building output strings to user
-# {'--drifting': False,    'mine': False,
-#  '--help': False,        'move': True,
-#  '--moored': False,      'new': False,
-#  '--speed': '15',        'remove': False,
-#  '--version': False,     'set': False,
-#  '<name>': ['Guardian'], 'ship': True,
-#  '<x>': '100',           'shoot': False,
-#  '<y>': '150'}
-#  print('We are the {} who say "{}!"'.format('knights', 'Ni'))
+# @param usage_dic the original usage dictionary from main function
+# @param options_dic the original options dictionary from main function
+# @return return the output string or testing array to caller function
 def print_output_dictionary(usage_dic, options_dic):
     dictionary_total = {}
     dictionary_total.update(usage_dic)
@@ -369,6 +748,8 @@ def print_output_dictionary(usage_dic, options_dic):
 # @param rows count for how many rows I need
 # @param length the total length for the output usage and options dictionary
 # @param dic_list reformat the dictionary into a array
+# @param dictionary_total combined dictionary (usage dic + options dic)
+# @return return the string from display or an array for testing
 def output_formatter(rows, length, dic_list, dictionary_total):
     col1 = [' '] * rows
     col2 = [' '] * rows
@@ -402,6 +783,7 @@ def insert_content(dic_list, idx, rows, col_idx, dictionary_total):
 
 # Helper method for defining whether the value is a string or a primitive type
 # @param value the value for current key in the dictionary
+# @return return the boolean value whether the value passed in is primitive
 def check_value_type(value):
     return type(value) == int or type(value) == float \
            or type(value) == bool or value is None
@@ -412,6 +794,7 @@ def check_value_type(value):
 # @param row1 hold the values for output column two
 # @param row1 hold the values for output column three
 # @param rows2 counter for number of rows
+# @return return the output to main function
 def print_output_from_rows(col1, col2, col3, rows):
     spaces1 = len(max(col1, key=len))
     spaces2 = len(max(col2, key=len))
@@ -428,357 +811,3 @@ def print_output_from_rows(col1, col2, col3, rows):
             else:
                 final_output += (out.rstrip() + '\n')
     return final_output
-
-
-# Split token by '|' into two mutually exclusive Token objects
-# @param token is a Token object of the form "token1|token2"
-# Returns a list object with the split tokens, i.e. ["token1", "token2"]
-def splitToken(token):
-    rawSplit = token.txt.split('|')
-    res = []
-    index = 0
-    for x in rawSplit:
-
-        # Create first Token object
-        if index == 0:
-            tokenObj = Token(x, token.l, None, None)
-            tokenObj.isReq = token.isReq
-            res.append(tokenObj)
-
-        # Create rest of the Token objects
-        else:
-            if index < (len(res) - 1):
-                tokenObj = Token(x, res[index], None, None)
-            else:
-                tokenObj = Token(x, res[index], token.r, None)
-            tokenObj.isReq = token.isReq
-            res.append(tokenObj)  
-            res[index].r = tokenObj     # Link previous token to new token
-            index += 1
-        
-        # Set type for split tokens
-        if tokenObj.txt.startswith('-'):
-            tokenObj.type = "Option"
-        else:
-            tokenObj.type = "Command" 
-
-    return res
-
-# Extract raw tokens from pattern and convert them to Token objects
-# @param pattern is a string containing a single usage pattern
-# @param name the name of the program - used to ignore the program name when creating the tokens
-# Returns a linked list of Token objects
-def convertTokens(pattern, name):
-    # Split pattern into individual tokens and remove leading empty space
-    tokensRaw = pattern.split(" ")
-    tokensRaw.pop(0) 
-    tokensRaw.pop(0)
-
-    tokenObjs = list()
-    index = 0
-
-    # Convert raw token to Token format, maintained as a linked list
-    for tokenRaw in tokensRaw:
-        if tokenRaw != name:
-            if not tokenObjs:
-                tokenObj = Token(tokenRaw, None, None, None)
-                tokenObjs.append(tokenObj)   
-            else:
-                tokenObj = Token(tokenRaw, tokenObjs[index], None, None)
-                tokenObjs[index].r = tokenObj
-                tokenObjs.append(tokenObj)
-                index += 1
-    return tokenObjs
-
-# Sets type attribute for all argument tokens to Argument
-# @param tokens is the list of Token objects for a given pattern
-# Simply modifies the existing tokens, no return value
-def parseArgs(tokens):
-    for token in tokens:
-        if token.txt.startswith('<') is True and token.txt.endswith('>') is True:
-            token.type = "Argument"
-        else:
-            if token.txt.isupper():
-                token.type = "Argument"
-
-# Sets type attribute for all option tokens to Option
-# @param tokens is the list of Token objects for a given pattern
-# Simply modifies the existing tokens, no return value
-def parseOptions(tokens):
-    for token in tokens:
-        if token.txt.startswith('-') is True:
-            token.type = "Option"
-
-# Sets type attribute for all command tokens to Command
-# @param tokens is the list of Token objects for a given pattern
-# Simply modifies the existing tokens, no return value
-def parseCommands(tokens):
-    commands = []
-    for token in tokens:
-        # Ignore lone '|' tokens
-        if token.txt != '|':
-            # If token isn't an argument or an option, it must be a command
-            if token.type != "Argument" and token.type != "Option":
-                if '|' not in token.txt:
-                    token.type = "Command"
-    return commands
-
-# Handle mutex tokens
-# Replace tokens containing mutex elements with a single list of mutex tokens
-# Ex: "[--moored | --drifting]" gets replaced with [[--moored, --drifting]]
-# @param tokenObjs the list of Token objects for a given pattern
-# No return value
-def parseMutex(tokenObjs):
-    for index, token in enumerate(tokenObjs):
-        if token.txt == '|':
-            tokenObjs[index-1] = [token.l, token.r]
-            tokenObjs.remove(token.r)
-            tokenObjs.remove(token)
-        elif '|' in token.txt:
-            tokenObjs[index] = splitToken(token)
-
-# Populate global Usage_dic with default argument and command values
-# @param tokenObjs the finalized list of Token objects for a given pattern
-# No return value
-def buildUsageDic(tokenObjs):
-    usage_dic = {}
-    for token in tokenObjs:
-        if type(token) is list:
-            for t in token:
-                if t.type == "Argument":
-                    usage_dic[t.txt.strip("<>")] = None
-                elif t.type == "Command":
-                    usage_dic[t.txt] = False
-        else:
-            if token.type == "Argument":
-                usage_dic[token.txt.strip("<>")] = None
-            if token.type == "Command":
-                usage_dic[token.txt] = False
-    return usage_dic
-
-# Process optional ( [] ) and required ( () ) elements
-# @param tokens a list of Token objects for a given pattern
-# @param open the open character used to denote whether to process () or []
-# Labels each token as required or optional under the isReq parameter
-# No return value
-def process_Paren(tokens, open):
-    if open == '(':
-        closed = ')'
-        isReq = True
-    else:
-        closed = ']'
-        isReq = False
-    for token in tokens:
-        if open in token.txt:
-            complete = False
-            token.txt = token.txt.strip(open)
-            # if closed parenthesis is in the same token
-            if closed in token.txt:
-                complete = True
-                token.txt = token.txt.strip(closed)
-                token.isReq = isReq
-            else:
-                token.isReq = isReq
-                tempRequired = [token]
-                token = token.r
-                # search for closed parenthesis until we find it or reach the end of the pattern
-                while complete is False and token is not None:
-                    token.isReq = isReq
-                    tempRequired.append(token)
-                    if closed in token.txt:
-                        complete = True
-                        token.txt = token.txt.strip(closed)
-                    else:
-                        token = token.r
-                if complete is False:
-                    warnings.warn("Could not find closed paren or bracket.")
-
-# Examine each usage pattern and label each token appropriately (argument, option, or command; optional or required)
-# Builds Usage_dic using these Token objects
-# Fills Patterns global object with finalized lists of tokens
-def parse_usage(usages):
-    # Extract program name
-    usages.pop(0)
-    s = usages[1].split(" ")
-    name = s[2]
-    patterns = []
-    usage_dic = {}
-    
-    # Parse each pattern in Usages
-    for pattern in usages:
-        # Convert tokens in pattern to a linked list
-        tokenObjs = convertTokens(pattern, name)
-
-        # Process required tokens
-        process_Paren(tokenObjs, '(')
-
-        # Process optional tokens
-        process_Paren(tokenObjs, '[')
-
-        parseArgs(tokenObjs)
-        parseOptions(tokenObjs)
-        parseCommands(tokenObjs)
-
-        # Handle mutually exclusive elements
-        parseMutex(tokenObjs)
-
-        # Build the usage dic using finalized token objects
-        usage_dic.update(buildUsageDic(tokenObjs))   
-                
-        # Append the finalized token list to the list of patterns
-        patterns.append(tokenObjs)
-    
-    return patterns, usage_dic
-
-# Check if input token matches one (and only one) of the mutually exclusive tokens
-# @param index the index of which token we are examining, used to retrieve input token in Arguments
-# @param token the token we are examining
-# Returns true if a conflict is found, false otherwise
-def checkMutex(index, token, arguments):
-    foundConflict = False
-    if type(token) is list:
-        if token[0].isReq is False and index >= len(arguments):
-            arguments.insert(index, "None")
-        foundMutexMatch = False
-        for t in token:
-            # Check if token is optional
-            if t.isReq is False:
-                foundMutexMatch = True  # Bypass check later on
-                break
-            if arguments[index] == t.txt:
-                foundMutexMatch = True
-
-                # Check if next input token is also in mutex list
-                if index+1 < len(arguments):
-                    if any(n.txt == arguments[index+1] for n in token):
-                        foundConflict = True
-                break
-        if foundMutexMatch is False:
-            if token[0].isReq is True:
-                foundConflict = True
-            else:
-                arguments.insert(index, "None")
-            foundConflict = True
-    return foundConflict
-
-# Check individual arg, command, and optional tokens for a match with corresponding input token
-# @param index the index of which token we are examining, used to retrieve input token in Arguments
-# @param token the token we are examining
-# Returns true if a conflict is found, false otherwise
-def checkTokens(index, token, arguments):
-    foundConflict = False
-    # Handle missing optional arguments
-    if token.type == "Argument" and token.isReq is False:
-        if arguments[index] == (token.r.txt if type(token.r) is Token else token.r[0].txt):
-            arguments.insert(index, "None")
-            
-    # If pattern token is a command, check if input token matches
-    elif token.type == "Command":
-        if arguments[index] != token.txt:
-            # Ignore if optional, break if required
-            if token.isReq is True:
-                foundConflict = True
-            else:
-                arguments.insert(index, "None")
-
-    # If pattern token is an option, check if input token matches
-    elif token.type == "Option":
-        inputToken = arguments[index]
-        pToken = token.txt
-        # Ignore option arguments
-        if '=' in arguments[index] and '=' in token.txt:
-            inputToken = arguments[index][:arguments[index].find('=')]
-            pToken = pToken[:pToken.find('=')]
-        if inputToken != pToken:
-            # Ignore if optional, break if required
-            if token.isReq is True:
-                foundConflict = True
-            else:
-                arguments.insert(index, "None")
-    return foundConflict
-
-# Compare input tokens with a Usage pattern p
-# @param p the usage pattern we are checking, a list of Token objects
-# Returns True if a conflict is found, False otherwise
-def findConflict(p, arguments):
-    foundConflict = False   # Used to check if the pattern does not match, success if foundConflict remains False
-    for index, token in enumerate(p): 
-
-        if type(token) is list:
-            foundConflict = checkMutex(index, token, arguments)
-            if foundConflict is True:
-                break
-            
-        # Check if input doesn't contain trailing optional token
-        elif token.isReq is False and index >= len(arguments):
-            arguments.insert(index, "None")
-            continue
-
-        else:
-            foundConflict = checkTokens(index, token, arguments)
-            if foundConflict is True:
-                break
-
-    return foundConflict
-
-# Finds which Usage pattern matches the input
-# Returns index of first match found
-# If no match found, function returns None
-def findMatchingPattern(patterns, arguments):
-    patternToUse = None
-
-    # Explore each pattern to determine which one matches the input
-    for num, p in enumerate(patterns):
-
-        numReq = 0
-        # Get number of req tokens for each pattern
-        for t in p:
-            if type(t) is Token:
-                if t.isReq is True:
-                    numReq += 1
-            else:
-                if t[0].isReq is True:
-                    numReq += 1
-
-        if len(arguments) < numReq:
-            continue
-
-        # Skip if more input tokens than tokens in the pattern
-        if len(arguments) > len(p):
-            continue
-
-        if findConflict(p, arguments) is False:
-            patternToUse = num
-            break
-    return patternToUse
-
-
-# Fill Usage_dic with appropriate values from the input
-# @param patternToUse an integer denoting which Usage pattern matches the input
-# No return value
-def populateUsageDic(patternToUse, patterns, arguments, usage_dic):
-    if patternToUse is not None:
-        for index, token in enumerate(patterns[patternToUse]):
-            if type(token) is list:
-                if token[0].type != "Option":
-                    usage_dic[arguments[index]] = True
-            else:
-                if token.type == "Argument":
-                    usage_dic[token.txt.strip('<>')] = arguments[index]
-                elif token.type == "Command":
-                    # Check if input ignores optional command
-                    if arguments[index] != "None":
-                        usage_dic[token.txt] = True
-    else:
-        print("No pattern found")
-        
-
-####################################################################
-###################################################################
-# Main function for checking usage
-# After execution, Usage_dic is populated with appropriate values if successful
-def usage_parser(usages, arguments):
-    patterns, usage_dic = parse_usage(usages)
-    patternToUse = findMatchingPattern(patterns, arguments)  
-    populateUsageDic(patternToUse, patterns, arguments, usage_dic)
-    return usage_dic
