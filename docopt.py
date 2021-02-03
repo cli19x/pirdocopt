@@ -504,7 +504,7 @@ def options_parser(argv, user_argv, options):
     options_dic = check_option_lines(options)
     if argv is not None:
         output_dic = options_dic.copy()
-        options_dic = check_option_contain_value(output_dic, options_dic, argv, False)
+        options_dic = check_option_contain_value(output_dic, options_dic, argv)
     return build_output_options_dictionary(user_argv, options_dic)
 
 
@@ -599,9 +599,7 @@ def check_first_option(tmp_array, count):
 # @return return the current new key for the dictionary for the current line
 # and the old_key from matching the stored pattern in the dictionary for updating
 def check_other_option(tmp_array, count, old_key):
-    if '=' in tmp_array[count]:
-        new_key = old_key + " " + tmp_array[count]
-    elif len(tmp_array) > count + 1 and tmp_array[count + 1].isupper():
+    if len(tmp_array) > count + 1 and tmp_array[count + 1].isupper():
         # The option with Value (either in -s FILE or -p=<file>)
         # will always change to -p=<file>
         # when insert into the dictionary
@@ -622,7 +620,7 @@ def check_other_option(tmp_array, count, old_key):
 # to the user command line
 def build_output_options_dictionary(user_argv, options_dic):
     output_dic = options_dic.copy()
-    output_dic = check_option_contain_value(output_dic, options_dic, user_argv, True)
+    output_dic = check_option_contain_value(output_dic, options_dic, user_argv)
     for k in list(output_dic):
         if ' ' in k:
             put = sorted(k.split(), key=len, reverse=True)[0]
@@ -645,38 +643,15 @@ def build_output_options_dictionary(user_argv, options_dic):
 # @param remove_duplicate a boolean to indicate whether needs to remove the duplicate keywords
 # in the dictionary
 # @return return the updated output_dic according to the user arguments
-def check_option_contain_value(output_dic, options_dic, arguments, remove_duplicate):
+def check_option_contain_value(output_dic, options_dic, arguments):
     for e in arguments:
-        ne = e.strip()
-        if ne[:1] == "-" and '=' not in ne:
-            output_dic = check_keys(ne, False, output_dic, options_dic, remove_duplicate)
-        elif ne[:1] == "-" and '=' in ne:
-            output_dic = check_keys(ne, True, output_dic, options_dic, remove_duplicate)
+        element = e.strip()
+        if element[:1] == "-" and '=' not in element:
+            output_dic = check_key_without_equal(element, options_dic, output_dic)
+        elif element[:1] == "-" and '=' in element:
+            output_dic = check_key_contain_equal(element, options_dic, output_dic)
         else:
             continue
-    return output_dic
-
-
-# Helper function for matching the input options from user
-# and the option dictionary
-# Always output the most detail keyword for option command
-# when there exists choices
-# @param element one of the argument that pass in by the user command line
-# @param is_contain_equal a boolean for whether the argument
-# from command line contains a value
-# @param output_dic a copy of the options dic
-# @param options_dic the original options dictionary from main function
-# @param remove_duplicate indicate whether the dictionary needs to remove
-# duplicate keyword for options
-# @return returns a updated value dictionary according the arguments
-# in the user command line
-def check_keys(element, is_contain_equal, output_dic, options_dic, remove_duplicate):
-    if not is_contain_equal:
-        output_dic = check_key_without_equal(element, remove_duplicate, options_dic,
-                                             output_dic)
-    else:
-        output_dic = check_key_contain_equal(element, remove_duplicate, options_dic,
-                                             output_dic)
     return output_dic
 
 
@@ -688,16 +663,10 @@ def check_keys(element, is_contain_equal, output_dic, options_dic, remove_duplic
 # @param output_dic a copy of the options dic
 # @return returns a updated value dictionary according the arguments
 # in the user command line
-def check_key_without_equal(element, remove_duplicate, options_dic, output_dic):
+def check_key_without_equal(element, options_dic, output_dic):
     for k in options_dic:
-        put = sorted(k.split(), key=len, reverse=True)
-        if element in put:
-            if remove_duplicate:
-                output_dic = {key if key != k else put[0]: value for
-                              key, value in output_dic.items()}
-                tmp_dic = {put[0]: True}
-            else:
-                tmp_dic = {k: True}
+        if element in k:
+            tmp_dic = {k: True}
             output_dic.update(tmp_dic)
     return output_dic
 
@@ -710,21 +679,12 @@ def check_key_without_equal(element, remove_duplicate, options_dic, output_dic):
 # @param output_dic a copy of the options dic
 # @return returns a updated value dictionary according the arguments
 # in the user command line
-def check_key_contain_equal(element, remove_duplicate, options_dic, output_dic):
+def check_key_contain_equal(element, options_dic, output_dic):
     for k in options_dic:
         if '=' in k:
-            put = sorted(k.split(), key=len, reverse=True)
-            for tmp in put:
+            for tmp in k.split(' '):
                 if element.split('=')[0] == tmp.split('=')[0]:
-                    if remove_duplicate:
-                        output_dic = {
-                            key if key != k else put[0].split('=')[0]: value
-                            for key, value in
-                            output_dic.items()}
-                        tmp_dic = {
-                            put[0].split('=')[0]: element.split('=')[1]}
-                    else:
-                        tmp_dic = {k: element.split('=')[1]}
+                    tmp_dic = {k: element.split('=')[1]}
                     output_dic.update(tmp_dic)
     return output_dic
 

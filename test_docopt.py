@@ -3,7 +3,7 @@
 """
 import docopt
 
-doc = """Perfect
+doc1 = """Perfect
 
 Usage:
   naval_fate.py ship new <name>...
@@ -16,22 +16,100 @@ Usage:
 Options:
   -h --help --helping --haha -hhh --ooooo  Show this screen.
   --sorted  Show sorted.
-  -o FILE --output=<file>  Speed in knots [default: ./test.txt].
+  -o FILE --output=<value>  Speed in knots [default: ./test.txt].
   --version     Show version.
   --speed=<kn> -s KN  Speed in knots [default: 10].
   --moored      Moored (anchored) mine.
   --drifting    Drifting mine.
   --rr     Show version.
-  --fff=<tt> -s KN  Speed in knots.
-  --aaa=<file>      Moored (anchored) mine [default: haha.pdf].
+  --aaa=<value>      Moored (anchored) mine [default: 20].
   --yyy    Drifting mine.
 
 """
 
+doc2 = """Usage:
+  naval_fate.py ship new <name>...
+  naval_fate.py ship <name> move <x> <y> [--speed=<kn>]
+  naval_fate.py ship shoot <x> <y>
+  naval_fate.py mine (set|remove) <x> <y> [--moored | --drifting]
+  naval_fate.py (-h | --help)
+  naval_fate.py --version
+
+Options:
+  -h --help --helping --haha -hhh --ooooo  Show this screen.
+  --sorted  Show sorted.
+  -o FILE --output=<value>  Speed in knots [default: ./test.txt].
+  --version     Show version.
+  --speed=<kn> -s KN  Speed in knots [default: 10].
+  --moored      Moored (anchored) mine.
+  --drifting    Drifting mine.
+  --rr     Show version.
+  --aaa=<value>      Moored (anchored) mine [default: 20].
+  --yyy    Drifting mine.
+
+"""
+
+doc3 = """Usage:
+  naval_fate.py ship new <name>...
+  naval_fate.py ship <name> move <x> <y> [--speed=<kn>]
+  naval_fate.py ship shoot <x> <y>
+  naval_fate.py mine (set|remove) <x> <y> [--moored | --drifting]
+  naval_fate.py (-h | --help)
+  naval_fate.py --version
+
+"""
+
+doc4 = """
+
+Usage:
+  naval_fate.py ship new <name>...
+  naval_fate.py ship <name> move <x> <y> [--speed=<kn>]
+  naval_fate.py ship shoot <x> <y>
+  naval_fate.py mine (set|remove) <x> <y> [--moored | --drifting]
+  naval_fate.py (-h | --help)
+  naval_fate.py --version
+
+  -h --help --helping --haha -hhh --ooooo  Show this screen.
+  --sorted  Show sorted.
+  -o FILE --output=<value>  Speed in knots [default: ./test.txt].
+  --version     Show version.
+  --speed=<kn> -s KN  Speed in knots [default: 10].
+  --moored      Moored (anchored) mine.
+  --drifting    Drifting mine.
+  --rr     Show version.
+  --aaa=<value>      Moored (anchored) mine [default: 20].
+  --yyy    Drifting mine.
+
+"""
+
+doc5 = """Perfect
+
+Usage:
+  naval_fate.py ship new <name>...
+  naval_fate.py ship <name> move <x> <y> [--speed=<kn>]
+  naval_fate.py ship shoot <x> <y>
+  naval_fate.py mine (set|remove) <x> <y> [--moored | --drifting]
+  naval_fate.py (-h | --help)
+  naval_fate.py --version
+
+  -h --help --helping --haha -hhh --ooooo  Show this screen.
+  --sorted  Show sorted.
+  -o FILE --output=<value>  Speed in knots [default: ./test.txt].
+  --version     Show version.
+  --speed=<kn> -s KN  Speed in knots [default: 10].
+  --moored      Moored (anchored) mine.
+  --drifting    Drifting mine.
+  --rr     Show version.
+  --aaa=<value>      Moored (anchored) mine [default: 20].
+  --yyy    Drifting mine.
+
+"""
+
+argv = ['--help', '--moored', '--output=ttt.pdf']
+
 name = """Perfect"""
 
-usage = """
-Usage:
+usage = """Usage:
   naval_fate.py ship new <name>...
   naval_fate.py ship <name> move <x> <y> [--speed=<kn>]
   naval_fate.py ship shoot <x> <y>
@@ -40,46 +118,137 @@ Usage:
   naval_fate.py --version
 """
 
-options = """
-Options:
+options = """Options:
   -h --help --helping --haha -hhh --ooooo  Show this screen.
   --sorted  Show sorted.
-  -o FILE --output=<file>  Speed in knots [default: ./test.txt].
+  -o FILE --output=<value>  Speed in knots [default: ./test.txt].
   --version     Show version.
   --speed=<kn> -s KN  Speed in knots [default: 10].
   --moored      Moored (anchored) mine.
   --drifting    Drifting mine.
   --rr     Show version.
-  --fff=<tt> -s KN  Speed in knots.
-  --aaa=<file>      Moored (anchored) mine [default: haha.pdf].
+  -s KN  Speed in knots [default: 10].
+  --aaa=<value>      Moored (anchored) mine [default: 20].
   --yyy    Drifting mine.
 """
 
 version = """test 2.1"""
+
+help1 = """Perfect
+
+Version:
+  test 2.0
+
+Usage:
+  naval_fate.py ship new <name>...
+  naval_fate.py ship <name> move <x> <y> [--speed=<kn>]
+  naval_fate.py ship shoot <x> <y>
+  naval_fate.py mine (set|remove) <x> <y> [--moored | --drifting]
+  naval_fate.py (-h | --help)
+  naval_fate.py --version
+  
+Options:
+  -h --help --helping --haha -hhh --ooooo  Show this screen.
+  --sorted  Show sorted.
+  -o FILE --output=<value>  Speed in knots [default: ./test.txt].
+  --version     Show version.
+  --speed=<kn> -s KN  Speed in knots [default: 10].
+  --moored      Moored (anchored) mine.
+  --drifting    Drifting mine.
+  --rr     Show version.
+  -s KN  Speed in knots [default: 10].
+  --aaa=<value>      Moored (anchored) mine [default: 20].
+  --yyy    Drifting mine.
+
+"""
+
+help2 = """Perfect
+
+Usage:
+  naval_fate.py ship new <name>...
+  naval_fate.py ship <name> move <x> <y> [--speed=<kn>]
+  naval_fate.py ship shoot <x> <y>
+  naval_fate.py mine (set|remove) <x> <y> [--moored | --drifting]
+  naval_fate.py (-h | --help)
+  naval_fate.py --version
+
+Options:
+  -h --help --helping --haha -hhh --ooooo  Show this screen.
+  --sorted  Show sorted.
+  -o FILE --output=<value>  Speed in knots [default: ./test.txt].
+  --version     Show version.
+  --speed=<kn> -s KN  Speed in knots [default: 10].
+  --moored      Moored (anchored) mine.
+  --drifting    Drifting mine.
+  --rr     Show version.
+  -s KN  Speed in knots [default: 10].
+  --aaa=<value>      Moored (anchored) mine [default: 20].
+  --yyy    Drifting mine.
+
+"""
 
 
 #################################################################################
 #################################################################################
 # Main function test
 def test_docopt():
-    res = docopt.docopt(doc=doc, version="test 2.0", help_message=True,
-                        argv=['--help', '--moored', '--output=ttt.pdf'])
+    res = docopt.docopt(doc=doc1, version="test 2.0", help_message=True,
+                        argv=argv)
 
 
 def test_processing_string():
-    res = docopt.processing_string(doc=doc, help_message=True, version="test 2.0")
+    usage_array, options_array = docopt.processing_string(doc=doc1, help_message=True, version="test 2.0")
+    assert usage.split('\n') == usage_array
+    assert options.split('\n') == options_array
+
+    res = docopt.processing_string(doc=None, help_message=True, version="test 2.0")
+    assert res is None
 
 
 def test_get_usage_and_options():
-    res = docopt.get_usage_and_options(doc=doc)
+    tmp_name, tmp_usage, tmp_options = docopt.get_usage_and_options(doc=doc1)
+    assert tmp_name == name
+    assert tmp_usage == usage
+    assert tmp_options == options
+
+    tmp_name, tmp_usage, tmp_options = docopt.get_usage_and_options(doc=doc2)
+    assert tmp_name == ""
+    assert tmp_usage == usage
+    assert tmp_options == options
+
+    tmp_name, tmp_usage, tmp_options = docopt.get_usage_and_options(doc=doc3)
+    assert tmp_name == ""
+    assert tmp_usage == usage
+    assert tmp_options == ""
+
+    tmp_name, tmp_usage, tmp_options = docopt.get_usage_and_options(doc=doc4)
+    assert tmp_name == ""
+    assert tmp_usage == usage
+    assert tmp_options == options.split(':')[1]
+
+    tmp_name, tmp_usage, tmp_options = docopt.get_usage_and_options(doc=doc5)
+    assert tmp_name == name
+    assert tmp_usage == usage
+    assert tmp_options == options.split(':')[1]
 
 
 def test_check_warnings():
-    res = docopt.check_warnings(usage="", options="")
+    res = docopt.check_warnings(usage=usage, options=options)
+    assert res == 0
+
+    res = docopt.check_warnings(usage="", options=options)
+    assert res == 1
+
+    res = docopt.check_warnings(usage=usage, options="")
+    assert res == 2
 
 
 def test_show_help():
-    res = docopt.show_help(name="", version="", usage="", options="")
+    res = docopt.show_help(name=name, version=version, usage=usage, options=options)
+    assert res == help1
+
+    res = docopt.show_help(name=name, version="", usage=usage, options=options)
+    assert res == help2
 
 
 #################################################################################
@@ -149,45 +318,133 @@ def test_populate_usage_dic():
 ##########################################################################################
 # Option function test
 def test_options_parser():
-    res = docopt.options_parser(argv="", user_argv="", options="")
+    options_dic = {'--helping': True, '--sorted': True, '--output': 'ttt.pdf', '--version': False, '--speed': 10,
+                   '--moored': True, '--drifting': False, '--rr': False, '--aaa': 20, '--yyy': False}
+    res = docopt.options_parser(argv=argv, user_argv=['--sorted'], options=options)
+    assert res == options_dic
+
+    options_dic = {'--helping': True, '--sorted': True, '--output': 'ttt.pdf', '--version': False, '--speed': 10,
+                   '--moored': True, '--drifting': False, '--rr': False, '--aaa': 20, '--yyy': False}
+    res = docopt.options_parser(argv=None, user_argv=['-h', '-o=<ttt.pdf>'], options=options)
+    assert res == options_dic
 
 
 def test_check_option_lines():
-    res = docopt.check_option_lines(options="")
+    options_dic = {'-h --help --helping --haha -hhh --ooooo': False, '--sorted': False,
+                   '-o=<file> --output=<file>': './test.txt', '--version': False,
+                   '--speed=<kn> -s=<kn>': 10, '--moored': False, '--drifting': False,
+                   '--rr': False, '--aaa=<file>': 20, '--yyy': False}
+
+    res = docopt.check_option_lines(options=options)
+    assert res == options_dic
 
 
 def test_find_default_value():
-    res = docopt.find_default_value(line="", old_key="", options_dic={})
+    options_dic = {'-o=<file> --output=<file>': None}
+    line = '-o FILE --output=<value>  Speed in knots [default: ./test.txt].'
+    res = docopt.find_default_value(line=line, old_key="-o=<file> --output=<file>", options_dic=options_dic)
+    assert res == {'-o=<file> --output=<file>': './test.txt'}
+
+    options_dic = {'--speed=<kn> -s=<kn>': None}
+    line = '--speed=<kn> -s KN  Speed in knots [default: 10].'
+    res = docopt.find_default_value(line=line, old_key="--speed=<kn> -s=<kn>", options_dic=options_dic)
+    assert res == {'--speed=<kn> -s=<kn>': 10}
+
+    options_dic = {'--aaa=<value>': None}
+    line = '--aaa=<value>   Moored (anchored) mine [default: 20.9].'
+    res = docopt.find_default_value(line=line, old_key="--aaa=<value>", options_dic=options_dic)
+    assert res == {'--aaa=<value>': 20.9}
 
 
 def test_check_first_option():
-    res = docopt.check_first_option(tmp_array="", count="")
+    tmp_array = ['--help', 'Show', ' this', 'screen.']
+    old_key, tmp_dic = docopt.check_first_option(tmp_array=tmp_array, count=0)
+    assert old_key == '--help'
+    assert tmp_dic == {'--help': False}
+
+    tmp_array = ['-o', 'FILE', 'Speed', 'in', 'knots']
+    old_key, tmp_dic = docopt.check_first_option(tmp_array=tmp_array, count=0)
+    assert old_key == '-o=<file>'
+    assert tmp_dic == {'-o=<file>': None}
+
+    tmp_array = ['-output=<file>', 'Speed', 'in', 'knots']
+    old_key, tmp_dic = docopt.check_first_option(tmp_array=tmp_array, count=0)
+    assert old_key == '-o=<file>'
+    assert tmp_dic == {'-o=<file>': None}
 
 
 def test_check_other_option():
-    res = docopt.check_other_option(tmp_array="", count=0, old_key="")
+    tmp_array = ['--help', '-h', 'this', 'screen.']
+    old_key, new_key = docopt.check_other_option(tmp_array=tmp_array, count=1, old_key='--help')
+    assert old_key == '--help'
+    assert new_key == '--help -h'
+
+    tmp_array = ['-s=<kn>', '--speed', 'KN', 'Speed', 'in', 'knots']
+    old_key, tmp_dic = docopt.check_other_option(tmp_array=tmp_array, count=1, old_key='-s=<kn>')
+    assert old_key == '-s=<kn>'
+    assert tmp_dic == '-s=<kn> --speed=<kn>'
 
 
 def test_build_output_options_dictionary():
-    res = docopt.build_output_options_dictionary(user_argv="", options_dic="")
+    before = {'-h --help --helping': False, '-o=<file> --output=<file>': 'ttt.pdf',
+              '--speed=<kn>': 10}
+    after = {'--helping': False, '--output': 'ttt.pdf', '--speed': 10}
+    res = docopt.build_output_options_dictionary(user_argv=[], options_dic=before)
+    assert res == after
+
+    before = {'-h --help --helping': False, '-o=<file> --output=<file>': 'ttt.pdf',
+              '--speed=<kn>': 10}
+    after = {'--helping': True, '--output': 'haha.pdf', '--speed': 10}
+    res = docopt.build_output_options_dictionary(user_argv=['-h', '-o=haha.pdf'], options_dic=before)
+    assert res == after
 
 
 def test_check_option_contain_value():
-    res = docopt.check_option_contain_value(output_dic="", options_dic="", arguments="", remove_duplicate="")
+    options_dic = {'-h --help --helping': False, '-o=<file> --output=<file>': 'ttt.pdf'}
+    before = {'-h --help --helping': False, '-o=<file> --output=<file>': 'ttt.pdf'}
 
+    after = {'-h --help --helping': True, '-o=<file> --output=<file>': 'ttt.pdf'}
+    res = docopt.check_option_contain_value(output_dic=before, options_dic=options_dic,
+                                            arguments=['-h'])
+    assert res == after
 
-def test_check_keys():
-    res = docopt.check_keys(element="", is_contain_equal="", output_dic="", options_dic="", remove_duplicate="")
+    after = {'--helping  --help -h': True, '-o=<file> --output=<file>': 'haha.pdf'}
+    res = docopt.check_option_contain_value(output_dic=before, options_dic=options_dic,
+                                            arguments=['-h', '-o=haha.pdf'])
+    assert res == after
 
 
 def test_check_key_without_equal():
-    res = docopt.check_key_without_equal(element="", remove_duplicate="", options_dic="", output_dic="")
+    options_dic = {'-h --help --helping': False, '--moored': False}
+
+    before = {'-h --help --helping': False, '--moored': False}
+    after = {'-h --help --helping': True, '--moored': False}
+    res = docopt.check_key_without_equal(element='--help', options_dic=options_dic, output_dic=before)
+    assert res == after
+
+    before = {'-h --help --helping': False, '--moored': False}
+    after = {'-h --help --helping': False, '--moored': True}
+    res = docopt.check_key_without_equal(element='--moored', options_dic=options_dic, output_dic=before)
+    assert res == after
 
 
 def test_check_key_contain_equal():
-    res = docopt.check_key_contain_equal(element="", remove_duplicate="", options_dic="", output_dic="")
+    options_dic = {'--speed=<kn>': 0, '-o=<file> --output=<file>': 'default.txt'}
+
+    before = {'--speed=<kn>': 0, '-o=<file> --output=<file>': 'default.txt'}
+    after = {'--speed=<kn>': 10.7, '-o=<file> --output=<file>': 'default.txt'}
+    res = docopt.check_key_contain_equal(element="--speed=10.7", options_dic=options_dic, output_dic=before)
+    assert res == after
+
+    before = {'--speed=<kn>': 0, '-o=<file> --output=<file>': 'default.txt'}
+    after = {'--speed=<kn>': 0, '-o=<file> --output=<file>': 'haha.pdf'}
+    res = docopt.check_key_contain_equal(element="-o=haha.pdf", options_dic=options_dic, output_dic=before)
+    assert res == after
 
 
+##############################################################################
+##############################################################################
+# Test print function
 def test_print_output_dictionary():
     res = docopt.print_output_dictionary(usage_dic={}, options_dic={})
 

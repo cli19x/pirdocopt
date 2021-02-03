@@ -17,7 +17,6 @@ Options:
   --moored      Moored (anchored) mine.
   --drifting    Drifting mine.
   --rr     Show version.
-  -s KN  Speed in knots [default: 10].
   --aaa=<file>      Moored (anchored) mine [default: 20].
   --yyy    Drifting mine.
 
@@ -27,5 +26,5 @@ from docopt import docopt
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version="test 2.0", help_message=False,
-                       argv=['--help', '--moored', '--output=ttt.pdf'])
+                       argv=['--help', '--moored', '--output=ttt.pdf', '--speed=10.7'])
     print(arguments)
