@@ -44,7 +44,7 @@ class Token:
 def docopt(doc, argv=None, help_message=True, version=None):
     usages, options = processing_string(doc, help_message, version)
     options_dic = options_parser(argv, sys.argv, options)
-    usage_dic = usage_parser(usages, sys.argv[1:])
+    usage_dic = usage_parser(usages, argv, sys.argv[1:])
     return print_output_dictionary(usage_dic, options_dic)
 
 
@@ -130,7 +130,11 @@ def show_help(name, version, usage, options):
 ###################################################################
 # Main function for checking usage
 # After execution, Usage_dic is populated with appropriate values if successful
-def usage_parser(usages, arguments):
+def usage_parser(usages, argv, user_argv):
+    arguments = user_argv
+    if argv is not None:
+        arguments = argv
+    print(arguments)
     patterns, usage_dic = parse_usage(usages)
     patternToUse = find_matching_pattern(patterns, arguments)
     populate_usage_dic(patternToUse, patterns, arguments, usage_dic)
@@ -304,7 +308,7 @@ def process_paren(tokens, op):
                     else:
                         token = token.r
                 if complete is False:
-                    warnings.warn("Could not find closed paren or bracket.")
+                    raise Exception("Could not find closed paren or bracket.")
 
 
 # Examine each usage pattern and label each token appropriately (argument, option, or command; optional or required)
@@ -486,7 +490,7 @@ def populate_usage_dic(patternToUse, patterns, arguments, usage_dic):
                     if arguments[index] != "None":
                         usage_dic[token.txt] = True
     else:
-        warnings.warn(f"Unexpected pattern in:\n {patterns}")
+        raise Exception("No matching usage pattern found.")
 
 
 ####################################################################
