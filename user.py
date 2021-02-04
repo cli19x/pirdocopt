@@ -26,5 +26,6 @@ from docopt import docopt
 
 if __name__ == '__main__':
     arguments = docopt(__doc__, version="test 2.0", help_message=False,
-                       argv=['--help', '--moored', '--output=ttt.pdf', '--speed=10.7'])
+                       argv=['mine', 'set', '50', '200', '--moored'])
+    print("this is the total dictionary: \n")
     print(arguments)

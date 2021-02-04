@@ -7,7 +7,7 @@ import sys
 import re
 import math
 
-TEST = False
+TEST = True
 
 
 # Object for storing token information
@@ -45,7 +45,9 @@ def docopt(doc, argv=None, help_message=True, version=None):
     usages, options = processing_string(doc, help_message, version)
     options_dic = options_parser(argv, sys.argv, options)
     usage_dic = usage_parser(usages, argv, sys.argv[1:])
-    return print_output_dictionary(usage_dic, options_dic)
+    total_dic, output_string = print_output_dictionary(usage_dic, options_dic)
+    print(output_string)
+    return total_dic
 
 
 #####################################################################
@@ -57,7 +59,8 @@ def docopt(doc, argv=None, help_message=True, version=None):
 # @param version The version string pass from main function
 def processing_string(doc, help_message, version):
     if doc is None:
-        warnings.warn('No docstring found')
+        if not TEST:
+            warnings.warn('No docstring found')
         return
     name, usage, options = get_usage_and_options(doc)
     check_warnings(usage, options)
@@ -100,10 +103,12 @@ def get_usage_and_options(doc):
 # @param options a string that retrieve from the docstring
 def check_warnings(usage, options):
     if len(usage) == 0:
-        warnings.warn('No usage indicated from docstring')
+        if not TEST:
+            warnings.warn('No usage indicated from docstring')
         return 1
     if len(options) == 0:
-        warnings.warn('No options indicated from docstring')
+        if not TEST:
+            warnings.warn('No options indicated from docstring')
         return 2
     return 0
 
@@ -134,7 +139,6 @@ def usage_parser(usages, argv, user_argv):
     arguments = user_argv
     if argv is not None:
         arguments = argv
-    print(arguments)
     patterns, usage_dic = parse_usage(usages)
     patternToUse = find_matching_pattern(patterns, arguments)
     populate_usage_dic(patternToUse, patterns, arguments, usage_dic)
@@ -505,6 +509,7 @@ def options_parser(argv, user_argv, options):
     if argv is not None:
         output_dic = options_dic.copy()
         options_dic = check_option_contain_value(output_dic, options_dic, argv)
+    print(build_output_options_dictionary(user_argv, options_dic))
     return build_output_options_dictionary(user_argv, options_dic)
 
 
@@ -705,7 +710,7 @@ def print_output_dictionary(usage_dic, options_dic):
         rows = math.ceil(length / 3)
     else:
         rows = 8
-    return output_formatter(rows, length, dic_list, dictionary_total)
+    return dictionary_total, output_formatter(rows, length, dic_list, dictionary_total)
 
 
 # A helper function for display a nice looking dictionary to the user
