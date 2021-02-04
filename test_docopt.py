@@ -259,11 +259,19 @@ def test_usage_parser():
 
 
 def test_split_token():
-    res = docopt.split_token(token="")
-
+    arg1 = docopt.Token("comm1|comm2", None, None, None)
+    arg2 = docopt.Token("--opt1|--opt2", None, None, None)
+    res1 = docopt.split_token(arg1)
+    res2 = docopt.split_token(arg2)
+    assert res1[0].txt == "comm1" and res1[1].txt == "comm2" and res1[0].type == "Command"
+    assert res2[0].txt == "--opt1" and res2[1].txt == "--opt2" and res2[0].type == "Option"
+    
 
 def test_convert_tokens():
-    res = docopt.convert_tokens(pattern="", name="")
+    name = "myProgram.py"
+    pattern = "  myProgram.py arg1 arg2 arg3"
+    tokens = docopt.convert_tokens(pattern, name)
+    assert tokens[0].txt == "arg1" and tokens[1].txt == "arg2" and tokens[2].txt == "arg3"
 
 
 def test_parse_args():
