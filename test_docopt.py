@@ -275,19 +275,42 @@ def test_convert_tokens():
 
 
 def test_parse_args():
-    res = docopt.parse_args(tokens="")
+    tokens = [docopt.Token("<arg>", None, None, None), docopt.Token("extra", None, None, None), docopt.Token("ARG", None, None, None)]
+    docopt.parse_args(tokens)
+    assert tokens[0].type=="Argument" and tokens[1].type!="Argument" and tokens[2].type=="Argument"
 
 
 def test_parse_options():
-    res = docopt.parse_options(tokens="")
+    tokens = [docopt.Token("extra-", None, None, None), docopt.Token("-o", None, None, None), docopt.Token("--option", None, None, None)]
+    docopt.parse_options(tokens)
+    assert tokens[0].type!="Option" and tokens[1].type=="Option" and tokens[2].type=="Option"
 
 
 def test_parse_commands():
-    res = docopt.parse_commands(tokens="")
+    tokens = [docopt.Token("|", None, None, None), docopt.Token("-o", None, None, "Option")]
+    tokens.extend([docopt.Token("<arg>", None, None, "Argument"), docopt.Token("comm", None, None, None)])
+    docopt.parse_commands(tokens)
+    assert tokens[0].type!="Command" and tokens[1].type=="Option" and tokens[2].type=="Argument" and tokens[3].type=="Command"
 
 
 def test_parse_mutex():
-    res = docopt.parse_mutex(tokenObjects="")
+    t1 = docopt.Token("mu1|mu2", None, None, "Command")
+    t2 = docopt.Token("--opt", None, None, "Option")
+    t3 = docopt.Token("--tex1", None, None, "Option")
+    t4 = docopt.Token("|", None, None, None)
+    t5 = docopt.Token("--tex2", None, None, "Option")
+    t1.r = t2
+    t2.lf, t2.r = t1, t3
+    t3.lf, t3.r = t2, t4
+    t4.lf, t4.r = t3, t5
+    t5.lf = t4
+    tokens = [t1, t2, t3, t4, t5]
+    docopt.parse_mutex(tokens)
+    assert tokens[0][0].txt == "mu1" and tokens[0][0].type == "Command"
+    assert tokens[0][1].txt == "mu2" and tokens[0][1].type == "Command"
+    assert tokens[1].txt == "--opt" and tokens[1].type == "Option"
+    assert tokens[2][0].txt == "--tex1" and tokens[2][0].type == "Option"
+    assert tokens[2][1].txt == "--tex2" and tokens[2][1].type == "Option"
 
 
 def test_build_usage_dic():
