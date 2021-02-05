@@ -683,7 +683,15 @@ def check_key_contain_equal(element, options_dic, output_dic):
         if '=' in k:
             for tmp in k.split(' '):
                 if element.split('=')[0] == tmp.split('=')[0]:
-                    tmp_dic = {k: element.split('=')[1]}
+                    try:
+                        int(element.split('=')[1])
+                        tmp_dic = {k: int(element.split('=')[1])}
+                    except ValueError:
+                        try:
+                            float(element.split('=')[1])
+                            tmp_dic = {k: float(element.split('=')[1])}
+                        except ValueError:
+                            tmp_dic = {k: element.split('=')[1]}
                     output_dic.update(tmp_dic)
     return output_dic
 
