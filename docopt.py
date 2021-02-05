@@ -172,10 +172,7 @@ def split_token(token):
             index += 1
 
         # Set type for split tokens
-        if tokenObj.txt.startswith('-'):
-            tokenObj.type = "Option"
-        else:
-            tokenObj.type = "Command"
+        tokenObj.type = token.type
 
     return res
 
@@ -232,15 +229,12 @@ def parse_options(tokens):
 # @param tokens is the list of Token objects for a given pattern
 # Simply modifies the existing tokens, no return value
 def parse_commands(tokens):
-    commands = []
     for token in tokens:
         # Ignore lone '|' tokens
         if token.txt != '|':
             # If token isn't an argument or an option, it must be a command
             if token.type != "Argument" and token.type != "Option":
-                if '|' not in token.txt:
-                    token.type = "Command"
-    return commands
+                token.type = "Command"
 
 
 # Handle mutex tokens
