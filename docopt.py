@@ -725,7 +725,6 @@ def output_formatter(rows, length, dic_list, dictionary_total):
     col1 = [' '] * rows
     col2 = [' '] * rows
     col3 = [' '] * rows
-    col1[0] = '{'
     for i in range(0, rows):
         if length > i:
             col1[i] += insert_content(dic_list, i, rows, 0, dictionary_total)
@@ -773,9 +772,14 @@ def print_output_from_rows(col1, col2, col3, rows):
         return col1 + col2 + col3
     final_output = ""
     for k in range(rows):
-        out = col1[k].ljust(spaces1) + ' ' * 4 \
-              + col2[k].ljust(spaces2) + ' ' * 4 \
-              + col3[k].ljust(spaces2)
+        if not TEST and k == 0:
+            out = '{' + col1[k].strip().ljust(spaces1) + ' ' * 4 \
+                  + col2[k].strip().ljust(spaces2) + ' ' * 4 \
+                  + col3[k].strip().ljust(spaces2)
+        else:
+            out = col1[k].ljust(spaces1) + ' ' * 4 \
+                  + col2[k].ljust(spaces2) + ' ' * 4 \
+                  + col3[k].ljust(spaces2)
         if not TEST:
             if k == rows - 1:
                 final_output += (out.rstrip() + '}\n')
