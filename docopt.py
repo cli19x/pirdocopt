@@ -252,9 +252,8 @@ def parse_mutex(tokenObjects):
             tokenObjects[index] = split_token(token)
 
 
-# Populate global Usage_dic with default argument and command values
+# Populate Usage_dic with default argument and command values
 # @param tokenObjects the finalized list of Token objects for a given pattern
-# No return value
 def build_usage_dic(tokenObjects):
     usage_dic = {}
     for token in tokenObjects:
