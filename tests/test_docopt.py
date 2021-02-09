@@ -276,27 +276,35 @@ def test_split_token():
     assert res1[0].txt == "comm1" and res1[1].txt == "comm2" and res1[0].type == "Command"
     assert res2[0].txt == "--opt1" and res2[1].txt == "--opt2" and res2[0].type == "Option"
 
+
 def test_convert_tokens():
     name = "myProgram.py"
     pattern = "  myProgram.py arg1 arg2 arg3"
     tokens = docopt.convert_tokens(pattern, name)
     assert tokens[0].txt == "arg1" and tokens[1].txt == "arg2" and tokens[2].txt == "arg3"
 
+
 def test_parse_args():
-    tokens = [docopt.Token("<arg>", None, None, None), docopt.Token("extra", None, None, None), docopt.Token("ARG", None, None, None)]
+    tokens = [docopt.Token("<arg>", None, None, None), docopt.Token("extra", None, None, None),
+              docopt.Token("ARG", None, None, None)]
     docopt.parse_args(tokens)
-    assert tokens[0].type=="Argument" and tokens[1].type!="Argument" and tokens[2].type=="Argument"
+    assert tokens[0].type == "Argument" and tokens[1].type != "Argument" and tokens[2].type == "Argument"
+
 
 def test_parse_options():
-    tokens = [docopt.Token("extra-", None, None, None), docopt.Token("-o", None, None, None), docopt.Token("--option", None, None, None)]
+    tokens = [docopt.Token("extra-", None, None, None), docopt.Token("-o", None, None, None),
+              docopt.Token("--option", None, None, None)]
     docopt.parse_options(tokens)
-    assert tokens[0].type!="Option" and tokens[1].type=="Option" and tokens[2].type=="Option"
+    assert tokens[0].type != "Option" and tokens[1].type == "Option" and tokens[2].type == "Option"
+
 
 def test_parse_commands():
     tokens = [docopt.Token("|", None, None, None), docopt.Token("-o", None, None, "Option")]
     tokens.extend([docopt.Token("<arg>", None, None, "Argument"), docopt.Token("comm", None, None, None)])
     docopt.parse_commands(tokens)
-    assert tokens[0].type!="Command" and tokens[1].type=="Option" and tokens[2].type=="Argument" and tokens[3].type=="Command"
+    assert tokens[0].type != "Command" and tokens[1].type == "Option" and tokens[2].type == "Argument" and tokens[
+        3].type == "Command"
+
 
 def test_parse_mutex():
     t1 = docopt.Token("mu1|mu2", None, None, "Command")
@@ -317,15 +325,17 @@ def test_parse_mutex():
     assert tokens[2][0].txt == "--tex1" and tokens[2][0].type == "Option"
     assert tokens[2][1].txt == "--tex2" and tokens[2][1].type == "Option"
 
+
 def test_build_usage_dic():
     t1 = [docopt.Token("comm1", None, None, "Command"), docopt.Token("comm2", None, None, "Command")]
     t2 = docopt.Token("<arg1>", None, None, "Argument")
     t3 = docopt.Token("comm3", None, None, "Command")
     t4 = docopt.Token("<arg2>", None, None, "Argument")
     tokens = [t1, t2, t3, t4]
-    res1 = {"comm1":False, "comm2":False, "arg1":None, "comm3":False, "arg2":None}
+    res1 = {"comm1": False, "comm2": False, "arg1": None, "comm3": False, "arg2": None}
     res2 = docopt.build_usage_dic(tokens)
     assert res1 == res2
+
 
 def test_process_paren():
     t1 = docopt.Token("[<arg1>]", None, None, None)
@@ -351,7 +361,8 @@ def test_process_paren():
     tokens2 = [t6]
     with pytest.raises(Exception) as exc_info:
         docopt.process_paren(tokens2, "[")
-    assert exc_info.value.args[0] == "Could not find closed paren or bracket." 
+    assert exc_info.value.args[0] == "Could not find closed paren or bracket."
+
 
 # def test_parse_usage():
 #     res = docopt.parse_usage(usages="")
@@ -569,7 +580,7 @@ def test_check_value_type():
     assert res
 
     res = docopt.check_value_type(value=None)
-    assert res is None
+    assert res
 
 
 def test_print_output_from_rows():
