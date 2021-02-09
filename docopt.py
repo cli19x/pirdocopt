@@ -7,8 +7,6 @@ import sys
 import re
 import math
 
-TEST = True
-
 
 # Object for storing token information
 # @param text stores the raw text of the token
@@ -17,6 +15,9 @@ TEST = True
 # @param ty denotes the type of the token (Argument, Command, or Option)
 # @param is_req denotes whether the token is required or optional (True if required, False if optional)
 class Token:
+    def __getitem__(self, item):
+        pass
+
     def __init__(self, text, left, right, ty):
         self.txt = text
         self.lf = left
@@ -59,8 +60,7 @@ def docopt(doc, argv=None, help_message=True, version=None):
 # @param version The version string pass from main function
 def processing_string(doc, help_message, version):
     if doc is None:
-        if not TEST:
-            warnings.warn('No docstring found')
+        warnings.warn('No docstring found')
         return
     name, usage, options = get_usage_and_options(doc)
     check_warnings(usage, options)
@@ -103,12 +103,10 @@ def get_usage_and_options(doc):
 # @param options a string that retrieve from the docstring
 def check_warnings(usage, options):
     if len(usage) == 0:
-        if not TEST:
-            warnings.warn('No usage indicated from docstring')
+        warnings.warn('No usage indicated from docstring')
         return 1
     if len(options) == 0:
-        if not TEST:
-            warnings.warn('No options indicated from docstring')
+        warnings.warn('No options indicated from docstring')
         return 2
     return 0
 
@@ -502,7 +500,6 @@ def options_parser(argv, user_argv, options):
     if argv is not None:
         output_dic = options_dic.copy()
         options_dic = check_option_contain_value(output_dic, options_dic, argv)
-    print(build_output_options_dictionary(user_argv, options_dic))
     return build_output_options_dictionary(user_argv, options_dic)
 
 
@@ -643,7 +640,7 @@ def build_output_options_dictionary(user_argv, options_dic):
 # @return return the updated output_dic according to the user arguments
 def check_option_contain_value(output_dic, options_dic, arguments):
     for e in arguments:
-        element = e.strip()
+        element = str(e).strip()
         if element[:1] == "-" and '=' not in element:
             output_dic = check_key_without_equal(element, options_dic, output_dic)
         elif element[:1] == "-" and '=' in element:
@@ -767,11 +764,9 @@ def check_value_type(value):
 def print_output_from_rows(col1, col2, col3, rows):
     spaces1 = len(max(col1, key=len))
     spaces2 = len(max(col2, key=len))
-    if TEST:
-        return col1 + col2 + col3
     final_output = ""
     for k in range(rows):
-        if not TEST and k == 0:
+        if k == 0:
             out = '{' + col1[k].strip().ljust(spaces1) + ' ' * 4 \
                   + col2[k].strip().ljust(spaces2) + ' ' * 4 \
                   + col3[k].strip().ljust(spaces2)
@@ -779,9 +774,8 @@ def print_output_from_rows(col1, col2, col3, rows):
             out = col1[k].ljust(spaces1) + ' ' * 4 \
                   + col2[k].ljust(spaces2) + ' ' * 4 \
                   + col3[k].ljust(spaces2)
-        if not TEST:
-            if k == rows - 1:
-                final_output += (out.rstrip() + '}\n')
-            else:
-                final_output += (out.rstrip() + '\n')
+        if k == rows - 1:
+            final_output += (out.rstrip() + '}\n')
+        else:
+            final_output += (out.rstrip() + '\n')
     return final_output

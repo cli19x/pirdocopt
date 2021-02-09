@@ -4,6 +4,19 @@
 import docopt
 import pytest
 
+doc0 = """Perfect
+
+Usage:
+  naval_fate.py ship new <name>...
+  naval_fate.py ship <name> move <x> <y> [--speed=<kn>]
+
+Options:
+  -h --help --helping --haha -hhh --ooooo  Show this screen.
+  -o FILE --output=<value>  Speed in knots [default: ./test.txt].
+  --speed=<kn> -s KN  Speed in knots [default: 10].
+
+"""
+
 doc1 = """Perfect
 
 Usage:
@@ -201,11 +214,16 @@ Options:
 #################################################################################
 #################################################################################
 # Main function test
-# def test_docopt():
-#     res = docopt.docopt(doc=doc1, version="test 2.0", help_message=True,
-#                         argv=argv)
+def test_docopt():
+    res = docopt.docopt(doc=doc0, version="test 2.0", help_message=False,
+                        argv=['ship', 'Titanic', 'move', 10, 90, '--speed=70'])
+    after = {'ship': True, 'new': False, '<name>...': False, 'name': 'Titanic', 'move': True,
+             'x': 10, 'y': 90, '--helping': False, '--output': './test.txt', '--speed': 70}
+    assert after == res
 
 
+# Test function for processing string
+@pytest.mark.filterwarnings("ignore:api v1")
 def test_processing_string():
     usage_array, options_array = docopt.processing_string(doc=doc1, help_message=False, version="test 2.0")
     assert usage.split('\n') == usage_array
@@ -215,6 +233,7 @@ def test_processing_string():
     assert res is None
 
 
+# Test getting the usage and options strings from docstring
 def test_get_usage_and_options():
     tmp_name, tmp_usage, tmp_options = docopt.get_usage_and_options(doc=doc1)
     assert tmp_name == name
@@ -242,6 +261,8 @@ def test_get_usage_and_options():
     assert tmp_options == options_2
 
 
+# Test if the warnings will cause the function to return a correct integer value
+@pytest.mark.filterwarnings("ignore:api v1")
 def test_check_warnings():
     res = docopt.check_warnings(usage=usage, options=options)
     assert res == 0
@@ -253,6 +274,7 @@ def test_check_warnings():
     assert res == 2
 
 
+# Test if help message will display to user correctly
 def test_show_help():
     res = docopt.show_help(name=name, version=version, usage=usage, options=options)
     assert res == help1
@@ -278,9 +300,9 @@ def test_split_token():
 
 
 def test_convert_tokens():
-    name = "myProgram.py"
+    p_name = "myProgram.py"
     pattern = "  myProgram.py arg1 arg2 arg3"
-    tokens = docopt.convert_tokens(pattern, name)
+    tokens = docopt.convert_tokens(pattern, p_name)
     assert tokens[0].txt == "arg1" and tokens[1].txt == "arg2" and tokens[2].txt == "arg3"
 
 
@@ -365,10 +387,11 @@ def test_process_paren():
 
 
 def test_parse_usage():
-    usages = ['Usage:', '  myProgram.py <arg1> comm1 --opt1', '  myProgram.py comm2 ARG2 [--opt2] <ARG3>', '  myProgram.py (mut1|mut2) [--mut3 | --mut4]']
-    u = {"arg1":None, "comm1":False, "comm2":False, "ARG2":None, "ARG3":None, "mut1":False, "mut2":False}
+    usages = ['Usage:', '  myProgram.py <arg1> comm1 --opt1', '  myProgram.py comm2 ARG2 [--opt2] <ARG3>',
+              '  myProgram.py (mut1|mut2) [--mut3 | --mut4]']
+    u = {"arg1": None, "comm1": False, "comm2": False, "ARG2": None, "ARG3": None, "mut1": False, "mut2": False}
     patterns, usage_dic = docopt.parse_usage(usages)
-    
+
     assert usage_dic == u
 
     assert patterns[0][0].txt == "<arg1>" and patterns[0][0].type == "Argument"
@@ -386,8 +409,11 @@ def test_parse_usage():
     assert patterns[2][0][1].txt == "mut2" and patterns[2][0][1].type == "Command"
 
     assert isinstance(patterns[2][1], list) is True
-    assert patterns[2][1][0].txt == "--mut3" and patterns[2][1][0].type == "Option" and patterns[2][1][0].is_req is False
-    assert patterns[2][1][1].txt == "--mut4" and patterns[2][1][1].type == "Option" and patterns[2][1][1].is_req is False
+    assert patterns[2][1][0].txt == "--mut3" and patterns[2][1][0].type == "Option" and patterns[2][1][
+        0].is_req is False
+    assert patterns[2][1][1].txt == "--mut4" and patterns[2][1][1].type == "Option" and patterns[2][1][
+        1].is_req is False
+
 
 #
 #
@@ -426,6 +452,7 @@ def test_options_parser():
     assert res == options_dic
 
 
+# Test getting the usage and options strings from docstring
 def test_check_option_lines():
     options_dic = {'-h --help --helping --haha -hhh --ooooo': False, '--sorted': False,
                    '-o=<file> --output=<value>': './test.txt', '--version': False,
@@ -607,8 +634,15 @@ def test_check_value_type():
 
 
 def test_print_output_from_rows():
-    res = docopt.print_output_from_rows(col1="", col2="", col3="", rows="")
-
-
-if __name__ == '__main__':
-    test_insert_content()
+    col1 = [' 11', ' 2', ' 3', ' 4', ' 5']
+    col2 = [' 1', ' 222', ' 3', ' 4', ' ']
+    col3 = [' 1', ' 2', ' 3333', ' ', ' ']
+    outputting = "{11     1       1\n" + \
+                 " 2      222     2\n" + \
+                 " 3      3       3333\n" + \
+                 " 4      4\n" + \
+                 " 5}\n"
+    res = docopt.print_output_from_rows(col1=col1,
+                                        col2=col2,
+                                        col3=col3, rows=5)
+    assert res == outputting
