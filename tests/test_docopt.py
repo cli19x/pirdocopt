@@ -350,11 +350,11 @@ def test_process_paren():
     t5.lf = t4
     tokens1 = [t1, t2, t3, t4, t5]
     docopt.process_paren(tokens1, '[')
-    assert t1.isReq is False and t1.txt == "<arg1>"
-    assert t2.isReq is False and t2.txt == "comm1"
-    assert t3.isReq is False and t3.txt == "comm2"
-    assert t4.isReq is False and t4.txt == "comm3"
-    assert t5.isReq is True and t5.txt == "--opt"
+    assert t1.is_req is False and t1.txt == "<arg1>"
+    assert t2.is_req is False and t2.txt == "comm1"
+    assert t3.is_req is False and t3.txt == "comm2"
+    assert t4.is_req is False and t4.txt == "comm3"
+    assert t5.is_req is True and t5.txt == "--opt"
 
     # Test for exception raised if unmatched paren
     t6 = docopt.Token("[<arg2>", None, None, None)
@@ -364,8 +364,31 @@ def test_process_paren():
     assert exc_info.value.args[0] == "Could not find closed paren or bracket."
 
 
-# def test_parse_usage():
-#     res = docopt.parse_usage(usages="")
+def test_parse_usage():
+    usages = ['Usage:', '  myProgram.py <arg1> comm1 --opt1', '  myProgram.py comm2 ARG2 [--opt2] <ARG3>', '  myProgram.py (mut1|mut2) [--mut3 | --mut4]']
+    u = {"arg1":None, "comm1":False, "comm2":False, "ARG2":None, "ARG3":None, "mut1":False, "mut2":False}
+    patterns, usage_dic = docopt.parse_usage(usages)
+    
+    assert usage_dic == u
+
+    assert patterns[0][0].txt == "<arg1>" and patterns[0][0].type == "Argument"
+    assert patterns[0][1].txt == "comm1" and patterns[0][1].type == "Command"
+    assert patterns[0][2].txt == "--opt1" and patterns[0][2].type == "Option"
+
+    assert patterns[1][0].txt == "comm2" and patterns[1][0].type == "Command"
+    assert patterns[1][1].txt == "ARG2" and patterns[1][1].type == "Argument"
+    assert patterns[1][2].txt == "--opt2" and patterns[1][2].type == "Option" and patterns[1][2].is_req is False
+    assert patterns[1][3].txt == "<ARG3>" and patterns[1][3].type == "Argument"
+
+    # Handle mutually exclusive tokens
+    assert isinstance(patterns[2][0], list) is True
+    assert patterns[2][0][0].txt == "mut1" and patterns[2][0][0].type == "Command"
+    assert patterns[2][0][1].txt == "mut2" and patterns[2][0][1].type == "Command"
+
+    assert isinstance(patterns[2][1], list) is True
+    assert patterns[2][1][0].txt == "--mut3" and patterns[2][1][0].type == "Option" and patterns[2][1][0].is_req is False
+    assert patterns[2][1][1].txt == "--mut4" and patterns[2][1][1].type == "Option" and patterns[2][1][1].is_req is False
+
 #
 #
 # def test_check_mutex():
