@@ -102,6 +102,14 @@ def get_usage_and_options(doc):
 # @param usage a string the retrieve from the docstring
 # @param options a string that retrieve from the docstring
 def check_warnings(usage, options):
+    """Return warnings and a number to represent the error
+        >>> check_warnings("11111","")
+        2
+        >>> check_warnings("","11111")
+        1
+        >>> check_warnings("2222222222","11111")
+        0
+        """
     if len(usage) == 0:
         warnings.warn('No usage indicated from docstring')
         return 1
@@ -751,8 +759,22 @@ def insert_content(dic_list, idx, rows, col_idx, dictionary_total):
 # @param value the value for current key in the dictionary
 # @return return the boolean value whether the value passed in is primitive
 def check_value_type(value):
+    """Return True if the passed in type is primitive or None.
+        >>> check_value_type(30)
+        True
+        >>> check_value_type(-1)
+        True
+        >>> check_value_type(19.8)
+        True
+        >>> check_value_type(None)
+        True
+        >>> check_value_type("haha")
+        False
+        >>> check_value_type(['jjj'])
+        False
+        """
     return type(value) == int or type(value) == float \
-           or type(value) == bool or value is None
+        or type(value) == bool or value is None
 
 
 # Helper method for printing out dictionary as a json string to user

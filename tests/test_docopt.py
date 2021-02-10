@@ -525,6 +525,7 @@ def test_check_option_lines():
     assert res == options_dic
 
 
+# Test for if function can get the default values correctly from the docstring
 def test_find_default_value():
     options_dic = {'-o=<file> --output=<file>': None}
     line = '-o FILE --output=<value>  Speed in knots [default: ./test.txt].'
@@ -542,6 +543,7 @@ def test_find_default_value():
     assert res == {'--aaa=<value>': 20.9}
 
 
+# Test function for the function for inserting new options into the dictionary
 def test_check_first_option():
     tmp_array = ['--help', 'Show', ' this', 'screen.']
     old_key, tmp_dic = docopt.check_first_option(tmp_array=tmp_array, count=0)
@@ -559,6 +561,7 @@ def test_check_first_option():
     assert tmp_dic == {'--output=<file>': None}
 
 
+# Test function for the function for inserting a secondary or more keyword for an option into the dictionary
 def test_check_other_option():
     tmp_array = ['--help', '-h', 'this', 'screen.']
     old_key, new_key = docopt.check_other_option(tmp_array=tmp_array, count=1, old_key='--help')
@@ -571,6 +574,7 @@ def test_check_other_option():
     assert tmp_dic == '-s=<kn> --speed=<kn>'
 
 
+# Test function for if the function can build a correct dictionary based on docstring and user inputs
 def test_build_output_options_dictionary():
     before = {'-h --help --helping': False, '-o=<file> --output=<file>': 'ttt.pdf',
               '--speed=<kn>': 10}
@@ -585,6 +589,7 @@ def test_build_output_options_dictionary():
     assert res == after
 
 
+# Test function for the function to decide whether the current keyword contains a value
 def test_check_option_contain_value():
     options_dic = {'-h --help --helping': False, '-o=<file> --output=<file>': 'ttt.pdf'}
     before = {'-h --help --helping': False, '-o=<file> --output=<file>': 'ttt.pdf'}
@@ -600,6 +605,7 @@ def test_check_option_contain_value():
     assert res == after
 
 
+# Test function for the function to check the keywords without a cooperating value
 def test_check_key_without_equal():
     options_dic = {'-h --help --helping': False, '--moored': False}
 
@@ -614,6 +620,7 @@ def test_check_key_without_equal():
     assert res == after
 
 
+# Test function for the function to check the keywords with a cooperating value
 def test_check_key_contain_equal():
     options_dic = {'--speed=<kn>': 0, '-o=<file> --output=<file>': 'default.txt'}
 
@@ -650,18 +657,21 @@ def test_print_output_dictionary():
     assert dic_total == {**input3, **options_dic}
 
 
+# Test function for testing the function for outputting a correct format of dictionary according
+# to the user arguments as well as the docstring
 def test_output_formatter():
     dic = {'--helping': True, '--sorted': True, '--output': 'ttt.pdf', '--version': False, '--speed': 10,
            '--moored': True, '--drifting': None, '--rr': False, '--aaa': 20.9, '--yyy': False}
-    after = [" '--helping': True", " '--sorted': True", " '--output': 'ttt.pdf'", " '--version': False",
-             " '--speed': 10", " '--moored': True", " '--drifting': None", " '--rr': False",
-             " '--aaa': 20.9", " '--yyy': False", ' ', ' ']
+    after = "{'--helping': True         '--speed': 10          '--aaa': 20.9\n" + \
+            " '--sorted': True          '--moored': True       '--yyy': False\n" + \
+            " '--output': 'ttt.pdf'     '--drifting': None\n" + \
+            " '--version': False        '--rr': False}\n"
     dic_list = list(dic)
     res = docopt.output_formatter(rows=4, length=len(dic_list), dic_list=dic_list, dictionary_total=dic)
-    assert len(res) == 12
     assert res == after
 
 
+# Test function for the function on inserting the key value pairs into the output arrays
 def test_insert_content():
     dic = {'--helping': True, '--sorted': None, '--output': 'ttt.pdf', '--speed': 10, '--aaa': 20.9}
     dic_list = list(dic)
@@ -681,6 +691,7 @@ def test_insert_content():
     assert '\'--aaa\'' + ': ' + '20.9' == res
 
 
+# Test function for the function that check if the value provided is primitive type or a string
 def test_check_value_type():
     res = docopt.check_value_type(value="hello world")
     assert not res
@@ -695,6 +706,7 @@ def test_check_value_type():
     assert res
 
 
+# Test function for the function which will lineup the strings in the arrays in a correct way
 def test_print_output_from_rows():
     col1 = [' 11', ' 2', ' 3', ' 4', ' 5']
     col2 = [' 1', ' 222', ' 3', ' 4', ' ']
