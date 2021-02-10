@@ -415,18 +415,80 @@ def test_parse_usage():
         1].is_req is False
 
 
-#
-#
-# def test_check_mutex():
-#     res = docopt.check_mutex(index="", token="", arguments="")
-#
-#
-# def test_check_tokens():
-#     res = docopt.check_tokens(index="", token="", arguments="")
-#
-#
-# def test_find_conflict():
-#     res = docopt.find_conflict(p="", arguments="")
+def test_check_mutex():
+    token = [docopt.Token("comm1", None, None, "Command"), docopt.Token("comm2", None, None, "Command")]
+    token[0].is_req, token[1].is_req = True, True
+    arguments = ["blah", "bleh", "comm1", "blih"]
+    index = 2
+    assert docopt.check_mutex(index, token, arguments) is False
+
+    arguments.insert(3, "comm2")
+    assert docopt.check_mutex(index, token, arguments) is True
+
+    token[0].is_req, token[1].is_req = False, False
+    arguments = ["blah", "bleh", "blih"]
+    assert docopt.check_mutex(index, token, arguments) is False
+
+
+def test_check_tokens():
+    # Check handling of missing optional arguments
+    t_right = docopt.Token("--opt1", None, None, "Option")
+    token = docopt.Token("<arg1>", None, t_right, "Argument")
+    token.is_req = False
+    
+    arguments = ["comm1", "--opt1"]
+    index = 1
+
+    assert docopt.check_tokens(index, token, arguments) is False
+
+    t_right = [docopt.Token("--opt1", None, None, "Option"), docopt.Token("--opt2", None, None, "Option")]
+    assert docopt.check_tokens(index, token, arguments) is False
+
+    # Check for commands, optional and required
+    token = docopt.Token("comm1", None, None, "Command")
+    arguments = ["<arg1>", "comm1"]
+    assert docopt.check_tokens(index, token, arguments) is False
+
+    arguments = ["<arg1>", "--opt1"]
+    assert docopt.check_tokens(index, token, arguments) is True
+
+    token.is_req = False
+    assert docopt.check_tokens(index, token, arguments) is False
+
+    # Check for options, optional and required
+    token = docopt.Token("--opt1=<kn>", None, None, "Option")
+    arguments = ["<arg1>", "--opt1=50"]
+    assert docopt.check_tokens(index, token, arguments) is False
+
+    token.txt = "--opt1"
+    arguments[1] = "--opt1"
+    assert docopt.check_tokens(index, token, arguments) is False
+
+    arguments[1] = "comm1"
+    assert docopt.check_tokens(index, token, arguments) is True
+
+    token.is_req = False
+    assert docopt.check_tokens(index, token, arguments) is False
+
+
+def test_find_conflict():
+    usage = [[docopt.Token("mut1", None, None, "Command"), docopt.Token("mut2", None, None, "Command")]]
+    usage.extend([docopt.Token("<arg1>", None, None, "Argument"), docopt.Token("--opt1", None, None, "Option")])
+
+    arguments = ["mut1", "50", "--opt1"]
+    assert docopt.find_conflict(usage, arguments) is False
+
+    arguments = ["mut1", "mut2", "50", "--opt1"]
+    assert docopt.find_conflict(usage, arguments) is True
+
+    usage[2].is_req = False
+    arguments = ["mut2", "50"]
+    assert docopt.find_conflict(usage, arguments) is False
+
+    usage[1].is_req = False
+    usage[1].r = usage[2]
+    arguments = ["mut1", "--opt1"]
+    assert docopt.find_conflict(usage, arguments) is False
 #
 #
 # def test_find_matching_pattern():
