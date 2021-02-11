@@ -1,7 +1,7 @@
 ``pirdocopt`` a helper for enhancing your command line project 
 ==================================================================
 
-How to Use
+How to Install
 ========================
 It is simple just include ``docopt.py`` in you project folder and import the module ``import docoopt``.
 
