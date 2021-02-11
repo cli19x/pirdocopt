@@ -56,13 +56,15 @@ Features
 - ``docopt`` will match the useage pattern specified by you in the docstring and show errors if user input a wrong pattern.
 - <value> means the required value from usage arguments
 - [--option] means a opotion 
-- for usage patterns ``docopt`` support (value1|value2) for required choices from user 
+- For usage patterns ``docopt`` support (value1|value2) for required choices from user 
   and [-option1 | --option2] for optional choices from user
-- for options, ``docopt`` support multiple keywords for one option e.g. -h --help
-- for options that has an value, you can either use -option=<value> or -option VALUE.
-- for multiple keywords in options, the output dictionay will only display the detailest (longest) keyword. 
+- For options, ``docopt`` support multiple keywords for one option e.g. -h --help
+- For options that has an value, you can either use -option=<value> or -option VALUE.
+- For multiple keywords in options, the output dictionay will only display the detailest (longest) keyword. 
+- Show warnings if you program does not hava a docstring that meets the min case or you docstring does not includes a Usage pattern list or options list.
 
 Usage pattern format
+-----------------------
 
 The minimum case for docstring:
 
