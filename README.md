@@ -82,7 +82,7 @@ The different cases for usage patterns:
 
 
 
-Optional Parameters
+Required and Optional Parameters
 ------------
 ``docopt`` provides 4 different parameters
 - ``__doc__`` is a required parameter for ``docopt` to recevie the docstring from you program.
