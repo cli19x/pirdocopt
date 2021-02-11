@@ -5,6 +5,11 @@ How to Install
 ========================
 It is simple just include ``docopt.py`` in you project folder and import the module ``import docoopt``.
 
+API
+============
+     from docopt import docopt
+     arguments = docopt(__doc__, version="", help_message=Ture, argv=[])
+
 Usages
 ========
 When you have a command-line python program which contains a docstring and want to show user all the usage patterns
