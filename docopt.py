@@ -361,12 +361,9 @@ def check_mutex(index, token, arguments):
     if type(token) is list:
         if token[0].is_req is False and index >= len(arguments):
             arguments.insert(index, "None")
+            return False
         found_mutex_match = False
         for t in token:
-            # Check if token is optional
-            if t.is_req is False:
-                found_mutex_match = True  # Bypass check later on
-                break
             if arguments[index] == t.txt:
                 found_mutex_match = True
 
@@ -376,11 +373,14 @@ def check_mutex(index, token, arguments):
                         found_conflict = True
                 break
         if found_mutex_match is False:
-            if token[0].is_req is not True:
-                arguments.insert(index, "None")
-            found_conflict = True
+            if token[0].is_req is True:
+                found_conflict = True
+            else:
+                if token[0].r is not None:
+                    arguments.insert(index, "None")
+                else:
+                    found_conflict = True
     return found_conflict
-
 
 # Check individual arg, command, and optional tokens for a match with corresponding input token
 # @param index the index of which token we are examining, used to retrieve input token in Arguments
