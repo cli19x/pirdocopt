@@ -7,6 +7,7 @@ It is simple just include ``docopt.py`` in you project folder and import the mod
 
 API
 ============
+
      from docopt import docopt
      arguments = docopt(__doc__, version="", help_message=Ture, argv=[])
 
@@ -85,14 +86,15 @@ Features
 --------
 
 - ``docopt`` will match the useage pattern specified by you in the docstring and show errors if user input a wrong pattern.
-- <value> means the required value from usage arguments
-- [--option] means a opotion 
-- For usage patterns ``docopt`` support (value1|value2) for required choices from user 
-  and [-option1 | --option2] for optional choices from user
-- For options, ``docopt`` support multiple keywords for one option e.g. -h --help
-- For options that has an value, you can either use --option= <value> or --option VALUE.
+- ``<value>`` means the required value from usage arguments
+- ``[--option]`` means a opotion 
+- For usage patterns ``docopt`` support ``(value1|value2)`` for required choices from user 
+  and ``[-option1 | --option2]`` for optional choices from user
+- For options, ``docopt`` support multiple keywords for one option e.g. ``-h --help``
+- For options that has an value, you can either use ``--option= <value>`` or ``--option VALUE``.
 - For multiple keywords in options, the output dictionay will only display the detailest (longest) keyword. 
-- Show warnings if you program does not hava a docstring that meets the min case or you docstring does not includes a Usage pattern list or options list.
+- Show warnings if you program does not hava a docstring that meets the min case or 
+  your docstring does not includes a Usage pattern list or options list.
 
 Formats
 -----------------------
