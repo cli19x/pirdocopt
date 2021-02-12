@@ -426,6 +426,7 @@ def test_check_mutex():
     assert docopt.check_mutex(index, token, arguments) is True
 
     token[0].is_req, token[1].is_req = False, False
+    token[0].r = docopt.Token("extra", None, None, "Command")
     arguments = ["blah", "bleh", "blih"]
     assert docopt.check_mutex(index, token, arguments) is False
 
@@ -489,15 +490,65 @@ def test_find_conflict():
     usage[1].r = usage[2]
     arguments = ["mut1", "--opt1"]
     assert docopt.find_conflict(usage, arguments) is False
-#
-#
-# def test_find_matching_pattern():
-#     res = docopt.find_matching_pattern(patterns="", arguments="")
-#
-#
-# def test_populate_usage_dic():
-#     res = docopt.populate_usage_dic(patternToUse="", patterns="", arguments="", usage_dic="")
-#
+
+
+def test_find_matching_pattern():
+    pattern1 = [docopt.Token("comm1", None, None, "Command")]
+    pattern1.append(docopt.Token("<arg1>", None, None, "Argument"))
+    pattern1.append(docopt.Token("<arg2>", None, None, "Argument"))
+    pattern1.append([docopt.Token("--opt1", None, None, "Option"), docopt.Token("--opt2", None, None, "Option")])
+    pattern1[3][0].is_req, pattern1[3][1].is_req = False, False
+
+    pattern2 = [[docopt.Token("comm1", None, None, "Command"), docopt.Token("comm2", None, None, "Command")]]
+    pattern2.append(docopt.Token("-o", None, None, "Option"))
+    pattern2.append(docopt.Token("ARG3", None, None, "Argument"))
+
+    patterns = [pattern1, pattern2]
+    
+    arguments1 = ["comm1", "50", "Mine", "--opt2"]
+    arguments2 = ["comm1", "100", "Yours", "--opt1"]
+    arguments3 = ["comm2", "-o", "shoot"]
+    arguments4 = ["comm1", "50", "Mine"]
+    arguments5 = ["comm1", "comm2", "-o", "shoot"]
+
+    assert docopt.find_matching_pattern(patterns, arguments1) == 0
+    assert docopt.find_matching_pattern(patterns, arguments2) == 0
+    assert docopt.find_matching_pattern(patterns, arguments3) == 1
+    assert docopt.find_matching_pattern(patterns, arguments4) == 0
+    assert docopt.find_matching_pattern(patterns, arguments5) is None
+
+    
+def test_populate_usage_dic():
+    pattern1 = [docopt.Token("comm1", None, None, "Command")]
+    pattern1.append(docopt.Token("<arg1>", None, None, "Argument"))
+    pattern1.append(docopt.Token("<arg2>", None, None, "Argument"))
+    pattern1.append([docopt.Token("--opt1", None, None, "Option"), docopt.Token("--opt2", None, None, "Option")])
+    pattern1[3][0].is_req, pattern1[3][1].is_req = False, False
+
+    pattern2 = [[docopt.Token("comm1", None, None, "Command"), docopt.Token("comm2", None, None, "Command")]]
+    pattern2.append(docopt.Token("-o", None, None, "Option"))
+    pattern2.append(docopt.Token("ARG3", None, None, "Argument"))
+
+    patterns = [pattern1, pattern2]
+    usage_dic_1 = {"comm1":False, "comm2":False, "arg1":None, "arg2":None, "ARG3":None}
+    usage_dic_2 = {"comm1":False, "comm2":False, "arg1":None, "arg2":None, "ARG3":None}
+
+    args1 = ["comm1", "50", "100", "--opt1"]
+    args2 = ["comm2", "-o", "shoot"]
+
+    ptu0 = None
+    ptu1 = 0
+    ptu2 = 1
+
+    with pytest.raises(Exception) as exc_info:
+        docopt.populate_usage_dic(ptu0, patterns, args1, usage_dic_1)
+    assert exc_info.value.args[0] == "No matching usage pattern found."
+
+    docopt.populate_usage_dic(ptu1, patterns, args1, usage_dic_1)
+    assert usage_dic_1 == {"comm1":True, "comm2":False, "arg1":'50', "arg2":'100', "ARG3":None}
+
+    docopt.populate_usage_dic(ptu2, patterns, args2, usage_dic_2)
+    assert usage_dic_2 == {"comm1":False, "comm2":True, "arg1":None, "arg2":None, "ARG3":"shoot"}
 
 ##########################################################################################
 ##########################################################################################
