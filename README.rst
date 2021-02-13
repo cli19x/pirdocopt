@@ -169,7 +169,7 @@ The different cases for usage patterns::
     my_program.py  (value1 | value2)    #GOOD a pattern that contains a choosable required arugment.
     my_program.py  [-option1 | --option2]    #GOOD a pattern that contains a choosable optional arugment.
     my_program.py  a1 | a2    #BAD mutual choices will either inside a bracket or a round parenthese.
-
+    
 The different cases for options table::
 
 
@@ -193,19 +193,16 @@ The different cases for options table::
 
 Required and Optional Parameters
 ------------
-``docopt`` provides 4 different parameters::
-
-    - ``__doc__`` is a required parameter for ``docopt` to recevie the docstring from you program.
-    - ``version=""`` is a optional parameter that you can specify you program version in string and display to user
-    - ``help_message=False`` is a optional parameter that default is set to ``Ture``.
-        It allows ``docopt`` to show you docstring as well as the version specified above each time your program is excuted.
-    - ``argv=[]`` is also a optional parameter in which you can put an array of default arguments (must match your docstring usage pattern).
+- ``__doc__`` is a required parameter for ``docopt` to recevie the docstring from you program.
+- ``version=""`` is a optional parameter that you can specify you program version in string and display to user
+- ``help_message=False`` is a optional parameter that default is set to ``Ture``. It allows ``docopt`` to standard output your docstring and the version specified by you right after the program is excuted.
+- ``argv=[]`` is also a optional parameter in which you can put an array of default arguments (must match your docstring usage pattern).
 
 Support
 -------
 
 If you are having issues, please let us know.
-We have a mailing list located at: cl19x@my.fsu.edu; ktw16b@my.fsu.edu
+We have a mailing list located at: cl19x@my.fsu.edu or ktw16b@my.fsu.edu
 
 
 License
