@@ -286,10 +286,46 @@ def test_show_help():
 #################################################################################
 #################################################################################
 # # Usage function test
-# def test_usage_parser():
-#     res = docopt.usage_parser(usages="", arguments="")
-#
-#
+def test_usage_parser():
+    usages = ['Usage:', 
+      "  naval_fate.py ship new <name>",
+      "  naval_fate.py ship <name> move <x> <y> [--speed=<kn>]",
+      "  naval_fate.py ship shoot <x> <y>",
+      "  naval_fate.py mine (set|remove) <x> <y> [--moored | --drifting]",
+      "  naval_fate.py (-h | --help)",
+      "  naval_fate.py --version"]
+
+    args1 = ["ship", "new", "Boat"]
+    args2 = ["ship", "new"]
+    args3 = ["ship", "shoot", "50", "100"]
+    args4 = ["ship", "Boat", "move", "50", "100"]
+    args5 = ["mine", "set", "remove", "50", "100", "--drifting"]
+    args6 = ["mine", "remove", "50", "100"]
+    args7 = ["--help"]
+
+    usage_dic_1 = docopt.usage_parser(usages.copy(), None, args1)
+    assert usage_dic_1["ship"] is True and usage_dic_1["new"] is True and usage_dic_1["name"] == "Boat"
+
+    with pytest.raises(Exception) as exc_info:
+        res = docopt.usage_parser(usages.copy(), None, args2)
+    assert exc_info.value.args[0] == "No matching usage pattern found."
+
+    usage_dic_3 = docopt.usage_parser(usages.copy(), args3, None)
+    assert usage_dic_3["ship"] is True and usage_dic_3["shoot"] is True and usage_dic_3["x"]=='50' and usage_dic_3["y"] == '100'
+
+    usage_dic_4 = docopt.usage_parser(usages.copy(), args4, None)
+    assert usage_dic_3["ship"] is True and usage_dic_3["shoot"] is True and usage_dic_3["x"]=='50' and usage_dic_3["y"] == '100'
+
+    with pytest.raises(Exception) as exc_info:
+        res = docopt.usage_parser(usages.copy(), None, args5)
+    assert exc_info.value.args[0] == "No matching usage pattern found."
+
+    usage_dic_6 = docopt.usage_parser(usages.copy(), args6, None)
+    assert usage_dic_6["mine"] is True and usage_dic_6["remove"] is True and usage_dic_6["x"]=='50' and usage_dic_6["set"] is False
+
+    usage_dic_7 = docopt.usage_parser(usages.copy(), args7, None)
+
+    
 def test_split_token():
     arg1 = docopt.Token("comm1|comm2", None, None, "Command")
     arg2 = docopt.Token("--opt1|--opt2", None, None, "Option")
@@ -517,7 +553,7 @@ def test_find_matching_pattern():
     assert docopt.find_matching_pattern(patterns, arguments4) == 0
     assert docopt.find_matching_pattern(patterns, arguments5) is None
 
-    
+
 def test_populate_usage_dic():
     pattern1 = [docopt.Token("comm1", None, None, "Command")]
     pattern1.append(docopt.Token("<arg1>", None, None, "Argument"))
