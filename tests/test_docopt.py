@@ -224,7 +224,7 @@ def test_docopt():
 
 # Test function for processing string
 @pytest.mark.filterwarnings("ignore:api v1")
-def test_processing_string():
+def test_processing_string(capsys):
     usage_array, options_array = docopt.processing_string(doc=doc1, help_message=False, version="test 2.0")
     assert usage.split('\n') == usage_array
     assert options.split('\n') == options_array
@@ -232,7 +232,11 @@ def test_processing_string():
     res = docopt.processing_string(doc=None, help_message=False, version="test 2.0")
     assert res is None
 
-    
+    usage_array, options_array = docopt.processing_string(doc=doc1, help_message=True, version="test 2.0")
+    assert usage.split('\n') == usage_array
+    assert options.split('\n') == options_array
+    captured = capsys.readouterr()
+    assert len(captured.out) > 0
 
 
 # Test getting the usage and options strings from docstring
@@ -289,13 +293,13 @@ def test_show_help():
 #################################################################################
 # # Usage function test
 def test_usage_parser():
-    usages = ['Usage:', 
-      "  naval_fate.py ship new <name>",
-      "  naval_fate.py ship <name> move <x> <y> [--speed=<kn>]",
-      "  naval_fate.py ship shoot <x> <y>",
-      "  naval_fate.py mine (set|remove) <x> <y> [--moored | --drifting]",
-      "  naval_fate.py (-h | --help)",
-      "  naval_fate.py --version"]
+    usages = ['Usage:',
+              "  naval_fate.py ship new <name>",
+              "  naval_fate.py ship <name> move <x> <y> [--speed=<kn>]",
+              "  naval_fate.py ship shoot <x> <y>",
+              "  naval_fate.py mine (set|remove) <x> <y> [--moored | --drifting]",
+              "  naval_fate.py (-h | --help)",
+              "  naval_fate.py --version"]
 
     args1 = ["ship", "new", "Boat"]
     args2 = ["ship", "new"]
@@ -313,21 +317,24 @@ def test_usage_parser():
     assert exc_info.value.args[0] == "No matching usage pattern found."
 
     usage_dic_3 = docopt.usage_parser(usages.copy(), args3, None)
-    assert usage_dic_3["ship"] is True and usage_dic_3["shoot"] is True and usage_dic_3["x"]=='50' and usage_dic_3["y"] == '100'
+    assert usage_dic_3["ship"] is True and usage_dic_3["shoot"] is True and usage_dic_3["x"] == '50' and usage_dic_3[
+        "y"] == '100'
 
     usage_dic_4 = docopt.usage_parser(usages.copy(), args4, None)
-    assert usage_dic_3["ship"] is True and usage_dic_3["shoot"] is True and usage_dic_3["x"]=='50' and usage_dic_3["y"] == '100'
+    assert usage_dic_3["ship"] is True and usage_dic_3["shoot"] is True and usage_dic_3["x"] == '50' and usage_dic_3[
+        "y"] == '100'
 
     with pytest.raises(Exception) as exc_info:
         res = docopt.usage_parser(usages.copy(), None, args5)
     assert exc_info.value.args[0] == "No matching usage pattern found."
 
     usage_dic_6 = docopt.usage_parser(usages.copy(), args6, None)
-    assert usage_dic_6["mine"] is True and usage_dic_6["remove"] is True and usage_dic_6["x"]=='50' and usage_dic_6["set"] is False
+    assert usage_dic_6["mine"] is True and usage_dic_6["remove"] is True and usage_dic_6["x"] == '50' and usage_dic_6[
+        "set"] is False
 
     usage_dic_7 = docopt.usage_parser(usages.copy(), args7, None)
 
-    
+
 def test_split_token():
     arg1 = docopt.Token("comm1|comm2", None, None, "Command")
     arg2 = docopt.Token("--opt1|--opt2", None, None, "Option")
@@ -471,13 +478,12 @@ def test_check_mutex():
     assert docopt.check_mutex(index, token, arguments) is False
 
 
-
 def test_check_tokens():
     # Check handling of missing optional arguments
     t_right = docopt.Token("--opt1", None, None, "Option")
     token = docopt.Token("<arg1>", None, t_right, "Argument")
     token.is_req = False
-    
+
     arguments = ["comm1", "--opt1"]
     index = 1
 
@@ -545,7 +551,7 @@ def test_find_matching_pattern():
     pattern2.append(docopt.Token("ARG3", None, None, "Argument"))
 
     patterns = [pattern1, pattern2]
-    
+
     arguments1 = ["comm1", "50", "Mine", "--opt2"]
     arguments2 = ["comm1", "100", "Yours", "--opt1"]
     arguments3 = ["comm2", "-o", "shoot"]
@@ -571,8 +577,8 @@ def test_populate_usage_dic():
     pattern2.append(docopt.Token("ARG3", None, None, "Argument"))
 
     patterns = [pattern1, pattern2]
-    usage_dic_1 = {"comm1":False, "comm2":False, "arg1":None, "arg2":None, "ARG3":None}
-    usage_dic_2 = {"comm1":False, "comm2":False, "arg1":None, "arg2":None, "ARG3":None}
+    usage_dic_1 = {"comm1": False, "comm2": False, "arg1": None, "arg2": None, "ARG3": None}
+    usage_dic_2 = {"comm1": False, "comm2": False, "arg1": None, "arg2": None, "ARG3": None}
 
     args1 = ["comm1", "50", "100", "--opt1"]
     args2 = ["comm2", "-o", "shoot"]
@@ -586,10 +592,11 @@ def test_populate_usage_dic():
     assert exc_info.value.args[0] == "No matching usage pattern found."
 
     docopt.populate_usage_dic(ptu1, patterns, args1, usage_dic_1)
-    assert usage_dic_1 == {"comm1":True, "comm2":False, "arg1":'50', "arg2":'100', "ARG3":None}
+    assert usage_dic_1 == {"comm1": True, "comm2": False, "arg1": '50', "arg2": '100', "ARG3": None}
 
     docopt.populate_usage_dic(ptu2, patterns, args2, usage_dic_2)
-    assert usage_dic_2 == {"comm1":False, "comm2":True, "arg1":None, "arg2":None, "ARG3":"shoot"}
+    assert usage_dic_2 == {"comm1": False, "comm2": True, "arg1": None, "arg2": None, "ARG3": "shoot"}
+
 
 ##########################################################################################
 ##########################################################################################

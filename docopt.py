@@ -15,7 +15,7 @@ import math
 # @param ty denotes the type of the token (Argument, Command, or Option)
 # @param is_req denotes whether the token is required or optional (True if required, False if optional)
 class Token:
-    #def __getitem__(self, item):
+    # def __getitem__(self, item):
     #    pass
 
     def __init__(self, text, left, right, ty):
@@ -25,10 +25,10 @@ class Token:
         self.type = ty
         self.is_req = True
 
-    #def __str__(self):
+    # def __str__(self):
     #    return self.txt
 
-    #def __repr__(self):
+    # def __repr__(self):
     #    return self.txt
 
 
@@ -167,7 +167,7 @@ def split_token(token):
 
         # Create rest of the Token objects
         else:
-            token_obj = Token(x, res[index-1], None, None)
+            token_obj = Token(x, res[index - 1], None, None)
             token_obj.is_req = token.is_req
             res.append(token_obj)
             res[index].r = token_obj  # Link previous token to new token
@@ -176,7 +176,7 @@ def split_token(token):
         # Set type for split tokens
         token_obj.type = token.type
 
-    res[len(res)-1].r = token.r
+    res[len(res) - 1].r = token.r
 
     return res
 
@@ -377,6 +377,7 @@ def check_mutex(index, token, arguments):
                 else:
                     found_conflict = True
     return found_conflict
+
 
 # Check individual arg, command, and optional tokens for a match with corresponding input token
 # @param index the index of which token we are examining, used to retrieve input token in Arguments
@@ -649,8 +650,6 @@ def check_option_contain_value(output_dic, options_dic, arguments):
             output_dic = check_key_without_equal(element, options_dic, output_dic)
         elif element[:1] == "-" and '=' in element:
             output_dic = check_key_contain_equal(element, options_dic, output_dic)
-        else:
-            continue
     return output_dic
 
 
