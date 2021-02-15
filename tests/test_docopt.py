@@ -232,6 +232,8 @@ def test_processing_string():
     res = docopt.processing_string(doc=None, help_message=False, version="test 2.0")
     assert res is None
 
+    
+
 
 # Test getting the usage and options strings from docstring
 def test_get_usage_and_options():
@@ -461,10 +463,13 @@ def test_check_mutex():
     arguments.insert(3, "comm2")
     assert docopt.check_mutex(index, token, arguments) is True
 
+    arguments = ["blah", "bleh", "blih"]
+    assert docopt.check_mutex(index, token, arguments) is True
+
     token[0].is_req, token[1].is_req = False, False
     token[0].r = docopt.Token("extra", None, None, "Command")
-    arguments = ["blah", "bleh", "blih"]
     assert docopt.check_mutex(index, token, arguments) is False
+
 
 
 def test_check_tokens():

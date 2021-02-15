@@ -15,8 +15,8 @@ import math
 # @param ty denotes the type of the token (Argument, Command, or Option)
 # @param is_req denotes whether the token is required or optional (True if required, False if optional)
 class Token:
-    def __getitem__(self, item):
-        pass
+    #def __getitem__(self, item):
+    #    pass
 
     def __init__(self, text, left, right, ty):
         self.txt = text
@@ -25,11 +25,11 @@ class Token:
         self.type = ty
         self.is_req = True
 
-    def __str__(self):
-        return self.txt
+    #def __str__(self):
+    #    return self.txt
 
-    def __repr__(self):
-        return self.txt
+    #def __repr__(self):
+    #    return self.txt
 
 
 #########################################################################
@@ -157,8 +157,7 @@ def usage_parser(usages, argv, user_argv):
 def split_token(token):
     raw_split = token.txt.split('|')
     res = []
-    index = 0
-    for x in raw_split:
+    for index, x in enumerate(raw_split):
 
         # Create first Token object
         if index == 0:
@@ -168,10 +167,7 @@ def split_token(token):
 
         # Create rest of the Token objects
         else:
-            if index < (len(res) - 1):
-                token_obj = Token(x, res[index], None, None)
-            else:
-                token_obj = Token(x, res[index], token.r, None)
+            token_obj = Token(x, res[index-1], None, None)
             token_obj.is_req = token.is_req
             res.append(token_obj)
             res[index].r = token_obj  # Link previous token to new token
@@ -179,6 +175,8 @@ def split_token(token):
 
         # Set type for split tokens
         token_obj.type = token.type
+
+    res[len(res)-1].r = token.r
 
     return res
 
@@ -265,9 +263,7 @@ def build_usage_dic(token_objects):
     for token in token_objects:
         if type(token) is list:
             for t in token:
-                if t.type == "Argument":
-                    usage_dic[t.txt.strip("<>")] = None
-                elif t.type == "Command":
+                if t.type == "Command":
                     usage_dic[t.txt] = False
         else:
             if token.type == "Argument":
