@@ -8,20 +8,23 @@ import re
 import math
 
 
-# Object for storing token information
-# @param text stores the raw text of the token
-# @param left is a pointer to the token to the left in the usage pattern
-# @param right is a pointer to the token to the right in the usage pattern
-# @param ty denotes the type of the token (Argument, Command, or Option)
-# @param is_req denotes whether the token is required or optional (True if required, False if optional)
 class Token:
+    """ Class for holding usages patterns
+        Object for storing token information
+        @param text stores the raw text of the token
+        @param left is a pointer to the token to the left in the usage pattern
+        @param right is a pointer to the token to the right in the usage pattern
+        @param ty denotes the type of the token (Argument, Command, or Option)
+        @param is_req denotes whether the token is required or optional
+        (True if required, False if optional)
+    """
     # def __getitem__(self, item):
     #    pass
 
     def __init__(self, text, left, right, ty):
         self.txt = text
-        self.lf = left
-        self.r = right
+        self.left = left
+        self.right = right
         self.type = ty
         self.is_req = True
 
@@ -310,7 +313,8 @@ def process_paren(tokens, op):
                     raise Exception("Could not find closed paren or bracket.")
 
 
-# Examine each usage pattern and label each token appropriately (argument, option, or command; optional or required)
+# Examine each usage pattern and label each token appropriately
+# (argument, option, or command; optional or required)
 # Builds Usage_dic using these Token objects
 # Fills Patterns global object with finalized lists of tokens
 def parse_usage(usages):
@@ -420,7 +424,8 @@ def check_tokens(index, token, arguments):
 # @param p the usage pattern we are checking, a list of Token objects
 # Returns True if a conflict is found, False otherwise
 def find_conflict(p, arguments):
-    found_conflict = False  # Used to check if the pattern does not match, success if found_conflict remains False
+    # Used to check if the pattern does not match, success if found_conflict remains False
+    found_conflict = False
     for index, token in enumerate(p):
 
         if type(token) is list:
@@ -542,7 +547,8 @@ def check_option_lines(options):
 # a default value that specify by the programmer
 # @param line a string that holds the current line
 # @param old_key a string that holds the current key for the options dictionary
-# @options_dic a dictionary that passed from main function, needs to do updates on it from this function
+# @options_dic a dictionary that passed from main function,
+# needs to do updates on it from this function
 # @return return the updated options dic to the caller function
 def find_default_value(line, old_key, options_dic):
     default_value = line[line.find("[") + 1:line.find("]")]
@@ -769,7 +775,7 @@ def check_value_type(value):
         False
         """
     return type(value) == int or type(value) == float \
-        or type(value) == bool or value is None
+           or type(value) == bool or value is None
 
 
 # Helper method for printing out dictionary as a json string to user
