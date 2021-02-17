@@ -192,10 +192,11 @@ The different cases for options table::
 
 
 Required and Optional Parameters
-------------
-- ``__doc__`` is a required parameter for ``docopt` to recevie the docstring from you program.
+----------------------------------
+
+- ``__doc__`` is a required parameter for ``docopt`` to receive the docstring from you program.
 - ``version=""`` is a optional parameter that you can specify you program version in string and display to user
-- ``help_message=False`` is a optional parameter that default is set to ``Ture``. It allows ``docopt`` to standard output your docstring and the version specified by you right after the program is excuted.
+- ``help_message=False`` is a optional parameter that default is set to ``Ture``. It allows ``docopt`` to standard output your docstring and the version specified by you right after the program is executed.
 - ``argv=[]`` is also a optional parameter in which you can put an array of default arguments (must match your docstring usage pattern).
 
 Support

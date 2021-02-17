@@ -8,16 +8,18 @@ import re
 import math
 
 
+# Object for storing token information
+# @param text stores the raw text of the token
+# @param left is a pointer to the token to the left in the usage pattern
+# @param right is a pointer to the token to the right in the usage pattern
+# @param ty denotes the type of the token (Argument, Command, or Option)
+# @param is_req denotes whether the token is required or optional
+# (True if required, False if optional)
 class Token:
     """ Class for holding usages patterns
-        Object for storing token information
-        @param text stores the raw text of the token
-        @param left is a pointer to the token to the left in the usage pattern
-        @param right is a pointer to the token to the right in the usage pattern
-        @param ty denotes the type of the token (Argument, Command, or Option)
-        @param is_req denotes whether the token is required or optional
-        (True if required, False if optional)
+
     """
+
     # def __getitem__(self, item):
     #    pass
 
@@ -164,7 +166,7 @@ def split_token(token):
 
         # Create first Token object
         if index == 0:
-            token_obj = Token(x, token.lf, None, None)
+            token_obj = Token(x, token.left, None, None)
             token_obj.is_req = token.is_req
             res.append(token_obj)
 
@@ -173,13 +175,13 @@ def split_token(token):
             token_obj = Token(x, res[index - 1], None, None)
             token_obj.is_req = token.is_req
             res.append(token_obj)
-            res[index].r = token_obj  # Link previous token to new token
+            res[index].right = token_obj  # Link previous token to new token
             index += 1
 
         # Set type for split tokens
         token_obj.type = token.type
 
-    res[len(res) - 1].r = token.r
+    res[len(res) - 1].right = token.right
 
     return res
 
@@ -205,7 +207,7 @@ def convert_tokens(pattern, name):
                 token_objects.append(token_obj)
             else:
                 token_obj = Token(token_raw, token_objects[index], None, None)
-                token_objects[index].r = token_obj
+                token_objects[index].right = token_obj
                 token_objects.append(token_obj)
                 index += 1
     return token_objects
@@ -252,8 +254,8 @@ def parse_commands(tokens):
 def parse_mutex(token_objects):
     for index, token in enumerate(token_objects):
         if token.txt == '|':
-            token_objects[index - 1] = [token.lf, token.r]
-            token_objects.remove(token.r)
+            token_objects[index - 1] = [token.left, token.right]
+            token_objects.remove(token.right)
             token_objects.remove(token)
         elif '|' in token.txt:
             token_objects[index] = split_token(token)
@@ -299,7 +301,7 @@ def process_paren(tokens, op):
             else:
                 token.is_req = is_req
                 temp_required = [token]
-                token = token.r
+                token = token.right
                 # search for closed parenthesis until we find it or reach the end of the pattern
                 while complete is False and token is not None:
                     token.is_req = is_req
@@ -308,7 +310,7 @@ def process_paren(tokens, op):
                         complete = True
                         token.txt = token.txt.strip(closed)
                     else:
-                        token = token.r
+                        token = token.right
                 if complete is False:
                     raise Exception("Could not find closed paren or bracket.")
 
@@ -376,7 +378,7 @@ def check_mutex(index, token, arguments):
             if token[0].is_req is True:
                 found_conflict = True
             else:
-                if token[0].r is not None:
+                if token[0].right is not None:
                     arguments.insert(index, "None")
                 else:
                     found_conflict = True
@@ -391,7 +393,8 @@ def check_tokens(index, token, arguments):
     found_conflict = False
     # Handle missing optional arguments
     if token.type == "Argument" and token.is_req is False:
-        if arguments[index] == (token.r.txt if type(token.r) is Token else token.r[0].txt):
+        if arguments[index] == \
+                (token.right.txt if type(token.right) is Token else token.right[0].txt):
             arguments.insert(index, "None")
 
     # If pattern token is a command, check if input token matches
@@ -774,8 +777,7 @@ def check_value_type(value):
         >>> check_value_type(['jjj'])
         False
         """
-    return type(value) == int or type(value) == float \
-           or type(value) == bool or value is None
+    return type(value) == int or type(value) == float or type(value) == bool or value is None
 
 
 # Helper method for printing out dictionary as a json string to user

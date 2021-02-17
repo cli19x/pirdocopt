@@ -225,14 +225,16 @@ def test_docopt():
 # Test function for processing string
 @pytest.mark.filterwarnings("ignore:api v1")
 def test_processing_string(capsys):
-    usage_array, options_array = docopt.processing_string(doc=doc1, help_message=False, version="test 2.0")
+    usage_array, options_array = docopt.processing_string(doc=doc1,
+                                                          help_message=False, version="test 2.0")
     assert usage.split('\n') == usage_array
     assert options.split('\n') == options_array
 
     res = docopt.processing_string(doc=None, help_message=False, version="test 2.0")
     assert res is None
 
-    usage_array, options_array = docopt.processing_string(doc=doc1, help_message=True, version="test 2.0")
+    usage_array, options_array = docopt.processing_string(doc=doc1,
+                                                          help_message=True, version="test 2.0")
     assert usage.split('\n') == usage_array
     assert options.split('\n') == options_array
     captured = capsys.readouterr()
@@ -310,27 +312,31 @@ def test_usage_parser():
     args7 = ["--help"]
 
     usage_dic_1 = docopt.usage_parser(usages.copy(), None, args1)
-    assert usage_dic_1["ship"] is True and usage_dic_1["new"] is True and usage_dic_1["name"] == "Boat"
+    assert usage_dic_1["ship"] is True and usage_dic_1["new"] is True and usage_dic_1[
+        "name"] == "Boat"
 
     with pytest.raises(Exception) as exc_info:
         res = docopt.usage_parser(usages.copy(), None, args2)
     assert exc_info.value.args[0] == "No matching usage pattern found."
 
     usage_dic_3 = docopt.usage_parser(usages.copy(), args3, None)
-    assert usage_dic_3["ship"] is True and usage_dic_3["shoot"] is True and usage_dic_3["x"] == '50' and usage_dic_3[
-        "y"] == '100'
+    assert usage_dic_3["ship"] is True and usage_dic_3["shoot"] is True and usage_dic_3[
+        "x"] == '50' and usage_dic_3[
+               "y"] == '100'
 
     usage_dic_4 = docopt.usage_parser(usages.copy(), args4, None)
-    assert usage_dic_3["ship"] is True and usage_dic_3["shoot"] is True and usage_dic_3["x"] == '50' and usage_dic_3[
-        "y"] == '100'
+    assert usage_dic_3["ship"] is True and usage_dic_3["shoot"] is True and usage_dic_3[
+        "x"] == '50' and usage_dic_3[
+               "y"] == '100'
 
     with pytest.raises(Exception) as exc_info:
         res = docopt.usage_parser(usages.copy(), None, args5)
     assert exc_info.value.args[0] == "No matching usage pattern found."
 
     usage_dic_6 = docopt.usage_parser(usages.copy(), args6, None)
-    assert usage_dic_6["mine"] is True and usage_dic_6["remove"] is True and usage_dic_6["x"] == '50' and usage_dic_6[
-        "set"] is False
+    assert usage_dic_6["mine"] is True and usage_dic_6["remove"] is True and usage_dic_6[
+        "x"] == '50' and usage_dic_6[
+               "set"] is False
 
     usage_dic_7 = docopt.usage_parser(usages.copy(), args7, None)
 
@@ -355,7 +361,8 @@ def test_parse_args():
     tokens = [docopt.Token("<arg>", None, None, None), docopt.Token("extra", None, None, None),
               docopt.Token("ARG", None, None, None)]
     docopt.parse_args(tokens)
-    assert tokens[0].type == "Argument" and tokens[1].type != "Argument" and tokens[2].type == "Argument"
+    assert tokens[0].type == "Argument" and tokens[1].type != "Argument" and tokens[
+        2].type == "Argument"
 
 
 def test_parse_options():
@@ -367,10 +374,12 @@ def test_parse_options():
 
 def test_parse_commands():
     tokens = [docopt.Token("|", None, None, None), docopt.Token("-o", None, None, "Option")]
-    tokens.extend([docopt.Token("<arg>", None, None, "Argument"), docopt.Token("comm", None, None, None)])
+    tokens.extend(
+        [docopt.Token("<arg>", None, None, "Argument"), docopt.Token("comm", None, None, None)])
     docopt.parse_commands(tokens)
-    assert tokens[0].type != "Command" and tokens[1].type == "Option" and tokens[2].type == "Argument" and tokens[
-        3].type == "Command"
+    assert tokens[0].type != "Command" and tokens[1].type == "Option" and tokens[
+        2].type == "Argument" and tokens[
+               3].type == "Command"
 
 
 def test_parse_mutex():
@@ -379,11 +388,11 @@ def test_parse_mutex():
     t3 = docopt.Token("--tex1", None, None, "Option")
     t4 = docopt.Token("|", None, None, None)
     t5 = docopt.Token("--tex2", None, None, "Option")
-    t1.r = t2
-    t2.lf, t2.r = t1, t3
-    t3.lf, t3.r = t2, t4
-    t4.lf, t4.r = t3, t5
-    t5.lf = t4
+    t1.right = t2
+    t2.left, t2.right = t1, t3
+    t3.left, t3.right = t2, t4
+    t4.left, t4.right = t3, t5
+    t5.left = t4
     tokens = [t1, t2, t3, t4, t5]
     docopt.parse_mutex(tokens)
     assert tokens[0][0].txt == "mu1" and tokens[0][0].type == "Command"
@@ -394,7 +403,8 @@ def test_parse_mutex():
 
 
 def test_build_usage_dic():
-    t1 = [docopt.Token("comm1", None, None, "Command"), docopt.Token("comm2", None, None, "Command")]
+    t1 = [docopt.Token("comm1", None, None, "Command"),
+          docopt.Token("comm2", None, None, "Command")]
     t2 = docopt.Token("<arg1>", None, None, "Argument")
     t3 = docopt.Token("comm3", None, None, "Command")
     t4 = docopt.Token("<arg2>", None, None, "Argument")
@@ -410,11 +420,11 @@ def test_process_paren():
     t3 = docopt.Token("comm2", None, None, None)
     t4 = docopt.Token("comm3]", None, None, None)
     t5 = docopt.Token("--opt", None, None, None)
-    t1.r = t2
-    t2.lf, t2.r = t1, t3
-    t3.lf, t3.r = t2, t4
-    t4.lf, t4.r = t3, t5
-    t5.lf = t4
+    t1.right = t2
+    t2.left, t2.right = t1, t3
+    t3.left, t3.right = t2, t4
+    t4.left, t4.right = t3, t5
+    t5.left = t4
     tokens1 = [t1, t2, t3, t4, t5]
     docopt.process_paren(tokens1, '[')
     assert t1.is_req is False and t1.txt == "<arg1>"
@@ -432,9 +442,11 @@ def test_process_paren():
 
 
 def test_parse_usage():
-    usages = ['Usage:', '  myProgram.py <arg1> comm1 --opt1', '  myProgram.py comm2 ARG2 [--opt2] <ARG3>',
+    usages = ['Usage:', '  myProgram.py <arg1> comm1 --opt1',
+              '  myProgram.py comm2 ARG2 [--opt2] <ARG3>',
               '  myProgram.py (mut1|mut2) [--mut3 | --mut4]']
-    u = {"arg1": None, "comm1": False, "comm2": False, "ARG2": None, "ARG3": None, "mut1": False, "mut2": False}
+    u = {"arg1": None, "comm1": False, "comm2": False, "ARG2": None, "ARG3": None, "mut1": False,
+         "mut2": False}
     patterns, usage_dic = docopt.parse_usage(usages)
 
     assert usage_dic == u
@@ -445,7 +457,8 @@ def test_parse_usage():
 
     assert patterns[1][0].txt == "comm2" and patterns[1][0].type == "Command"
     assert patterns[1][1].txt == "ARG2" and patterns[1][1].type == "Argument"
-    assert patterns[1][2].txt == "--opt2" and patterns[1][2].type == "Option" and patterns[1][2].is_req is False
+    assert patterns[1][2].txt == "--opt2" and patterns[1][2].type == "Option" and patterns[1][
+        2].is_req is False
     assert patterns[1][3].txt == "<ARG3>" and patterns[1][3].type == "Argument"
 
     # Handle mutually exclusive tokens
@@ -454,14 +467,17 @@ def test_parse_usage():
     assert patterns[2][0][1].txt == "mut2" and patterns[2][0][1].type == "Command"
 
     assert isinstance(patterns[2][1], list) is True
-    assert patterns[2][1][0].txt == "--mut3" and patterns[2][1][0].type == "Option" and patterns[2][1][
-        0].is_req is False
-    assert patterns[2][1][1].txt == "--mut4" and patterns[2][1][1].type == "Option" and patterns[2][1][
-        1].is_req is False
+    assert patterns[2][1][0].txt == "--mut3" and patterns[2][1][0].type == "Option" and \
+           patterns[2][1][
+               0].is_req is False
+    assert patterns[2][1][1].txt == "--mut4" and patterns[2][1][1].type == "Option" and \
+           patterns[2][1][
+               1].is_req is False
 
 
 def test_check_mutex():
-    token = [docopt.Token("comm1", None, None, "Command"), docopt.Token("comm2", None, None, "Command")]
+    token = [docopt.Token("comm1", None, None, "Command"),
+             docopt.Token("comm2", None, None, "Command")]
     token[0].is_req, token[1].is_req = True, True
     arguments = ["blah", "bleh", "comm1", "blih"]
     index = 2
@@ -474,7 +490,7 @@ def test_check_mutex():
     assert docopt.check_mutex(index, token, arguments) is True
 
     token[0].is_req, token[1].is_req = False, False
-    token[0].r = docopt.Token("extra", None, None, "Command")
+    token[0].right = docopt.Token("extra", None, None, "Command")
     assert docopt.check_mutex(index, token, arguments) is False
 
 
@@ -489,7 +505,8 @@ def test_check_tokens():
 
     assert docopt.check_tokens(index, token, arguments) is False
 
-    t_right = [docopt.Token("--opt1", None, None, "Option"), docopt.Token("--opt2", None, None, "Option")]
+    t_right = [docopt.Token("--opt1", None, None, "Option"),
+               docopt.Token("--opt2", None, None, "Option")]
     assert docopt.check_tokens(index, token, arguments) is False
 
     # Check for commands, optional and required
@@ -520,8 +537,10 @@ def test_check_tokens():
 
 
 def test_find_conflict():
-    usage = [[docopt.Token("mut1", None, None, "Command"), docopt.Token("mut2", None, None, "Command")]]
-    usage.extend([docopt.Token("<arg1>", None, None, "Argument"), docopt.Token("--opt1", None, None, "Option")])
+    usage = [
+        [docopt.Token("mut1", None, None, "Command"), docopt.Token("mut2", None, None, "Command")]]
+    usage.extend([docopt.Token("<arg1>", None, None, "Argument"),
+                  docopt.Token("--opt1", None, None, "Option")])
 
     arguments = ["mut1", "50", "--opt1"]
     assert docopt.find_conflict(usage, arguments) is False
@@ -534,7 +553,7 @@ def test_find_conflict():
     assert docopt.find_conflict(usage, arguments) is False
 
     usage[1].is_req = False
-    usage[1].r = usage[2]
+    usage[1].right = usage[2]
     arguments = ["mut1", "--opt1"]
     assert docopt.find_conflict(usage, arguments) is False
 
@@ -543,10 +562,12 @@ def test_find_matching_pattern():
     pattern1 = [docopt.Token("comm1", None, None, "Command")]
     pattern1.append(docopt.Token("<arg1>", None, None, "Argument"))
     pattern1.append(docopt.Token("<arg2>", None, None, "Argument"))
-    pattern1.append([docopt.Token("--opt1", None, None, "Option"), docopt.Token("--opt2", None, None, "Option")])
+    pattern1.append([docopt.Token("--opt1", None, None, "Option"),
+                     docopt.Token("--opt2", None, None, "Option")])
     pattern1[3][0].is_req, pattern1[3][1].is_req = False, False
 
-    pattern2 = [[docopt.Token("comm1", None, None, "Command"), docopt.Token("comm2", None, None, "Command")]]
+    pattern2 = [[docopt.Token("comm1", None, None, "Command"),
+                    docopt.Token("comm2", None, None, "Command")]]
     pattern2.append(docopt.Token("-o", None, None, "Option"))
     pattern2.append(docopt.Token("ARG3", None, None, "Argument"))
 
@@ -569,10 +590,12 @@ def test_populate_usage_dic():
     pattern1 = [docopt.Token("comm1", None, None, "Command")]
     pattern1.append(docopt.Token("<arg1>", None, None, "Argument"))
     pattern1.append(docopt.Token("<arg2>", None, None, "Argument"))
-    pattern1.append([docopt.Token("--opt1", None, None, "Option"), docopt.Token("--opt2", None, None, "Option")])
+    pattern1.append([docopt.Token("--opt1", None, None, "Option"),
+                     docopt.Token("--opt2", None, None, "Option")])
     pattern1[3][0].is_req, pattern1[3][1].is_req = False, False
 
-    pattern2 = [[docopt.Token("comm1", None, None, "Command"), docopt.Token("comm2", None, None, "Command")]]
+    pattern2 = [[docopt.Token("comm1", None, None, "Command"),
+                 docopt.Token("comm2", None, None, "Command")]]
     pattern2.append(docopt.Token("-o", None, None, "Option"))
     pattern2.append(docopt.Token("ARG3", None, None, "Argument"))
 
@@ -595,21 +618,27 @@ def test_populate_usage_dic():
     assert usage_dic_1 == {"comm1": True, "comm2": False, "arg1": '50', "arg2": '100', "ARG3": None}
 
     docopt.populate_usage_dic(ptu2, patterns, args2, usage_dic_2)
-    assert usage_dic_2 == {"comm1": False, "comm2": True, "arg1": None, "arg2": None, "ARG3": "shoot"}
+    assert usage_dic_2 == {"comm1": False, "comm2": True, "arg1": None, "arg2": None,
+                           "ARG3": "shoot"}
 
 
 ##########################################################################################
 ##########################################################################################
 # Option function test
 def test_options_parser():
-    options_dic = {'--helping': True, '--sorted': True, '--output': 'ttt.pdf', '--version': False, '--speed': 10,
-                   '--moored': True, '--drifting': False, '--rr': False, '--aaa': 20, '--yyy': False}
+    options_dic = {'--helping': True, '--sorted': True, '--output': 'ttt.pdf', '--version': False,
+                   '--speed': 10,
+                   '--moored': True, '--drifting': False, '--rr': False, '--aaa': 20,
+                   '--yyy': False}
     res = docopt.options_parser(argv=argv, user_argv=['--sorted'], options=options.split("\n"))
     assert res == options_dic
 
-    options_dic = {'--helping': True, '--sorted': False, '--output': 'ttt.pdf', '--version': False, '--speed': 10,
-                   '--moored': False, '--drifting': False, '--rr': False, '--aaa': 20, '--yyy': False}
-    res = docopt.options_parser(argv=None, user_argv=['-h', '-o=ttt.pdf'], options=options.split("\n"))
+    options_dic = {'--helping': True, '--sorted': False, '--output': 'ttt.pdf', '--version': False,
+                   '--speed': 10,
+                   '--moored': False, '--drifting': False, '--rr': False, '--aaa': 20,
+                   '--yyy': False}
+    res = docopt.options_parser(argv=None, user_argv=['-h', '-o=ttt.pdf'],
+                                options=options.split("\n"))
     assert res == options_dic
 
 
@@ -628,12 +657,14 @@ def test_check_option_lines():
 def test_find_default_value():
     options_dic = {'-o=<file> --output=<file>': None}
     line = '-o FILE --output=<value>  Speed in knots [default: ./test.txt].'
-    res = docopt.find_default_value(line=line, old_key="-o=<file> --output=<file>", options_dic=options_dic)
+    res = docopt.find_default_value(line=line, old_key="-o=<file> --output=<file>",
+                                    options_dic=options_dic)
     assert res == {'-o=<file> --output=<file>': './test.txt'}
 
     options_dic = {'--speed=<kn> -s=<kn>': None}
     line = '--speed=<kn> -s KN  Speed in knots [default: 10].'
-    res = docopt.find_default_value(line=line, old_key="--speed=<kn> -s=<kn>", options_dic=options_dic)
+    res = docopt.find_default_value(line=line, old_key="--speed=<kn> -s=<kn>",
+                                    options_dic=options_dic)
     assert res == {'--speed=<kn> -s=<kn>': 10}
 
     options_dic = {'--aaa=<value>': None}
@@ -660,7 +691,8 @@ def test_check_first_option():
     assert tmp_dic == {'--output=<file>': None}
 
 
-# Test function for the function for inserting a secondary or more keyword for an option into the dictionary
+# Test function for the function for inserting a secondary or
+# more keyword for an option into the dictionary
 def test_check_other_option():
     tmp_array = ['--help', '-h', 'this', 'screen.']
     old_key, new_key = docopt.check_other_option(tmp_array=tmp_array, count=1, old_key='--help')
@@ -673,7 +705,8 @@ def test_check_other_option():
     assert tmp_dic == '-s=<kn> --speed=<kn>'
 
 
-# Test function for if the function can build a correct dictionary based on docstring and user inputs
+# Test function for if the function can build a correct dictionary
+# based on docstring and user inputs
 def test_build_output_options_dictionary():
     before = {'-h --help --helping': False, '-o=<file> --output=<file>': 'ttt.pdf',
               '--speed=<kn>': 10}
@@ -684,7 +717,8 @@ def test_build_output_options_dictionary():
     before = {'-h --help --helping': False, '-o=<file> --output=<file>': 'ttt.pdf',
               '--speed=<kn>': 10}
     after = {'--helping': True, '--output': 'haha.pdf', '--speed': 10}
-    res = docopt.build_output_options_dictionary(user_argv=['-h', '-o=haha.pdf'], options_dic=before)
+    res = docopt.build_output_options_dictionary(user_argv=['-h', '-o=haha.pdf'],
+                                                 options_dic=before)
     assert res == after
 
 
@@ -710,12 +744,14 @@ def test_check_key_without_equal():
 
     before = {'-h --help --helping': False, '--moored': False}
     after = {'-h --help --helping': True, '--moored': False}
-    res = docopt.check_key_without_equal(element='--help', options_dic=options_dic, output_dic=before)
+    res = docopt.check_key_without_equal(element='--help', options_dic=options_dic,
+                                         output_dic=before)
     assert res == after
 
     before = {'-h --help --helping': False, '--moored': False}
     after = {'-h --help --helping': False, '--moored': True}
-    res = docopt.check_key_without_equal(element='--moored', options_dic=options_dic, output_dic=before)
+    res = docopt.check_key_without_equal(element='--moored', options_dic=options_dic,
+                                         output_dic=before)
     assert res == after
 
 
@@ -725,12 +761,14 @@ def test_check_key_contain_equal():
 
     before = {'--speed=<kn>': 0, '-o=<file> --output=<file>': 'default.txt'}
     after = {'--speed=<kn>': 10.7, '-o=<file> --output=<file>': 'default.txt'}
-    res = docopt.check_key_contain_equal(element="--speed=10.7", options_dic=options_dic, output_dic=before)
+    res = docopt.check_key_contain_equal(element="--speed=10.7", options_dic=options_dic,
+                                         output_dic=before)
     assert res == after
 
     before = {'--speed=<kn>': 0, '-o=<file> --output=<file>': 'default.txt'}
     after = {'--speed=<kn>': 0, '-o=<file> --output=<file>': 'haha.pdf'}
-    res = docopt.check_key_contain_equal(element="-o=haha.pdf", options_dic=options_dic, output_dic=before)
+    res = docopt.check_key_contain_equal(element="-o=haha.pdf", options_dic=options_dic,
+                                         output_dic=before)
     assert res == after
 
 
@@ -759,14 +797,16 @@ def test_print_output_dictionary():
 # Test function for testing the function for outputting a correct format of dictionary according
 # to the user arguments as well as the docstring
 def test_output_formatter():
-    dic = {'--helping': True, '--sorted': True, '--output': 'ttt.pdf', '--version': False, '--speed': 10,
+    dic = {'--helping': True, '--sorted': True, '--output': 'ttt.pdf', '--version': False,
+           '--speed': 10,
            '--moored': True, '--drifting': None, '--rr': False, '--aaa': 20.9, '--yyy': False}
     after = "{'--helping': True         '--speed': 10          '--aaa': 20.9\n" + \
             " '--sorted': True          '--moored': True       '--yyy': False\n" + \
             " '--output': 'ttt.pdf'     '--drifting': None\n" + \
             " '--version': False        '--rr': False}\n"
     dic_list = list(dic)
-    res = docopt.output_formatter(rows=4, length=len(dic_list), dic_list=dic_list, dictionary_total=dic)
+    res = docopt.output_formatter(rows=4, length=len(dic_list), dic_list=dic_list,
+                                  dictionary_total=dic)
     assert res == after
 
 
