@@ -147,6 +147,7 @@ def show_help(name, version, usage, options):
 # Main function for checking usage
 # After execution, Usage_dic is populated with appropriate values if successful
 def usage_parser(usages, argv, user_argv):
+    """Matches user input with usage patterns and returns populated usage_dic."""
     arguments = user_argv
     if argv is not None:
         arguments = argv
@@ -160,19 +161,20 @@ def usage_parser(usages, argv, user_argv):
 # @param token is a Token object of the form "token1|token2"
 # Returns a list object with the split tokens, i.e. ["token1", "token2"]
 def split_token(token):
+    """Splits Token by '|' and returns list of separated Tokens."""
     raw_split = token.txt.split('|')
     res = []
-    for index, x in enumerate(raw_split):
+    for index, raw_t in enumerate(raw_split):
 
         # Create first Token object
         if index == 0:
-            token_obj = Token(x, token.left, None, None)
+            token_obj = Token(raw_t, token.left, None, None)
             token_obj.is_req = token.is_req
             res.append(token_obj)
 
         # Create rest of the Token objects
         else:
-            token_obj = Token(x, res[index - 1], None, None)
+            token_obj = Token(raw_t, res[index - 1], None, None)
             token_obj.is_req = token.is_req
             res.append(token_obj)
             res[index].right = token_obj  # Link previous token to new token
@@ -191,6 +193,7 @@ def split_token(token):
 # @param name the name of the program - used to ignore the program name when creating the tokens
 # Returns a linked list of Token objects
 def convert_tokens(pattern, name):
+    """Extracts raw pattern tokens and returns linked list of converted Tokens."""
     # Split pattern into individual tokens and remove leading empty space
     tokens_raw = pattern.split(" ")
     tokens_raw.pop(0)
@@ -213,10 +216,10 @@ def convert_tokens(pattern, name):
     return token_objects
 
 
-# Sets type attribute for all argument tokens to Argument
 # @param tokens is the list of Token objects for a given pattern
 # Simply modifies the existing tokens, no return value
 def parse_args(tokens):
+    """Sets type attribute for all argument tokens to Argument."""
     for token in tokens:
         if token.txt.startswith('<') is True and token.txt.endswith('>') is True:
             token.type = "Argument"
@@ -225,19 +228,19 @@ def parse_args(tokens):
                 token.type = "Argument"
 
 
-# Sets type attribute for all option tokens to Option
 # @param tokens is the list of Token objects for a given pattern
 # Simply modifies the existing tokens, no return value
 def parse_options(tokens):
+    """Sets type attribute for all option tokens to Option."""
     for token in tokens:
         if token.txt.startswith('-') is True:
             token.type = "Option"
 
 
-# Sets type attribute for all command tokens to Command
 # @param tokens is the list of Token objects for a given pattern
 # Simply modifies the existing tokens, no return value
 def parse_commands(tokens):
+    """Sets type attribute for all command tokens to Command."""
     for token in tokens:
         # Ignore lone '|' tokens
         if token.txt != '|':
@@ -247,11 +250,11 @@ def parse_commands(tokens):
 
 
 # Handle mutex tokens
-# Replace tokens containing mutex elements with a single list of mutex tokens
 # Ex: "[--moored | --drifting]" gets replaced with [[--moored, --drifting]]
 # @param token_objects the list of Token objects for a given pattern
 # No return value
 def parse_mutex(token_objects):
+    """Replace tokens with mutex elements with a single list of mutex tokens."""
     for index, token in enumerate(token_objects):
         if token.txt == '|':
             token_objects[index - 1] = [token.left, token.right]
@@ -264,12 +267,13 @@ def parse_mutex(token_objects):
 # Populate Usage_dic with default argument and command values
 # @param token_objects the finalized list of Token objects for a given pattern
 def build_usage_dic(token_objects):
+    """Uses finalized list of Token objects to return a default-value populated usage_dic."""
     usage_dic = {}
     for token in token_objects:
-        if type(token) is list:
-            for t in token:
-                if t.type == "Command":
-                    usage_dic[t.txt] = False
+        if isinstance(token, list):
+            for tok in token:
+                if tok.type == "Command":
+                    usage_dic[tok.txt] = False
         else:
             if token.type == "Argument":
                 usage_dic[token.txt.strip("<>")] = None
@@ -280,23 +284,24 @@ def build_usage_dic(token_objects):
 
 # Process optional ( [] ) and required ( () ) elements
 # @param tokens a list of Token objects for a given pattern
-# @param o the open character used to denote whether to process () or []
+# @param open_c the open character used to denote whether to process () or []
 # Labels each token as required or optional under the is_req parameter
 # No return value
-def process_paren(tokens, op):
-    if op == '(':
-        closed = ')'
+def process_paren(tokens, open_c):
+    """Process and label tokens as optional or required using [] and ()."""
+    if open_c == '(':
+        closed_c = ')'
         is_req = True
     else:
-        closed = ']'
+        closed_c = ']'
         is_req = False
     for token in tokens:
-        if op in token.txt:
+        if open_c in token.txt:
             complete = False
-            token.txt = token.txt.strip(op)
+            token.txt = token.txt.strip(open_c)
             # if closed parenthesis is in the same token
-            if closed in token.txt:
-                token.txt = token.txt.strip(closed)
+            if closed_c in token.txt:
+                token.txt = token.txt.strip(closed_c)
                 token.is_req = is_req
             else:
                 token.is_req = is_req
@@ -306,9 +311,9 @@ def process_paren(tokens, op):
                 while complete is False and token is not None:
                     token.is_req = is_req
                     temp_required.append(token)
-                    if closed in token.txt:
+                    if closed_c in token.txt:
                         complete = True
-                        token.txt = token.txt.strip(closed)
+                        token.txt = token.txt.strip(closed_c)
                     else:
                         token = token.right
                 if complete is False:
@@ -320,10 +325,11 @@ def process_paren(tokens, op):
 # Builds Usage_dic using these Token objects
 # Fills Patterns global object with finalized lists of tokens
 def parse_usage(usages):
+    """Processes usages string to return default usage_dic and list of tokens for each pattern."""
     # Extract program name
     usages.pop(0)
-    s = usages[1].split(" ")
-    name = s[2]
+    usages_split = usages[1].split(" ")
+    name = usages_split[2]
     patterns = []
     usage_dic = {}
 
@@ -359,14 +365,15 @@ def parse_usage(usages):
 # @param token the token we are examining
 # Returns true if a conflict is found, false otherwise
 def check_mutex(index, token, arguments):
+    """Checks if input matches only one of the mutex tokens, returns false if no conflict."""
     found_conflict = False
-    if type(token) is list:
+    if isinstance(token, list):
         if token[0].is_req is False and index >= len(arguments):
             arguments.insert(index, "None")
             return False
         found_mutex_match = False
-        for t in token:
-            if arguments[index] == t.txt:
+        for tok in token:
+            if arguments[index] == tok.txt:
                 found_mutex_match = True
 
                 # Check if next input token is also in mutex list
@@ -390,11 +397,12 @@ def check_mutex(index, token, arguments):
 # @param token the token we are examining
 # Returns true if a conflict is found, false otherwise
 def check_tokens(index, token, arguments):
+    """Check individual tokens for a match with corresponding input token."""
     found_conflict = False
     # Handle missing optional arguments
     if token.type == "Argument" and token.is_req is False:
         if arguments[index] == \
-                (token.right.txt if type(token.right) is Token else token.right[0].txt):
+                (token.right.txt if isinstance(token.right, Token) else token.right[0].txt):
             arguments.insert(index, "None")
 
     # If pattern token is a command, check if input token matches
@@ -426,12 +434,13 @@ def check_tokens(index, token, arguments):
 # Compare input tokens with a Usage pattern p
 # @param p the usage pattern we are checking, a list of Token objects
 # Returns True if a conflict is found, False otherwise
-def find_conflict(p, arguments):
+def find_conflict(pat, arguments):
+    """Compare user args with a usage pattern p, return false if no conflict."""
     # Used to check if the pattern does not match, success if found_conflict remains False
     found_conflict = False
-    for index, token in enumerate(p):
+    for index, token in enumerate(pat):
 
-        if type(token) is list:
+        if isinstance(token, list):
             found_conflict = check_mutex(index, token, arguments)
             if found_conflict is True:
                 break
@@ -453,29 +462,30 @@ def find_conflict(p, arguments):
 # Returns index of first match found
 # If no match found, function returns None
 def find_matching_pattern(patterns, arguments):
+    """Finds which usage pattern matches user args and returns index of that pattern."""
     pattern_to_use = None
 
     # Explore each pattern to determine which one matches the input
-    for num, p in enumerate(patterns):
+    for num, pat in enumerate(patterns):
 
         num_req = 0
         # Get number of req tokens for each pattern
-        for t in p:
-            if type(t) is Token:
-                if t.is_req is True:
+        for tok in pat:
+            if isinstance(tok, Token):
+                if tok.is_req is True:
                     num_req += 1
             else:
-                if t[0].is_req is True:
+                if tok[0].is_req is True:
                     num_req += 1
 
         if len(arguments) < num_req:
             continue
 
         # Skip if more input tokens than tokens in the pattern
-        if len(arguments) > len(p):
+        if len(arguments) > len(pat):
             continue
 
-        if find_conflict(p, arguments) is False:
+        if find_conflict(pat, arguments) is False:
             pattern_to_use = num
             break
     return pattern_to_use
@@ -485,9 +495,10 @@ def find_matching_pattern(patterns, arguments):
 # @param pattern_to_use an integer denoting which Usage pattern matches the input
 # No return value
 def populate_usage_dic(pattern_to_use, patterns, arguments, usage_dic):
+    """Fill usage_dic with appropriate input values if pattern match found."""
     if pattern_to_use is not None:
         for index, token in enumerate(patterns[pattern_to_use]):
-            if type(token) is list:
+            if isinstance(token, list):
                 if token[0].type != "Option":
                     usage_dic[arguments[index]] = True
             else:
