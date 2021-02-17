@@ -39,15 +39,19 @@ class Token:
 
 #########################################################################
 ##########################################################################
-# Main function for docopt.
-# @param doc docstring that pass from the user program
-# @param argv programmer can pre-pass some parameters into docopt and
-#       those parameters is treat as default existing arguments
-# @param help_message user can specify whether they want docopt to display
-#       the help message whenever user execute the program
-# @param version programmers can specify the version of
-# the project and display to user
+# Main function for docopt program
 def docopt(doc, argv=None, help_message=True, version=None):
+    """
+    :param doc: docstring that pass from the user program
+    :param argv: programmer can pre-pass some parameters into docopt and
+       those parameters is treat as default existing arguments
+    :param help_message: user can specify whether they want docopt to display
+       the help message whenever user execute the program
+    :param version: programmers can specify the version of
+       the project and display to user
+    :return: returns the complete dictionary from parameters passed in
+    """
+
     usages, options = processing_string(doc, help_message, version)
     options_dic = options_parser(argv, sys.argv, options)
     usage_dic = usage_parser(usages, argv, sys.argv[1:])
@@ -59,14 +63,18 @@ def docopt(doc, argv=None, help_message=True, version=None):
 #####################################################################
 ######################################################################
 # Main Controller for processing the docstring.
-# @param doc docstring pass from the main function
-# @param help_message to tell docopt whether user want to
-# display help message when the program executes
-# @param version The version string pass from main function
 def processing_string(doc, help_message, version):
+    """
+    :param doc: docstring pass from the main function
+    :param help_message: to tell docopt whether user want to
+        display help message when the program executes
+    :param version: the version string pass from main function
+    :return: returns the array of usage patterns and the array of options from docstring
+    """
+
     if doc is None:
         warnings.warn('No docstring found')
-        return
+        return None
     name, usage, options = get_usage_and_options(doc)
     check_warnings(usage, options)
     if help_message:
@@ -75,8 +83,13 @@ def processing_string(doc, help_message, version):
 
 
 # Helper function for getting usage, options and name strings from doc
-# @param doc docstring that passed from main function
 def get_usage_and_options(doc):
+    """
+    :param doc: docstring that passed from main function
+    :return: returns the strings of name of program, usage patterns,
+        and options that received from docstring
+    """
+
     usage = ""
     options = ""
     partition_string = doc.strip().split('\n\n')
@@ -104,17 +117,14 @@ def get_usage_and_options(doc):
 # Function for testing whether the docstring contains
 # a usage part and a options part.
 # Will display warning to the user program when missing parts
-# @param usage a string the retrieve from the docstring
-# @param options a string that retrieve from the docstring
 def check_warnings(usage, options):
-    """Return warnings and a number to represent the error
-        >>> check_warnings("11111","")
-        2
-        >>> check_warnings("","11111")
-        1
-        >>> check_warnings("2222222222","11111")
-        0
-        """
+    """
+    :param usage: a string the retrieve from the docstring
+    :param options: a string that retrieve from the docstring
+    :return: returns 1 if no usage pattern found, returns 2 if no options found,
+        and returns 0 if everything is ok in docstring
+    """
+
     if len(usage) == 0:
         warnings.warn('No usage indicated from docstring')
         return 1
@@ -125,13 +135,16 @@ def check_warnings(usage, options):
 
 
 # This function will be involved when user program specify help=True.
-# @param name name passed from the main function that retrieve
-# from the docstring
-# @param version version information that retrieve from the docstring
-# @param usage usage string that retrieve from the docstring
-# @param options options string that retrieve from the docstring
-# @return return the help message to caller function
 def show_help(name, version, usage, options):
+    """
+    :param name: name passed from the main function that retrieve
+        from the docstring
+    :param version: version information that retrieve from the docstring
+    :param usage: usage string that retrieve from the docstring
+    :param options: options string that retrieve from the docstring
+    :return: returns the help message to caller function
+    """
+
     output = ""
     if len(name) > 0:
         output += name + "\n\n"
@@ -515,11 +528,14 @@ def populate_usage_dic(pattern_to_use, patterns, arguments, usage_dic):
 ####################################################################
 ###################################################################
 # Main function for checking options
-# @param argv the default arguments that specify by the programmer
-# @param user_argv the  arguments passed from user command line
-# @param options the options strings from docstring
-# @return return the built options dictionary from another method
 def options_parser(argv, user_argv, options):
+    """
+    :param argv: the default arguments that specify by the programmer
+    :param user_argv: the arguments passed from user command line
+    :param options: the options strings from docstring
+    :return: returns the built options dictionary from another method
+    """
+
     options_dic = check_option_lines(options)
     if argv is not None:
         output_dic = options_dic.copy()
@@ -529,9 +545,12 @@ def options_parser(argv, user_argv, options):
 
 # Process options from docstring, treat lines that
 # starts with '-' or '--' as options
-# @param options the options strings from docstring
-# @return return the updated options dictionary to caller function
 def check_option_lines(options):
+    """
+    :param options: options the options strings from docstring
+    :return: returns the updated options dictionary to caller function
+    """
+
     options_dic = {}
     for line in options:
         tmp_array = line.split()
@@ -541,7 +560,7 @@ def check_option_lines(options):
 
         found = False
         old_key = None
-        for count in range(len(tmp_array)):
+        for count, _ in enumerate(tmp_array, start=0):
             if tmp_array[count][:1] == '-':
                 if not found:
                     old_key, tmp_dic = check_first_option(tmp_array, count)
@@ -559,39 +578,50 @@ def check_option_lines(options):
 
 # A function for finding whether the current line of option has
 # a default value that specify by the programmer
-# @param line a string that holds the current line
-# @param old_key a string that holds the current key for the options dictionary
-# @options_dic a dictionary that passed from main function,
-# needs to do updates on it from this function
-# @return return the updated options dic to the caller function
 def find_default_value(line, old_key, options_dic):
-    default_value = line[line.find("[") + 1:line.find("]")]
-    if default_value is not None:
-        default_value.strip()
+    """
+    :param line: a string that holds the current line
+    :param old_key: a string that holds the current key for the options dictionary
+    :param options_dic: a dictionary that passed from main function,
+        needs to do updates on it from this function
+    :return: the updated options dic to the caller function
+    """
 
-        # Test if this line of docstring contains a default value
-        if re.search('default:', default_value, re.IGNORECASE):
-            try:
-                int(default_value.split()[1])
-                tmp_dic = {old_key: int(default_value.split()[1])}
-            except ValueError:
-                try:
-                    float(default_value.split()[1])
-                    tmp_dic = {old_key: float(default_value.split()[1])}
-                except ValueError:
-                    tmp_dic = {old_key: default_value.split()[1]}
-            options_dic.update(tmp_dic)
-        return options_dic
+    m = re.search(r"\[([A-Za-z0-9_]+)/]", line)
+    print(m)
+    if m is not None:
+        default_value = m.group(1)
+        print(default_value)
+    # if len(default_value) > 0:
+    #     default_value.strip()
+    #
+    #     # Test if this line of docstring contains a default value
+    #     if re.search('default:', default_value, re.IGNORECASE):
+    #         try:
+    #             int(default_value.split()[1])
+    #             tmp_dic = {old_key: int(default_value.split()[1])}
+    #         except ValueError:
+    #             try:
+    #                 float(default_value.split()[1])
+    #                 tmp_dic = {old_key: float(default_value.split()[1])}
+    #             except ValueError:
+    #                 tmp_dic = {old_key: default_value.split()[1]}
+    #         options_dic.update(tmp_dic)
+    #     return options_dic
+    return options_dic
 
 
 # Insert the option into dictionary with no same option command
 # exist in the dictionary ('--sorted')
-# @param tmp_array the current checking line from options in the docstring
-# @param count specify the location of array for the string
-# that is split by space
-# @return return the current new key for the dictionary for the current line
-# and the old_key from matching the stored pattern in the dictionary for updating
 def check_first_option(tmp_array, count):
+    """
+    :param tmp_array: the current checking line from options in the docstring
+    :param count: specify the location of array for the string
+        that is split by space
+    :return: returns the current new key for the dictionary for the current line
+        and the old_key from matching the stored pattern in the dictionary for updating
+    """
+
     if '=' in tmp_array[count]:
         old_key = tmp_array[count]
         tmp_dic = {old_key: None}
@@ -611,14 +641,16 @@ def check_first_option(tmp_array, count):
 # Insert the option into dictionary with same option command
 # already exist in the dictionary
 # e.g. insert '--help' when '-h' is exists already
-# @param tmp_array the current checking line from options in the docstring
-# @param count specify the location of array for the string that
-# is split by space
-# @param old_key specify the current key for updating the key
-# in options dictionary
-# @return return the current new key for the dictionary for the current line
-# and the old_key from matching the stored pattern in the dictionary for updating
 def check_other_option(tmp_array, count, old_key):
+    """
+    :param tmp_array: the current checking line from options in the docstring
+    :param count: specify the location of array for the string that
+        is split by space
+    :param old_key: specify the current key for updating the key in options dictionary
+    :return: the current new key for the dictionary for the current line
+        and the old_key from matching the stored pattern in the dictionary for updating
+    """
+
     if len(tmp_array) > count + 1 and tmp_array[count + 1].isupper():
         # The option with Value (either in -s FILE or -p=<file>)
         # will always change to -p=<file>
@@ -632,13 +664,15 @@ def check_other_option(tmp_array, count, old_key):
 
 
 # Update the options dictionary with new value according to user arguments,
-# remove the duplicated option keys
-# after the new dictionary is built
-# @param user_argv passed in arguments from user command line
-# @param options_dic passed in the options dictionary from main function
-# @return return the new dictionary and set values according
-# to the user command line
+# remove the duplicated option keys after the new dictionary is built
 def build_output_options_dictionary(user_argv, options_dic):
+    """
+    :param user_argv: passed in arguments from user command line
+    :param options_dic: passed in the options dictionary from main function
+    :return: the new dictionary and set values according
+        to the user command line
+    """
+
     output_dic = options_dic.copy()
     output_dic = check_option_contain_value(output_dic, options_dic, user_argv)
     for k in list(output_dic):
@@ -658,14 +692,17 @@ def build_output_options_dictionary(user_argv, options_dic):
 
 # Matching the input options and separate them by whether
 # the argument has a value (contains a equals sign)
-# @param output_dic a copy of the options dic
-# @param options_dic the original options dictionary from main function
-# @param remove_duplicate a boolean to indicate whether needs to remove the duplicate keywords
-# in the dictionary
-# @return return the updated output_dic according to the user arguments
 def check_option_contain_value(output_dic, options_dic, arguments):
-    for e in arguments:
-        element = str(e).strip()
+    """
+    :param output_dic: a copy of the options dictionary
+    :param options_dic: the original options dictionary from main function
+    :param arguments: a boolean to indicate whether needs to remove the duplicate keywords
+        in the dictionary
+    :return: returns the updated output_dic according to the user arguments
+    """
+
+    for tmp in arguments:
+        element = str(tmp).strip()
         if element[:1] == "-" and '=' not in element:
             output_dic = check_key_without_equal(element, options_dic, output_dic)
         elif element[:1] == "-" and '=' in element:
@@ -674,14 +711,16 @@ def check_option_contain_value(output_dic, options_dic, arguments):
 
 
 # Helper function for check keys that not contains a value
-# @param element one of the argument that pass in by the user command line
-# @param remove_duplicate indicate whether the dictionary needs to remove
-# duplicate keyword for options
-# @param options_dic the original options dictionary from main function
-# @param output_dic a copy of the options dic
-# @return returns a updated value dictionary according the arguments
-# in the user command line
 def check_key_without_equal(element, options_dic, output_dic):
+    """
+    :param element: one of the arguments that pass in by the user command line
+    :param options_dic: indicates whether the program  needs to remove
+        duplicate keyword for options dictionary
+    :param output_dic: a copy of the options dic
+    :return: returns a updated value dictionary according the arguments
+        in the user command line
+    """
+
     for k in options_dic:
         if element in k:
             tmp_dic = {k: True}
@@ -690,14 +729,15 @@ def check_key_without_equal(element, options_dic, output_dic):
 
 
 # Helper function for check keys that contains a value
-# @param element one of the argument that pass in by the user command line
-# @param remove_duplicate indicate whether the dictionary needs to remove
-# duplicate keyword for options
-# @param options_dic the original options dictionary from main function
-# @param output_dic a copy of the options dic
-# @return returns a updated value dictionary according the arguments
-# in the user command line
 def check_key_contain_equal(element, options_dic, output_dic):
+    """
+    :param element: one of the argument that pass in by the user command line
+    :param options_dic: the original options dictionary from main function
+    :param output_dic: a copy of the options dic
+    :return: a updated value dictionary according the arguments
+        in the user command line
+    """
+
     for k in options_dic:
         if '=' in k:
             for tmp in k.split(' '):
@@ -718,10 +758,13 @@ def check_key_contain_equal(element, options_dic, output_dic):
 ####################################################################
 ###################################################################
 # Main function for building output strings to user
-# @param usage_dic the original usage dictionary from main function
-# @param options_dic the original options dictionary from main function
-# @return return the output string or testing array to caller function
 def print_output_dictionary(usage_dic, options_dic):
+    """
+    :param usage_dic: the original usage dictionary from main function
+    :param options_dic: the original options dictionary from main function
+    :return: returns the output string or testing array to caller function
+    """
+
     dictionary_total = {}
     dictionary_total.update(usage_dic)
     dictionary_total.update(options_dic)
@@ -735,12 +778,15 @@ def print_output_dictionary(usage_dic, options_dic):
 
 
 # A helper function for display a nice looking dictionary to the user
-# @param rows count for how many rows I need
-# @param length the total length for the output usage and options dictionary
-# @param dic_list reformat the dictionary into a array
-# @param dictionary_total combined dictionary (usage dic + options dic)
-# @return return the string from display or an array for testing
 def output_formatter(rows, length, dic_list, dictionary_total):
+    """
+    :param rows: count for how many rows needed for output dictionary
+    :param length: the total length for the output usage and options dictionary
+    :param dic_list: reformat the dictionary into a array
+    :param dictionary_total: combined dictionary (usage dic + options dic)
+    :return: returns the string from display or an array for testing
+    """
+
     col1 = [' '] * rows
     col2 = [' '] * rows
     col3 = [' '] * rows
@@ -756,48 +802,46 @@ def output_formatter(rows, length, dic_list, dictionary_total):
 
 
 # Helper function for inserting the key value pairs into output dictionary
-# @param dic_list a dictionary the built from user argument but reform to a list
-# @param idx the current row index
-# @param rows count of the rows
-# @col_idx index of the col
-# @return return the key value pair in a outputting form according to the type of values
 def insert_content(dic_list, idx, rows, col_idx, dictionary_total):
+    """
+    :param dic_list:  a dictionary the built from user argument but reform to a list
+    :param idx: the current row index
+    :param rows: count of the rows
+    :param col_idx: index of the col
+    :param dictionary_total: the dictionary that includes both keywords for output patterns
+        and options
+    :return: returns the key value pair in a outputting
+        form according to the type of values
+    """
+
     if check_value_type(dictionary_total[dic_list[idx + (col_idx * rows)]]):
         return '\'{}\': {}'.format(dic_list[idx + (col_idx * rows)],
                                    dictionary_total[dic_list[idx + (col_idx * rows)]])
-    else:
-        return '\'{}\': \'{}\''.format(dic_list[idx + (col_idx * rows)],
-                                       dictionary_total[dic_list[idx + (col_idx * rows)]])
+
+    return '\'{}\': \'{}\''.format(dic_list[idx + (col_idx * rows)],
+                                   dictionary_total[dic_list[idx + (col_idx * rows)]])
 
 
 # Helper method for defining whether the value is a string or a primitive type
-# @param value the value for current key in the dictionary
-# @return return the boolean value whether the value passed in is primitive
 def check_value_type(value):
-    """Return True if the passed in type is primitive or None.
-        >>> check_value_type(30)
-        True
-        >>> check_value_type(-1)
-        True
-        >>> check_value_type(19.8)
-        True
-        >>> check_value_type(None)
-        True
-        >>> check_value_type("haha")
-        False
-        >>> check_value_type(['jjj'])
-        False
-        """
-    return type(value) == int or type(value) == float or type(value) == bool or value is None
+    """
+    :param value: the value for current key in the dictionary
+    :return:  returns a boolean value whether the value passed in is primitive
+    """
+
+    return isinstance(value, (int, float, bool)) or value is None
 
 
 # Helper method for printing out dictionary as a json string to user
-# @param row1 hold the values for output column one
-# @param row1 hold the values for output column two
-# @param row1 hold the values for output column three
-# @param rows2 counter for number of rows
-# @return return the output to main function
 def print_output_from_rows(col1, col2, col3, rows):
+    """
+    :param col1: holds the values for output column one
+    :param col2: holds the values for output column two
+    :param col3: holds the values for output column three
+    :param rows: counter for number of rows
+    :return: returns output string
+    """
+
     spaces1 = len(max(col1, key=len))
     spaces2 = len(max(col2, key=len))
     final_output = ""
