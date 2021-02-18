@@ -50,6 +50,21 @@ def docopt(doc, argv=None, help_message=True, version=None):
     :param version: programmers can specify the version of
        the project and display to user
     :return: returns the complete dictionary from parameters passed in
+    >>>  doc0 = "Perfect" \
+    >>>
+    >>>         "Usage:" \
+    >>>           "naval_fate.py ship new <name>..." \
+    >>>           "naval_fate.py ship <name> move <x> <y> [--speed=<kn>]" \
+    >>>
+    >>>         "Options:" \
+    >>>           '-h --help --helping --haha -hhh --ooooo  Show this screen.' \
+    >>>           '-o FILE --output=<value>  Speed in knots [default: ./test.txt].' \
+    >>>           '--speed=<kn> -s KN  Speed in knots [default: 10].' \
+    >>>
+    >>>  res = docopt(doc=doc0, version="test 2.0", help_message=False,
+    >>>                    argv=['ship', 'Titanic', 'move', 10, 90, '--speed=70'])
+    >>>{'ship': True, 'new': False, '<name>...': False, 'name': 'Titanic', 'move': True,
+    >>>'x': 10, 'y': 90, '--helping': False, '--output': './test.txt', '--speed': 70}
     """
 
     usages, options = processing_string(doc, help_message, version)
@@ -70,6 +85,20 @@ def processing_string(doc, help_message, version):
         display help message when the program executes
     :param version: the version string pass from main function
     :return: returns the array of usage patterns and the array of options from docstring
+    >>> doc1 = 'Perfect' \
+    >>>
+    >>>        'Usage:' \
+    >>>          'naval_fate.py ship new <name>...' \
+    >>>
+    >>>        'Options:' \
+    >>>           '-h --help --helping Show this screen.' \
+    >>>           '--sorted  Show sorted.'
+    >>>
+    >>> usage_array, options_array = processing_string(doc=doc1, help_message=False,
+    >>>                                     version="test 2.0")
+    >>> assert usage_array = ['Usage:', '  naval_fate.py ship new <name>...']
+    >>> assert options_array = ['Options:', '  -h --help --helping Show this screen.', \
+    >>> '  --sorted  Show sorted.']
     """
 
     if doc is None:
@@ -88,6 +117,23 @@ def get_usage_and_options(doc):
     :param doc: docstring that passed from main function
     :return: returns the strings of name of program, usage patterns,
         and options that received from docstring
+
+    >>> doc1 = 'Perfect' \
+    >>>
+    >>>        'Usage:' \
+    >>>          'naval_fate.py ship new <name>...' \
+    >>>
+    >>>        'Options:' \
+    >>>           '-h --help --helping Show this screen.' \
+    >>>           '--sorted  Show sorted.'
+    >>>
+    >>> name1, usage1, options1 = get_usage_and_options(doc1)
+    >>> assert name1 = 'Perfect'
+    >>> assert usage1 = 'Usage:' \
+    >>>          'naval_fate.py ship new <name>...' \
+    >>> assert options1 = 'Options:' \
+    >>>           '-h --help --helping Show this screen.' \
+    >>>           '--sorted  Show sorted.'
     """
 
     usage = ""
@@ -123,6 +169,13 @@ def check_warnings(usage, options):
     :param options: a string that retrieve from the docstring
     :return: returns 1 if no usage pattern found, returns 2 if no options found,
         and returns 0 if everything is ok in docstring
+
+    >>> check_warnings(usage="Usages: ...", options="")
+    0
+    >>> check_warnings(usage="", options="Options: ...")
+    1
+    >>> check_warnings(usage="Usages: ...", options="")
+    2
     """
 
     if len(usage) == 0:
@@ -143,6 +196,24 @@ def show_help(name, version, usage, options):
     :param usage: usage string that retrieve from the docstring
     :param options: options string that retrieve from the docstring
     :return: returns the help message to caller function
+
+    >>> show_help('Perfect', 'test 2.0', 'Usage: ...', 'Options: ...')
+    Perfect
+
+    Version:
+      test 2.0
+
+    Usage: ...
+
+    Options: ...
+
+    >>> show_help('Perfect', None, 'Usage: ...', 'Options: ...')
+    Perfect
+
+    Usage: ...
+
+    Options: ...
+
     """
 
     output = ""
@@ -600,6 +671,13 @@ def options_parser(argv, user_argv, options):
     :param user_argv: the arguments passed from user command line
     :param options: the options strings from docstring
     :return: returns the built options dictionary from another method
+
+    >>> options_parser(argv= ['--help'], user_argv= , options= "-h --help")
+    {'-h --help': True}
+    >>> options_parser(argv=, user_argv= , options= "-h --help")
+    {'-h --help': False}
+    >>> options_parser(argv=, user_argv=['--help'], options= "-h --help")
+    {'-h --help': True}
     """
 
     options_dic = check_option_lines(options)
@@ -615,6 +693,11 @@ def check_option_lines(options):
     """
     :param options: options the options strings from docstring
     :return: returns the updated options dictionary to caller function
+
+    >>> check_option_lines(options= "-h --help")
+    {'-h --help': False}
+    >>> check_option_lines(options= "hello world")
+    {}
     """
 
     options_dic = {}
@@ -651,29 +734,43 @@ def find_default_value(line, old_key, options_dic):
     :param options_dic: a dictionary that passed from main function,
         needs to do updates on it from this function
     :return: the updated options dic to the caller function
+
+    >>> find_default_value(line='-o FILE --output=<value>  Speed in knots [default: ./test.txt].',
+    >>> old_key="-o=<file> --output=<file>", options_dic={'-o=<file> --output=<file>': None})
+    {'-o=<file> --output=<file>': './test.txt'}
+
+    >>> find_default_value(line='--speed=<kn> -s KN  Speed in knots [default: 10].',
+    >>> old_key="--speed=<kn> -s=<kn>", options_dic={'--speed=<kn> -s=<kn>': None})
+    {'--speed=<kn> -s=<kn>': 10}
+
+    >>> find_default_value(line='--aaa=<value>   Moored (anchored) mine [default: 20.9].',
+    >>> old_key="--aaa=<value>", options_dic={'--aaa=<value>': None})
+    {'--aaa=<value>': 20.9}
+
+    >>> find_default_value(line='--aaa=<value>   Moored (anchored) mine.',
+    >>> old_key="--aaa=<value>", options_dic={'--aaa=<value>': None})
+    {'--aaa=<value>': None}
     """
 
-    m = re.search(r"\[([A-Za-z0-9_]+)/]", line)
-    print(m)
-    if m is not None:
-        default_value = m.group(1)
+    matching = re.search(r'\[.*?]', line)
+    if matching is not None:
+        default_value = matching.group(0)[1:-1]
         print(default_value)
-    # if len(default_value) > 0:
-    #     default_value.strip()
-    #
-    #     # Test if this line of docstring contains a default value
-    #     if re.search('default:', default_value, re.IGNORECASE):
-    #         try:
-    #             int(default_value.split()[1])
-    #             tmp_dic = {old_key: int(default_value.split()[1])}
-    #         except ValueError:
-    #             try:
-    #                 float(default_value.split()[1])
-    #                 tmp_dic = {old_key: float(default_value.split()[1])}
-    #             except ValueError:
-    #                 tmp_dic = {old_key: default_value.split()[1]}
-    #         options_dic.update(tmp_dic)
-    #     return options_dic
+        default_value.strip()
+
+        # Test if this line of docstring contains a default value
+        if re.search('default:', default_value, re.IGNORECASE):
+            try:
+                int(default_value.split()[1])
+                tmp_dic = {old_key: int(default_value.split()[1])}
+            except ValueError:
+                try:
+                    float(default_value.split()[1])
+                    tmp_dic = {old_key: float(default_value.split()[1])}
+                except ValueError:
+                    tmp_dic = {old_key: default_value.split()[1]}
+            options_dic.update(tmp_dic)
+        return options_dic
     return options_dic
 
 
@@ -686,6 +783,21 @@ def check_first_option(tmp_array, count):
         that is split by space
     :return: returns the current new key for the dictionary for the current line
         and the old_key from matching the stored pattern in the dictionary for updating
+
+    >>> tmp_array1 = ['--help', 'Show', ' this', 'screen.']
+    >>> old_key1, tmp_dic1 = check_first_option(tmp_array=tmp_array, count=0)
+    >>> assert old_key1 == '--help'
+    >>> assert tmp_dic1 == {'--help': False}
+
+    >>> tmp_array1 = ['-o', 'FILE', 'Speed', 'in', 'knots']
+    >>> old_key1, tmp_dic1 = check_first_option(tmp_array=tmp_array, count=0)
+    >>> assert old_key1 == '-o=<file>'
+    >>> assert tmp_dic1 == {'-o=<file>': None}
+
+    >>> tmp_array1 = ['--output=<file>', 'Speed', 'in', 'knots']
+    >>> old_key1, tmp_dic1 = check_first_option(tmp_array=tmp_array, count=0)
+    >>> assert old_key1 == '--output=<file>'
+    >>> assert tmp_dic1 == {'--output=<file>': None}
     """
 
     if '=' in tmp_array[count]:
@@ -715,6 +827,16 @@ def check_other_option(tmp_array, count, old_key):
     :param old_key: specify the current key for updating the key in options dictionary
     :return: the current new key for the dictionary for the current line
         and the old_key from matching the stored pattern in the dictionary for updating
+
+    >>> tmp_array1 = ['--help', '-h', 'this', 'screen.']
+    >>> old_key1, new_key1 = check_other_option(tmp_array=tmp_array, count=1, old_key='--help')
+    >>> assert old_key1 == '--help'
+    >>> assert new_key1 == '--help -h'
+
+    >>> tmp_array1 = ['-s=<kn>', '--speed', 'KN', 'Speed', 'in', 'knots']
+    >>> old_key1, tmp_dic1 = check_other_option(tmp_array=tmp_array, count=1, old_key='-s=<kn>')
+    >>> assert old_key1 == '-s=<kn>'
+    >>> assert tmp_dic1 == '-s=<kn> --speed=<kn>'
     """
 
     if len(tmp_array) > count + 1 and tmp_array[count + 1].isupper():
@@ -737,6 +859,16 @@ def build_output_options_dictionary(user_argv, options_dic):
     :param options_dic: passed in the options dictionary from main function
     :return: the new dictionary and set values according
         to the user command line
+
+    >>> before = {'-h --help --helping': False, '-o=<file> --output=<file>': 'ttt.pdf',
+    >>>           '--speed=<kn>': 10}
+    >>> build_output_options_dictionary(user_argv=[], options_dic=before)
+    {'--helping': False, '--output': 'ttt.pdf', '--speed': 10}
+
+    >>> before = {'-h --help --helping': False, '-o=<file> --output=<file>': 'ttt.pdf',
+    >>>           '--speed=<kn>': 10}
+    >>> build_output_options_dictionary(user_argv=['-h', '-o=haha.pdf'], options_dic=before)
+    {'--helping': True, '--output': 'haha.pdf', '--speed': 10}
     """
 
     output_dic = options_dic.copy()
@@ -765,6 +897,16 @@ def check_option_contain_value(output_dic, options_dic, arguments):
     :param arguments: a boolean to indicate whether needs to remove the duplicate keywords
         in the dictionary
     :return: returns the updated output_dic according to the user arguments
+
+    >>> options_dic1 = {'-h --help --helping': False, '-o=<file> --output=<file>': 'ttt.pdf'}
+    >>> before = {'-h --help --helping': False, '-o=<file> --output=<file>': 'ttt.pdf'}
+
+    >>> check_option_contain_value(output_dic=before, options_dic=options_dic1, arguments=['-h'])
+    {'-h --help --helping': True, '-o=<file> --output=<file>': 'ttt.pdf'}
+
+    >>> check_option_contain_value(output_dic=before, options_dic=options_dic1,
+    >>>     arguments=['-h', '-o=haha.pdf'])
+    {'-h --help --helping': True, '-o=<file> --output=<file>': 'haha.pdf'}
     """
 
     for tmp in arguments:
@@ -785,6 +927,16 @@ def check_key_without_equal(element, options_dic, output_dic):
     :param output_dic: a copy of the options dic
     :return: returns a updated value dictionary according the arguments
         in the user command line
+
+    >>> options_dic1 = {'-h --help --helping': False, '--moored': False}
+
+    >>> before = {'-h --help --helping': False, '--moored': False}
+    >>> check_key_without_equal(element='--help', options_dic=options_dic1, output_dic=before)
+    {'-h --help --helping': True, '--moored': False}
+
+    >>> before = {'-h --help --helping': False, '--moored': False}
+    >>> check_key_without_equal(element='--moored', options_dic=options_dic1, output_dic=before)
+    {'-h --help --helping': False, '--moored': True}
     """
 
     for k in options_dic:
@@ -802,6 +954,18 @@ def check_key_contain_equal(element, options_dic, output_dic):
     :param output_dic: a copy of the options dic
     :return: a updated value dictionary according the arguments
         in the user command line
+
+    >>> options_dic1 = {'--speed=<kn>': 0, '-o=<file> --output=<file>': 'default.txt'}
+
+    >>> before = {'--speed=<kn>': 0, '-o=<file> --output=<file>': 'default.txt'}
+    >>> check_key_contain_equal(element="--speed=10.7", options_dic=options_dic1,
+    >>>                                    output_dic=before)
+    {'--speed=<kn>': 10.7, '-o=<file> --output=<file>': 'default.txt'}
+
+    >>> before = {'--speed=<kn>': 0, '-o=<file> --output=<file>': 'default.txt'}
+    >>> check_key_contain_equal(element="-o=haha.pdf", options_dic=options_dic,
+    >>>                                     output_dic=before)
+    {'--speed=<kn>': 0, '-o=<file> --output=<file>': 'haha.pdf'}
     """
 
     for k in options_dic:

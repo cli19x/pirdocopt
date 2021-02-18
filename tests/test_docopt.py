@@ -219,6 +219,7 @@ def test_docopt():
                         argv=['ship', 'Titanic', 'move', 10, 90, '--speed=70'])
     after = {'ship': True, 'new': False, '<name>...': False, 'name': 'Titanic', 'move': True,
              'x': 10, 'y': 90, '--helping': False, '--output': './test.txt', '--speed': 70}
+    print(after)
     assert after == res
 
 
@@ -229,6 +230,8 @@ def test_processing_string(capsys):
                                                           help_message=False, version="test 2.0")
     assert usage.split('\n') == usage_array
     assert options.split('\n') == options_array
+    print(usage_array)
+    print(options_array)
 
     res = docopt.processing_string(doc=None, help_message=False, version="test 2.0")
     assert res is None
@@ -671,6 +674,11 @@ def test_find_default_value():
     line = '--aaa=<value>   Moored (anchored) mine [default: 20.9].'
     res = docopt.find_default_value(line=line, old_key="--aaa=<value>", options_dic=options_dic)
     assert res == {'--aaa=<value>': 20.9}
+
+    options_dic = {'--aaa=<value>': None}
+    line = '--aaa=<value>   Moored (anchored) mine.'
+    res = docopt.find_default_value(line=line, old_key="--aaa=<value>", options_dic=options_dic)
+    assert res == {'--aaa=<value>': None}
 
 
 # Test function for the function for inserting new options into the dictionary
