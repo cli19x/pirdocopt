@@ -20,8 +20,8 @@ class Token:
 
     """
 
-    # def __getitem__(self, item):
-    #    pass
+    def __getitem__(self, item):
+        pass
 
     def __init__(self, text, left, right, ty):
         self.txt = text
@@ -33,8 +33,8 @@ class Token:
     # def __str__(self):
     #    return self.txt
 
-    # def __repr__(self):
-    #    return self.txt
+    def __repr__(self):
+        return self.txt
 
 
 #########################################################################
@@ -155,12 +155,18 @@ def show_help(name, version, usage, options):
     return output
 
 
-####################################################################
-###################################################################
-# Main function for checking usage
-# After execution, Usage_dic is populated with appropriate values if successful
 def usage_parser(usages, argv, user_argv):
-    """Matches user input with usage patterns and returns populated usage_dic."""
+    """Matches user input with usage patterns and returns populated usage_dic.
+    
+    Args:
+        usages: List of raw usage patterns.
+        argv: List of arguments provided by the programmer
+        user_argv: List of arguments provided by the user
+
+    Returns:
+        usage_dic: Dictionary populated with keys from the usage patterns.
+            Appropriate values are filled in from either argv or user_argv.
+    """
     arguments = user_argv
     if argv is not None:
         arguments = argv
@@ -170,11 +176,16 @@ def usage_parser(usages, argv, user_argv):
     return usage_dic
 
 
-# Split token by '|' into two mutually exclusive Token objects
-# @param token is a Token object of the form "token1|token2"
-# Returns a list object with the split tokens, i.e. ["token1", "token2"]
 def split_token(token):
-    """Splits Token by '|' and returns list of separated Tokens."""
+    """Splits Token by '|' and returns list of separated Tokens.
+    
+    Args:
+        token: A Token object with a txt parameter of the form "token1|token2".
+
+    Returns:
+        res: List of Token objects separated by '|'.
+            e.g. ["token1", "token2"]
+    """
     raw_split = token.txt.split('|')
     res = []
     for index, raw_t in enumerate(raw_split):
@@ -201,12 +212,16 @@ def split_token(token):
     return res
 
 
-# Extract raw tokens from pattern and convert them to Token objects
-# @param pattern is a string containing a single usage pattern
-# @param name the name of the program - used to ignore the program name when creating the tokens
-# Returns a linked list of Token objects
 def convert_tokens(pattern, name):
-    """Extracts raw pattern tokens and returns linked list of converted Tokens."""
+    """Extracts raw pattern tokens and converts them to list of converted Tokens.
+    
+    Args:
+        pattern: String containing a single usage pattern.
+        name: The name of the program.
+
+    Returns:
+        token_objects: A linked list of Token objects. 
+    """
     # Split pattern into individual tokens and remove leading empty space
     tokens_raw = pattern.split(" ")
     tokens_raw.pop(0)
@@ -229,10 +244,12 @@ def convert_tokens(pattern, name):
     return token_objects
 
 
-# @param tokens is the list of Token objects for a given pattern
-# Simply modifies the existing tokens, no return value
 def parse_args(tokens):
-    """Sets type attribute for all argument tokens to Argument."""
+    """Sets type attribute for all argument tokens to Argument.
+    
+    Args:
+        tokens: List of Token objects for a given pattern.
+    """
     for token in tokens:
         if token.txt.startswith('<') is True and token.txt.endswith('>') is True:
             token.type = "Argument"
@@ -241,19 +258,23 @@ def parse_args(tokens):
                 token.type = "Argument"
 
 
-# @param tokens is the list of Token objects for a given pattern
-# Simply modifies the existing tokens, no return value
 def parse_options(tokens):
-    """Sets type attribute for all option tokens to Option."""
+    """Sets type attribute for all option tokens to Option.
+    
+    Args:
+        tokens: List of Token objects for a given pattern.
+    """
     for token in tokens:
         if token.txt.startswith('-') is True:
             token.type = "Option"
 
 
-# @param tokens is the list of Token objects for a given pattern
-# Simply modifies the existing tokens, no return value
 def parse_commands(tokens):
-    """Sets type attribute for all command tokens to Command."""
+    """Sets type attribute for all command tokens to Command.
+    
+    Args:
+        tokens: List of Token objects for a given pattern.
+    """
     for token in tokens:
         # Ignore lone '|' tokens
         if token.txt != '|':
@@ -262,12 +283,12 @@ def parse_commands(tokens):
                 token.type = "Command"
 
 
-# Handle mutex tokens
-# Ex: "[--moored | --drifting]" gets replaced with [[--moored, --drifting]]
-# @param token_objects the list of Token objects for a given pattern
-# No return value
 def parse_mutex(token_objects):
-    """Replace tokens with mutex elements with a single list of mutex tokens."""
+    """Replace tokens with mutex elements with a single list of mutex tokens.
+    
+    Args:
+        token_objects: List of Token objects for a given pattern
+    """
     for index, token in enumerate(token_objects):
         if token.txt == '|':
             token_objects[index - 1] = [token.left, token.right]
@@ -277,10 +298,18 @@ def parse_mutex(token_objects):
             token_objects[index] = split_token(token)
 
 
-# Populate Usage_dic with default argument and command values
-# @param token_objects the finalized list of Token objects for a given pattern
 def build_usage_dic(token_objects):
-    """Uses finalized list of Token objects to return a default-value populated usage_dic."""
+    """Uses finalized list of Token objects to return a default-value populated usage_dic.
+    
+    Args:
+        tokens: Finalized list of Token objects for a given pattern.
+            All attributes for each Token object are properly set.
+
+    Returns:
+        usage_dic: Dictionary with arguments and commands as keys for a 
+            given pattern.
+            Default values (None and False) are set.
+    """
     usage_dic = {}
     for token in token_objects:
         if isinstance(token, list):
@@ -295,13 +324,16 @@ def build_usage_dic(token_objects):
     return usage_dic
 
 
-# Process optional ( [] ) and required ( () ) elements
-# @param tokens a list of Token objects for a given pattern
-# @param open_c the open character used to denote whether to process () or []
-# Labels each token as required or optional under the is_req parameter
-# No return value
 def process_paren(tokens, open_c):
-    """Process and label tokens as optional or required using [] and ()."""
+    """Process and label tokens as optional or required using [] and ().
+    
+    Args:
+        tokens: List of Token objects for a given pattern.
+        open_c: Character used to denote whether to process () or []
+
+    Raises:
+        Exception: If there is an unclosed '(' or '['.
+    """
     if open_c == '(':
         closed_c = ')'
         is_req = True
@@ -333,12 +365,17 @@ def process_paren(tokens, open_c):
                     raise Exception("Could not find closed paren or bracket.")
 
 
-# Examine each usage pattern and label each token appropriately
-# (argument, option, or command; optional or required)
-# Builds Usage_dic using these Token objects
-# Fills Patterns global object with finalized lists of tokens
 def parse_usage(usages):
-    """Processes usages string to return default usage_dic and list of tokens for each pattern."""
+    """Processes usages string to return default usage_dic and list of tokens for each pattern.
+    
+    Args:
+        usages: List of raw usage patterns.
+
+    Returns:
+        patterns: Nested list of finalized tokens for each pattern.
+        usage_dic: Dictionary with keys as commands and args from all patterns.
+            Default values are set.
+    """
     # Extract program name
     usages.pop(0)
     usages_split = usages[1].split(" ")
@@ -373,12 +410,17 @@ def parse_usage(usages):
     return patterns, usage_dic
 
 
-# Check if input token matches one (and only one) of the mutually exclusive tokens
-# @param index the index of which token we are examining, used to retrieve input token in Arguments
-# @param token the token we are examining
-# Returns true if a conflict is found, false otherwise
 def check_mutex(index, token, arguments):
-    """Checks if input matches only one of the mutex tokens, returns false if no conflict."""
+    """Checks if input matches only one of the mutex tokens, returns false if no conflict.
+    
+    Args:
+        index: Index value of which token we are examining.
+        token: Usage Token object we are examining.
+        arguments: List of user input tokens.
+
+    Returns:
+        bool: True if a conflict is found, False otherwise.
+    """
     found_conflict = False
     if isinstance(token, list):
         if token[0].is_req is False and index >= len(arguments):
@@ -405,12 +447,17 @@ def check_mutex(index, token, arguments):
     return found_conflict
 
 
-# Check individual arg, command, and optional tokens for a match with corresponding input token
-# @param index the index of which token we are examining, used to retrieve input token in Arguments
-# @param token the token we are examining
-# Returns true if a conflict is found, false otherwise
 def check_tokens(index, token, arguments):
-    """Check individual tokens for a match with corresponding input token."""
+    """Check individual tokens for a match with corresponding input token.
+    
+    Args:
+        index: Index value of which token we are examining.
+        token: Usage Token object we are examining.
+        arguments: List of user input tokens.
+
+    Returns:
+        bool: True if a conflict is found, False otherwise.
+    """
     found_conflict = False
     # Handle missing optional arguments
     if token.type == "Argument" and token.is_req is False:
@@ -444,11 +491,16 @@ def check_tokens(index, token, arguments):
     return found_conflict
 
 
-# Compare input tokens with a Usage pattern p
-# @param p the usage pattern we are checking, a list of Token objects
-# Returns True if a conflict is found, False otherwise
 def find_conflict(pat, arguments):
-    """Compare user args with a usage pattern p, return false if no conflict."""
+    """Compare user args with a usage pattern p, return false if no conflict.
+    
+    Args:
+        pat: List of Token objects for the usage pattern we are checking.
+        arguments: List of user input tokens.
+
+    Returns:
+        bool: True if a conflict is found, False otherwise.
+    """
     # Used to check if the pattern does not match, success if found_conflict remains False
     found_conflict = False
     for index, token in enumerate(pat):
@@ -471,11 +523,16 @@ def find_conflict(pat, arguments):
     return found_conflict
 
 
-# Finds which Usage pattern matches the input
-# Returns index of first match found
-# If no match found, function returns None
 def find_matching_pattern(patterns, arguments):
-    """Finds which usage pattern matches user args and returns index of that pattern."""
+    """Finds which usage pattern matches user args and returns index of that pattern.
+    
+    Args:
+        patterns: Nested list of finalized Tokens for each pattern.
+        arguments: List of user input tokens.
+
+    Returns:
+        pattern_to_use: Index of first usage pattern match found.
+    """
     pattern_to_use = None
 
     # Explore each pattern to determine which one matches the input
@@ -504,11 +561,20 @@ def find_matching_pattern(patterns, arguments):
     return pattern_to_use
 
 
-# Fill Usage_dic with appropriate values from the input
-# @param pattern_to_use an integer denoting which Usage pattern matches the input
-# No return value
 def populate_usage_dic(pattern_to_use, patterns, arguments, usage_dic):
-    """Fill usage_dic with appropriate input values if pattern match found."""
+    """Fill usage_dic with appropriate input values if pattern match found.
+    
+    Args:
+        pattern_to_use: Index of first matching usage pattern found.
+        patterns: Nested list of finalized Tokens for each pattern.
+        arguments: List of user input tokens.
+        usage_dic: Dictionary with keys as commands and args from all patterns.
+            Default values are currently set.
+
+    Raises:
+        Exception: If pattern_to_use is None.
+            This means that no matching usage pattern was found.
+    """
     if pattern_to_use is not None:
         for index, token in enumerate(patterns[pattern_to_use]):
             if isinstance(token, list):
