@@ -2,6 +2,7 @@
   docopt is for displaying the usages and options table that written by the programmer
   to the users. this program allows....
 """
+
 import warnings
 import sys
 import re
@@ -37,19 +38,20 @@ class Token:
         return self.txt
 
 
-#########################################################################
-##########################################################################
-# Main function for docopt program
+#
 def docopt(doc, argv=None, help_message=True, version=None):
-    """
-    :param doc: docstring that pass from the user program
-    :param argv: programmer can pre-pass some parameters into docopt and
-       those parameters is treat as default existing arguments
-    :param help_message: user can specify whether they want docopt to display
-       the help message whenever user execute the program
-    :param version: programmers can specify the version of
-       the project and display to user
-    :return: returns the complete dictionary from parameters passed in
+    """ Main function for docopt program
+    Args:
+        doc: docstring that pass from the user program
+        argv: programmer can pre-pass some parameters into docopt and
+              those parameters is treat as default existing arguments
+        help_message: user can specify whether they want docopt to display
+                      the help message whenever user execute the program
+        version: programmers can specify the version of
+                 the project and display to user
+    Returns:
+        total_dic: returns the complete dictionary from parameters passed in
+
     >>>  doc0 = "Perfect" \
     >>>
     >>>         "Usage:" \
@@ -57,14 +59,14 @@ def docopt(doc, argv=None, help_message=True, version=None):
     >>>           "naval_fate.py ship <name> move <x> <y> [--speed=<kn>]" \
     >>>
     >>>         "Options:" \
-    >>>           '-h --help --helping --haha -hhh --ooooo  Show this screen.' \
+    >>>           '-h --help --helping --haha -hhh Show this screen.' \
     >>>           '-o FILE --output=<value>  Speed in knots [default: ./test.txt].' \
     >>>           '--speed=<kn> -s KN  Speed in knots [default: 10].' \
     >>>
-    >>>  res = docopt(doc=doc0, version="test 2.0", help_message=False,
+    >>>  docopt(doc=doc0, version="test 2.0", help_message=False,
     >>>                    argv=['ship', 'Titanic', 'move', 10, 90, '--speed=70'])
-    >>>{'ship': True, 'new': False, '<name>...': False, 'name': 'Titanic', 'move': True,
-    >>>'x': 10, 'y': 90, '--helping': False, '--output': './test.txt', '--speed': 70}
+    {'ship': True, 'new': False, '<name>...': False, 'name': 'Titanic', 'move': True,
+    'x': 10, 'y': 90, '--helping': False, '--output': './test.txt', '--speed': 70}
     """
 
     usages, options = processing_string(doc, help_message, version)
@@ -75,16 +77,19 @@ def docopt(doc, argv=None, help_message=True, version=None):
     return total_dic
 
 
-#####################################################################
-######################################################################
-# Main Controller for processing the docstring.
+#
 def processing_string(doc, help_message, version):
-    """
-    :param doc: docstring pass from the main function
-    :param help_message: to tell docopt whether user want to
-        display help message when the program executes
-    :param version: the version string pass from main function
-    :return: returns the array of usage patterns and the array of options from docstring
+    """ Main Controller for processing the docstring.
+     Args:
+        doc: docstring pass from the main function.
+        help_message: to tell docopt whether user want to display help message when
+                      the program executes.
+        version: the version string pass from main function.
+        version: programmers can specify the version of the project and display to user.
+    Returns:
+        usage.split("\n"): returns the array of usage patterns.
+        options.split("\n"): returns the array of options from docstring.
+
     >>> doc1 = 'Perfect' \
     >>>
     >>>        'Usage:' \
@@ -94,11 +99,9 @@ def processing_string(doc, help_message, version):
     >>>           '-h --help --helping Show this screen.' \
     >>>           '--sorted  Show sorted.'
     >>>
-    >>> usage_array, options_array = processing_string(doc=doc1, help_message=False,
-    >>>                                     version="test 2.0")
-    >>> assert usage_array = ['Usage:', '  naval_fate.py ship new <name>...']
-    >>> assert options_array = ['Options:', '  -h --help --helping Show this screen.', \
-    >>> '  --sorted  Show sorted.']
+    >>> processing_string(doc=doc1, help_message=False, version="test 2.0")
+    ['Usage:', '  naval_fate.py ship new <name>...'], \
+    ['Options:', '  -h --help --helping Show this screen.', '  --sorted  Show sorted.']
     """
 
     if doc is None:
@@ -114,9 +117,12 @@ def processing_string(doc, help_message, version):
 # Helper function for getting usage, options and name strings from doc
 def get_usage_and_options(doc):
     """
-    :param doc: docstring that passed from main function
-    :return: returns the strings of name of program, usage patterns,
-        and options that received from docstring
+     Args:
+        doc: docstring that passed from main function.
+    Returns:
+        name: returns the strings of name of program.
+        usage: returns the strings of usage patterns.
+        options: returns the strings of options that received from docstring
 
     >>> doc1 = 'Perfect' \
     >>>
@@ -127,13 +133,13 @@ def get_usage_and_options(doc):
     >>>           '-h --help --helping Show this screen.' \
     >>>           '--sorted  Show sorted.'
     >>>
-    >>> name1, usage1, options1 = get_usage_and_options(doc1)
-    >>> assert name1 = 'Perfect'
-    >>> assert usage1 = 'Usage:' \
-    >>>          'naval_fate.py ship new <name>...' \
-    >>> assert options1 = 'Options:' \
-    >>>           '-h --help --helping Show this screen.' \
-    >>>           '--sorted  Show sorted.'
+    >>> get_usage_and_options(doc1)
+    "Perfect",
+    "Usage: \
+    naval_fate.py ship new <name>...", \
+    "Options: \
+    -h --help --helping Show this screen. \
+    --sorted  Show sorted."
     """
 
     usage = ""
@@ -160,15 +166,17 @@ def get_usage_and_options(doc):
     return name, usage, options
 
 
-# Function for testing whether the docstring contains
-# a usage part and a options part.
 # Will display warning to the user program when missing parts
 def check_warnings(usage, options):
-    """
-    :param usage: a string the retrieve from the docstring
-    :param options: a string that retrieve from the docstring
-    :return: returns 1 if no usage pattern found, returns 2 if no options found,
+    """ Function for testing whether the docstring contains a usage part and a options part.
+     Args:
+        usage: a string the retrieve from the docstring.
+        options: a string that retrieve from the docstring.
+    Returns:
+        returns 1 if no usage pattern found, returns 2 if no options found,
         and returns 0 if everything is ok in docstring
+    Raises:
+        Warnings: If no usages or options contained in the docstring.
 
     >>> check_warnings(usage="Usages: ...", options="")
     0
@@ -187,28 +195,23 @@ def check_warnings(usage, options):
     return 0
 
 
-# This function will be involved when user program specify help=True.
+#
 def show_help(name, version, usage, options):
-    """
-    :param name: name passed from the main function that retrieve
-        from the docstring
-    :param version: version information that retrieve from the docstring
-    :param usage: usage string that retrieve from the docstring
-    :param options: options string that retrieve from the docstring
-    :return: returns the help message to caller function
+    """ This function will be involved when user program specify help=True.
+    Args:
+        name: name passed from the main function that retrieve
+              from the docstring.
+        version: version information that retrieve from the docstring.
+        usage: usage string that retrieve from the docstring.
+        options: options string that retrieve from the docstring.
+    Returns:
+        output: returns the help message to caller function
 
     >>> show_help('Perfect', 'test 2.0', 'Usage: ...', 'Options: ...')
     Perfect
 
     Version:
       test 2.0
-
-    Usage: ...
-
-    Options: ...
-
-    >>> show_help('Perfect', None, 'Usage: ...', 'Options: ...')
-    Perfect
 
     Usage: ...
 
@@ -247,17 +250,13 @@ def usage_parser(usages, argv, user_argv):
 
 def split_token(token):
     """Splits Token by '|' and returns list of separated Tokens.
+    
     Args:
         token: A Token object with a txt parameter of the form "token1|token2".
+
     Returns:
         res: List of Token objects separated by '|'.
             e.g. ["token1", "token2"]
-    >>> arg1 = Token("comm1|comm2", None, None, "Command")
-    >>> arg2 = Token("--opt1|--opt2", None, None, "Option")
-    >>> res1 = split_token(arg1)
-    >>> res2 = split_token(arg2)
-    >>> assert res1[0].txt == "comm1" and res1[1].txt == "comm2" and res1[0].type == "Command"
-    >>> assert res2[0].txt == "--opt1" and res2[1].txt == "--opt2" and res2[0].type == "Option"
     """
     raw_split = token.txt.split('|')
     res = []
@@ -287,15 +286,13 @@ def split_token(token):
 
 def convert_tokens(pattern, name):
     """Extracts raw pattern tokens and converts them to list of converted Tokens.
+    
     Args:
         pattern: String containing a single usage pattern.
         name: The name of the program.
+
     Returns:
-        token_objects: A linked list of Token objects.
-    >>> p_name = "myProgram.py"
-    >>> pattern = "  myProgram.py arg1 arg2 arg3"
-    >>> tokens = convert_tokens(pattern, p_name)
-    >>> assert tokens[0].txt == "arg1" and tokens[1].txt == "arg2" and tokens[2].txt == "arg3"
+        token_objects: A linked list of Token objects. 
     """
     # Split pattern into individual tokens and remove leading empty space
     tokens_raw = pattern.split(" ")
@@ -321,13 +318,9 @@ def convert_tokens(pattern, name):
 
 def parse_args(tokens):
     """Sets type attribute for all argument tokens to Argument.
+    
     Args:
         tokens: List of Token objects for a given pattern.
-    >>> tokens = [Token("<arg>", None, None, None), Token("extra", None, None, None), \
-    >>>       Token("ARG", None, None, None)]
-    >>> parse_args(tokens)
-    >>> assert tokens[0].type == "Argument" and tokens[1].type != "Argument" and tokens[ \
-    >>>       2].type == "Argument"
     """
     for token in tokens:
         if token.txt.startswith('<') is True and token.txt.endswith('>') is True:
@@ -339,13 +332,9 @@ def parse_args(tokens):
 
 def parse_options(tokens):
     """Sets type attribute for all option tokens to Option.
+    
     Args:
         tokens: List of Token objects for a given pattern.
-    >>> tokens = [Token("extra-", None, None, None), Token("-o", None, None, None),
-    >>>       Token("--option", None, None, None)]
-    >>> parse_options(tokens)
-    >>> assert tokens[0].type != "Option" and tokens[1].type == "Option" and \
-    >>>       tokens[2].type == "Option"
     """
     for token in tokens:
         if token.txt.startswith('-') is True:
@@ -354,6 +343,7 @@ def parse_options(tokens):
 
 def parse_commands(tokens):
     """Sets type attribute for all command tokens to Command.
+    
     Args:
         tokens: List of Token objects for a given pattern.
     """
@@ -367,6 +357,7 @@ def parse_commands(tokens):
 
 def parse_mutex(token_objects):
     """Replace tokens with mutex elements with a single list of mutex tokens.
+    
     Args:
         token_objects: List of Token objects for a given pattern
     """
@@ -381,11 +372,13 @@ def parse_mutex(token_objects):
 
 def build_usage_dic(token_objects):
     """Uses finalized list of Token objects to return a default-value populated usage_dic.
+    
     Args:
-        tokens: Finalized list of Token objects for a given pattern.
+        token_objects: Finalized list of Token objects for a given pattern.
             All attributes for each Token object are properly set.
+
     Returns:
-        usage_dic: Dictionary with arguments and commands as keys for a
+        usage_dic: Dictionary with arguments and commands as keys for a 
             given pattern.
             Default values (None and False) are set.
     """
@@ -405,9 +398,11 @@ def build_usage_dic(token_objects):
 
 def process_paren(tokens, open_c):
     """Process and label tokens as optional or required using [] and ().
+    
     Args:
         tokens: List of Token objects for a given pattern.
         open_c: Character used to denote whether to process () or []
+
     Raises:
         Exception: If there is an unclosed '(' or '['.
     """
@@ -441,10 +436,13 @@ def process_paren(tokens, open_c):
                 if complete is False:
                     raise Exception("Could not find closed paren or bracket.")
 
+
 def parse_usage(usages):
     """Processes usages string to return default usage_dic and list of tokens for each pattern.
+    
     Args:
         usages: List of raw usage patterns.
+
     Returns:
         patterns: Nested list of finalized tokens for each pattern.
         usage_dic: Dictionary with keys as commands and args from all patterns.
@@ -483,12 +481,15 @@ def parse_usage(usages):
 
     return patterns, usage_dic
 
+
 def check_mutex(index, token, arguments):
     """Checks if input matches only one of the mutex tokens, returns false if no conflict.
+    
     Args:
         index: Index value of which token we are examining.
         token: Usage Token object we are examining.
         arguments: List of user input tokens.
+
     Returns:
         bool: True if a conflict is found, False otherwise.
     """
@@ -517,12 +518,15 @@ def check_mutex(index, token, arguments):
                     found_conflict = True
     return found_conflict
 
+
 def check_tokens(index, token, arguments):
     """Check individual tokens for a match with corresponding input token.
+    
     Args:
         index: Index value of which token we are examining.
         token: Usage Token object we are examining.
         arguments: List of user input tokens.
+
     Returns:
         bool: True if a conflict is found, False otherwise.
     """
@@ -558,11 +562,14 @@ def check_tokens(index, token, arguments):
                 arguments.insert(index, "None")
     return found_conflict
 
+
 def find_conflict(pat, arguments):
     """Compare user args with a usage pattern p, return false if no conflict.
+    
     Args:
         pat: List of Token objects for the usage pattern we are checking.
         arguments: List of user input tokens.
+
     Returns:
         bool: True if a conflict is found, False otherwise.
     """
@@ -587,11 +594,14 @@ def find_conflict(pat, arguments):
 
     return found_conflict
 
+
 def find_matching_pattern(patterns, arguments):
     """Finds which usage pattern matches user args and returns index of that pattern.
+    
     Args:
         patterns: Nested list of finalized Tokens for each pattern.
         arguments: List of user input tokens.
+
     Returns:
         pattern_to_use: Index of first usage pattern match found.
     """
@@ -622,14 +632,17 @@ def find_matching_pattern(patterns, arguments):
             break
     return pattern_to_use
 
+
 def populate_usage_dic(pattern_to_use, patterns, arguments, usage_dic):
     """Fill usage_dic with appropriate input values if pattern match found.
+    
     Args:
         pattern_to_use: Index of first matching usage pattern found.
         patterns: Nested list of finalized Tokens for each pattern.
         arguments: List of user input tokens.
         usage_dic: Dictionary with keys as commands and args from all patterns.
             Default values are currently set.
+
     Raises:
         Exception: If pattern_to_use is None.
             This means that no matching usage pattern was found.
@@ -655,10 +668,13 @@ def populate_usage_dic(pattern_to_use, patterns, arguments, usage_dic):
 # Main function for checking options
 def options_parser(argv, user_argv, options):
     """
-    :param argv: the default arguments that specify by the programmer
-    :param user_argv: the arguments passed from user command line
-    :param options: the options strings from docstring
-    :return: returns the built options dictionary from another method
+    Args:
+        argv: the default arguments that specify by the programmer.
+        user_argv: the arguments passed from user command line.
+        options: the options strings from docstring.
+
+    Returns:
+        returns the built options dictionary from another method.
 
     >>> options_parser(argv= ['--help'], user_argv= , options= "-h --help")
     {'-h --help': True}
@@ -679,8 +695,11 @@ def options_parser(argv, user_argv, options):
 # starts with '-' or '--' as options
 def check_option_lines(options):
     """
-    :param options: options the options strings from docstring
-    :return: returns the updated options dictionary to caller function
+    Args:
+        options: options the options strings from docstring.
+
+    Returns:
+        options_dic: the updated options dictionary to caller function
 
     >>> check_option_lines(options= "-h --help")
     {'-h --help': False}
@@ -717,11 +736,13 @@ def check_option_lines(options):
 # a default value that specify by the programmer
 def find_default_value(line, old_key, options_dic):
     """
-    :param line: a string that holds the current line
-    :param old_key: a string that holds the current key for the options dictionary
-    :param options_dic: a dictionary that passed from main function,
-        needs to do updates on it from this function
-    :return: the updated options dic to the caller function
+    Args:
+        line: a string that holds the current line.
+        old_key: a string that holds the current key for the options dictionary.
+        options_dic: a dictionary that passed from main function,
+                     needs to do updates on it from this function.
+    Returns:
+        options_dic: the updated options dic to the caller function
 
     >>> find_default_value(line='-o FILE --output=<value>  Speed in knots [default: ./test.txt].',
     >>> old_key="-o=<file> --output=<file>", options_dic={'-o=<file> --output=<file>': None})
@@ -742,9 +763,7 @@ def find_default_value(line, old_key, options_dic):
 
     matching = re.search(r'\[.*?]', line)
     if matching is not None:
-        default_value = matching.group(0)[1:-1]
-        print(default_value)
-        default_value.strip()
+        default_value = matching.group(0)[1:-1].strip()
 
         # Test if this line of docstring contains a default value
         if re.search('default:', default_value, re.IGNORECASE):
@@ -766,35 +785,26 @@ def find_default_value(line, old_key, options_dic):
 # exist in the dictionary ('--sorted')
 def check_first_option(tmp_array, count):
     """
-    :param tmp_array: the current checking line from options in the docstring
-    :param count: specify the location of array for the string
-        that is split by space
-    :return: returns the current new key for the dictionary for the current line
-        and the old_key from matching the stored pattern in the dictionary for updating
+    Args:
+        tmp_array: the current checking line from options in the docstring.
+        count: specify the location of array for the string that is split by space.
+    Returns:
+        old_key: the old_key from matching the stored pattern in the dictionary for updating.
+        tmp_dic: the current new key for the dictionary for the current line.
 
     >>> tmp_array1 = ['--help', 'Show', ' this', 'screen.']
-    >>> old_key1, tmp_dic1 = check_first_option(tmp_array=tmp_array, count=0)
-    >>> assert old_key1 == '--help'
-    >>> assert tmp_dic1 == {'--help': False}
+    >>> check_first_option(tmp_array=tmp_array, count=0)
+    '--help', {'--help': False}
 
     >>> tmp_array1 = ['-o', 'FILE', 'Speed', 'in', 'knots']
-    >>> old_key1, tmp_dic1 = check_first_option(tmp_array=tmp_array, count=0)
-    >>> assert old_key1 == '-o=<file>'
-    >>> assert tmp_dic1 == {'-o=<file>': None}
-
-    >>> tmp_array1 = ['--output=<file>', 'Speed', 'in', 'knots']
-    >>> old_key1, tmp_dic1 = check_first_option(tmp_array=tmp_array, count=0)
-    >>> assert old_key1 == '--output=<file>'
-    >>> assert tmp_dic1 == {'--output=<file>': None}
+    >>> check_first_option(tmp_array=tmp_array, count=0)
+    '-o=<file>', {'-o=<file>': None}
     """
 
     if '=' in tmp_array[count]:
         old_key = tmp_array[count]
         tmp_dic = {old_key: None}
     elif len(tmp_array) > count + 1 and tmp_array[count + 1].isupper():
-        # The option with Value (either in -s FILE or -p=<file>)
-        # will always change to -p=<file>
-        # when insert into the dictionary
         old_key = f"{tmp_array[count]}=<{tmp_array[count + 1].lower()}>"
         tmp_dic = {old_key: None}
     else:
@@ -809,30 +819,22 @@ def check_first_option(tmp_array, count):
 # e.g. insert '--help' when '-h' is exists already
 def check_other_option(tmp_array, count, old_key):
     """
-    :param tmp_array: the current checking line from options in the docstring
-    :param count: specify the location of array for the string that
-        is split by space
-    :param old_key: specify the current key for updating the key in options dictionary
-    :return: the current new key for the dictionary for the current line
-        and the old_key from matching the stored pattern in the dictionary for updating
+     Args:
+        tmp_array: the current checking line from options in the docstring.
+        count: specify the location of array for the string that
+               is split by space.
+        old_key: the key that currenly stored in the dictionary.
+    Returns:
+        old_key: the old_key from matching the stored pattern in the dictionary for updating.
+        new_key: the current new key for the dictionary for the current line.
 
     >>> tmp_array1 = ['--help', '-h', 'this', 'screen.']
-    >>> old_key1, new_key1 = check_other_option(tmp_array=tmp_array, count=1, old_key='--help')
-    >>> assert old_key1 == '--help'
-    >>> assert new_key1 == '--help -h'
-
-    >>> tmp_array1 = ['-s=<kn>', '--speed', 'KN', 'Speed', 'in', 'knots']
-    >>> old_key1, tmp_dic1 = check_other_option(tmp_array=tmp_array, count=1, old_key='-s=<kn>')
-    >>> assert old_key1 == '-s=<kn>'
-    >>> assert tmp_dic1 == '-s=<kn> --speed=<kn>'
+    >>> check_other_option(tmp_array=tmp_array, count=1, old_key='--help')
+    '--help', '--help -h'
     """
 
     if len(tmp_array) > count + 1 and tmp_array[count + 1].isupper():
-        # The option with Value (either in -s FILE or -p=<file>)
-        # will always change to -p=<file>
-        # when insert into the dictionary
-        new_key = old_key + " " + f"{tmp_array[count]}=" \
-                                  f"<{tmp_array[count + 1].lower()}>"
+        new_key = old_key + " " + f"{tmp_array[count]}=<{tmp_array[count + 1].lower()}>"
     else:
         new_key = old_key + " " + tmp_array[count]
 
@@ -843,20 +845,16 @@ def check_other_option(tmp_array, count, old_key):
 # remove the duplicated option keys after the new dictionary is built
 def build_output_options_dictionary(user_argv, options_dic):
     """
-    :param user_argv: passed in arguments from user command line
-    :param options_dic: passed in the options dictionary from main function
-    :return: the new dictionary and set values according
-        to the user command line
+    Args:
+        user_argv: passed in arguments from user command line.
+        options_dic: passed in the options dictionary from main function.
+    Returns:
+        output_dic: the new dictionary and set values according to the user command line.
 
     >>> before = {'-h --help --helping': False, '-o=<file> --output=<file>': 'ttt.pdf',
     >>>           '--speed=<kn>': 10}
     >>> build_output_options_dictionary(user_argv=[], options_dic=before)
     {'--helping': False, '--output': 'ttt.pdf', '--speed': 10}
-
-    >>> before = {'-h --help --helping': False, '-o=<file> --output=<file>': 'ttt.pdf',
-    >>>           '--speed=<kn>': 10}
-    >>> build_output_options_dictionary(user_argv=['-h', '-o=haha.pdf'], options_dic=before)
-    {'--helping': True, '--output': 'haha.pdf', '--speed': 10}
     """
 
     output_dic = options_dic.copy()
@@ -880,21 +878,18 @@ def build_output_options_dictionary(user_argv, options_dic):
 # the argument has a value (contains a equals sign)
 def check_option_contain_value(output_dic, options_dic, arguments):
     """
-    :param output_dic: a copy of the options dictionary
-    :param options_dic: the original options dictionary from main function
-    :param arguments: a boolean to indicate whether needs to remove the duplicate keywords
-        in the dictionary
-    :return: returns the updated output_dic according to the user arguments
+    Args:
+        output_dic: a copy of the options dictionary.
+        options_dic: the original options dictionary from main function.
+        arguments: a boolean to indicate whether needs to remove the duplicate keywords
+                   in the dictionary.
+    Returns:
+        output_dic: the updated output_dic according to the user arguments.
 
     >>> options_dic1 = {'-h --help --helping': False, '-o=<file> --output=<file>': 'ttt.pdf'}
     >>> before = {'-h --help --helping': False, '-o=<file> --output=<file>': 'ttt.pdf'}
-
     >>> check_option_contain_value(output_dic=before, options_dic=options_dic1, arguments=['-h'])
     {'-h --help --helping': True, '-o=<file> --output=<file>': 'ttt.pdf'}
-
-    >>> check_option_contain_value(output_dic=before, options_dic=options_dic1,
-    >>>     arguments=['-h', '-o=haha.pdf'])
-    {'-h --help --helping': True, '-o=<file> --output=<file>': 'haha.pdf'}
     """
 
     for tmp in arguments:
@@ -909,19 +904,19 @@ def check_option_contain_value(output_dic, options_dic, arguments):
 # Helper function for check keys that not contains a value
 def check_key_without_equal(element, options_dic, output_dic):
     """
-    :param element: one of the arguments that pass in by the user command line
-    :param options_dic: indicates whether the program  needs to remove
-        duplicate keyword for options dictionary
-    :param output_dic: a copy of the options dic
-    :return: returns a updated value dictionary according the arguments
-        in the user command line
+     Args:
+        element: one of the arguments that pass in by the user command line.
+        options_dic: indicates whether the program  needs to remove
+                     duplicate keyword for options dictionary.
+        output_dic: a copy of the options dic.
+    Returns:
+        output_dic: a updated value dictionary according the arguments
+                    in the user command line
 
     >>> options_dic1 = {'-h --help --helping': False, '--moored': False}
-
     >>> before = {'-h --help --helping': False, '--moored': False}
     >>> check_key_without_equal(element='--help', options_dic=options_dic1, output_dic=before)
     {'-h --help --helping': True, '--moored': False}
-
     >>> before = {'-h --help --helping': False, '--moored': False}
     >>> check_key_without_equal(element='--moored', options_dic=options_dic1, output_dic=before)
     {'-h --help --helping': False, '--moored': True}
@@ -937,19 +932,19 @@ def check_key_without_equal(element, options_dic, output_dic):
 # Helper function for check keys that contains a value
 def check_key_contain_equal(element, options_dic, output_dic):
     """
-    :param element: one of the argument that pass in by the user command line
-    :param options_dic: the original options dictionary from main function
-    :param output_dic: a copy of the options dic
-    :return: a updated value dictionary according the arguments
-        in the user command line
+    Args:
+        element: one of the argument that pass in by the user command line.
+        options_dic: the original options dictionary from main function.
+        output_dic: a copy of the options dic.
+    Returns:
+        output_dic: a updated value dictionary according the arguments
+                    in the user command line
 
     >>> options_dic1 = {'--speed=<kn>': 0, '-o=<file> --output=<file>': 'default.txt'}
-
     >>> before = {'--speed=<kn>': 0, '-o=<file> --output=<file>': 'default.txt'}
     >>> check_key_contain_equal(element="--speed=10.7", options_dic=options_dic1,
     >>>                                    output_dic=before)
     {'--speed=<kn>': 10.7, '-o=<file> --output=<file>': 'default.txt'}
-
     >>> before = {'--speed=<kn>': 0, '-o=<file> --output=<file>': 'default.txt'}
     >>> check_key_contain_equal(element="-o=haha.pdf", options_dic=options_dic,
     >>>                                     output_dic=before)
@@ -973,14 +968,28 @@ def check_key_contain_equal(element, options_dic, output_dic):
     return output_dic
 
 
-####################################################################
-###################################################################
 # Main function for building output strings to user
 def print_output_dictionary(usage_dic, options_dic):
     """
-    :param usage_dic: the original usage dictionary from main function
-    :param options_dic: the original options dictionary from main function
-    :return: returns the output string or testing array to caller function
+    Args:
+        usage_dic: the original usage dictionary from main function.
+        options_dic: the original options dictionary from main function.
+    Returns:
+        dictionary_total: the final dictionary object that built from usage pattern and options.
+        return the formatted json like dictionary string to user.
+
+    >>> input1 = {'1': True, '2': 'haha', '3': False, '4': True, '5': 'haha'}
+    >>> u_dic = {'usage1': 'x', 'usage2': 'y'}
+    >>> dic_total, res = print_output_dictionary(usage_dic=u_dic, options_dic=input1)
+    >>> assert dic_total == {**usage_dic, **dic_total}
+    {'usage1': 'x'
+     'usage2': 'y'
+     '1': True
+     '2': 'haha'
+     '3': False
+     '4': True
+     '5': 'haha'
+    }
     """
 
     dictionary_total = {}
@@ -998,11 +1007,23 @@ def print_output_dictionary(usage_dic, options_dic):
 # A helper function for display a nice looking dictionary to the user
 def output_formatter(rows, length, dic_list, dictionary_total):
     """
-    :param rows: count for how many rows needed for output dictionary
-    :param length: the total length for the output usage and options dictionary
-    :param dic_list: reformat the dictionary into a array
-    :param dictionary_total: combined dictionary (usage dic + options dic)
-    :return: returns the string from display or an array for testing
+    Args:
+        rows: count for how many rows needed for output dictionary.
+        length: the total length for the output usage and options dictionary.
+        dic_list: reformat the dictionary into a array.
+        dictionary_total: combined dictionary (usage dic + options dic).
+    Returns:
+        returns the string from display or an array for testing.
+
+    >>> dic = {'--helping': True, '--sorted': True, '--output': 'ttt.pdf', '--version': False,
+    >>>        '--speed': 10, '--moored': True, '--drifting': None, '--rr': False, '--aaa': 20.9,
+    >>>        '--yyy': False}
+    >>> d_list = list(dic)
+    >>> output_formatter(rows=4, length=len(dic_list), dic_list=dic_list, dictionary_total=dic)
+    "{'--helping': True         '--speed': 10          '--aaa': 20.9\n" + \
+    " '--sorted': True          '--moored': True       '--yyy': False\n" + \
+    " '--output': 'ttt.pdf'     '--drifting': None\n" + \
+    " '--version': False        '--rr': False}\n"
     """
 
     col1 = [' '] * rows
@@ -1022,14 +1043,30 @@ def output_formatter(rows, length, dic_list, dictionary_total):
 # Helper function for inserting the key value pairs into output dictionary
 def insert_content(dic_list, idx, rows, col_idx, dictionary_total):
     """
-    :param dic_list:  a dictionary the built from user argument but reform to a list
-    :param idx: the current row index
-    :param rows: count of the rows
-    :param col_idx: index of the col
-    :param dictionary_total: the dictionary that includes both keywords for output patterns
-        and options
-    :return: returns the key value pair in a outputting
-        form according to the type of values
+    Args:
+        dic_list:  a dictionary the built from user argument but reform to a list.
+        idx: the current row index.
+        rows: count of the rows.
+        col_idx: index of the col,
+        dictionary_total: the dictionary that includes both keywords for output patterns
+                          and options.
+    Returns:
+        returns the key value pair in a outputting form according to the type of values.
+
+    >>> dic = {'--helping': True, '--sorted': None, '--output': 'ttt.pdf',
+    >>>        '--speed': 10, '--aaa': 20.9}
+    >>> d_list = list(dic)
+
+    >>> insert_content(dic_list=dic_list, idx=0, rows=0, col_idx=0, dictionary_total=dic)
+    '--helping: True'
+    >>> insert_content(dic_list=dic_list, idx=1, rows=0, col_idx=0, dictionary_total=dic)
+    '--sorted: None'
+    >>> insert_content(dic_list=dic_list, idx=2, rows=0, col_idx=0, dictionary_total=dic)
+    '--output: ttt.pdf'
+    >>> insert_content(dic_list=dic_list, idx=3, rows=0, col_idx=0, dictionary_total=dic)
+    '--speed: 10'
+    >>> insert_content(dic_list=dic_list, idx=4, rows=0, col_idx=0, dictionary_total=dic)
+    '--aaa: 20.9'
     """
 
     if check_value_type(dictionary_total[dic_list[idx + (col_idx * rows)]]):
@@ -1043,27 +1080,52 @@ def insert_content(dic_list, idx, rows, col_idx, dictionary_total):
 # Helper method for defining whether the value is a string or a primitive type
 def check_value_type(value):
     """
-    :param value: the value for current key in the dictionary
-    :return:  returns a boolean value whether the value passed in is primitive
+    Args:
+        value: the value for current key in the dictionary.
+    Returns:
+        returns a boolean value whether the value passed in is primitive.
+
+     >>> check_value_type('Perfect')
+    False
+    >>> check_value_type(10)
+    True
+    >>> check_value_type(3.1415)
+    True
+    >>> check_value_type(True)
+    True
+    >>> check_value_type(None)
+    True
     """
 
     return isinstance(value, (int, float, bool)) or value is None
 
 
 # Helper method for printing out dictionary as a json string to user
-def print_output_from_rows(col1, col2, col3, rows):
+def print_output_from_rows(col1, col2, col3, num_rows):
     """
-    :param col1: holds the values for output column one
-    :param col2: holds the values for output column two
-    :param col3: holds the values for output column three
-    :param rows: counter for number of rows
-    :return: returns output string
+    Args:
+        col1: holds the values for output column one.
+        col2: holds the values for output column two.
+        col3: holds the values for output column three.
+        num_rows: the number of rows
+    Returns:
+        final_output: returns output string
+
+    >>> first_row = [' 11', ' 2', ' 3', ' 4', ' 5']
+    >>> second_row = [' 1', ' 222', ' 3', ' 4', ' ']
+    >>> third_row = [' 1', ' 2', ' 3333', ' ', ' ']
+    >>> print_output_from_rows(col1=col1, col2=col2, col3=col3, num_rows=5)
+    "{11     1       1\n" + \
+    " 2      222     2\n" + \
+    " 3      3       3333\n" + \
+    " 4      4\n" + \
+    " 5}\n"
     """
 
     spaces1 = len(max(col1, key=len))
     spaces2 = len(max(col2, key=len))
     final_output = ""
-    for k in range(rows):
+    for k in range(num_rows):
         if k == 0:
             out = '{' + col1[k].strip().ljust(spaces1) + ' ' * 4 \
                   + col2[k].strip().ljust(spaces2) + ' ' * 4 \
@@ -1072,7 +1134,7 @@ def print_output_from_rows(col1, col2, col3, rows):
             out = col1[k].ljust(spaces1) + ' ' * 4 \
                   + col2[k].ljust(spaces2) + ' ' * 4 \
                   + col3[k].ljust(spaces2)
-        if k == rows - 1:
+        if k == num_rows - 1:
             final_output += (out.rstrip() + '}\n')
         else:
             final_output += (out.rstrip() + '\n')

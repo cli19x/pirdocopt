@@ -795,11 +795,16 @@ def test_print_output_dictionary():
     usage_dic = {'usage1': 'x', 'usage2': 'y'}
     options_dic = {'options1': 'x', 'options2': 'y'}
     dic_total, res = docopt.print_output_dictionary(usage_dic=usage_dic, options_dic=input1)
+    print(res)
     assert dic_total == {**usage_dic, **dic_total}
     dic_total, res = docopt.print_output_dictionary(usage_dic={}, options_dic=input2)
     assert dic_total == input2
     dic_total, res = docopt.print_output_dictionary(usage_dic=input3, options_dic=options_dic)
     assert dic_total == {**input3, **options_dic}
+
+
+if __name__ == '__main__':
+    test_print_output_dictionary()
 
 
 # Test function for testing the function for outputting a correct format of dictionary according
@@ -865,5 +870,5 @@ def test_print_output_from_rows():
                  " 5}\n"
     res = docopt.print_output_from_rows(col1=col1,
                                         col2=col2,
-                                        col3=col3, rows=5)
+                                        col3=col3, num_rows=5)
     assert res == outputting
