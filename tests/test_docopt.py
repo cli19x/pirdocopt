@@ -2,6 +2,7 @@
    module for unit test of res = docopt.py
 """
 import docopt
+import docopt_util
 import pytest
 
 doc0 = """Perfect
@@ -226,18 +227,18 @@ def test_docopt():
 # Test function for processing string
 @pytest.mark.filterwarnings("ignore:api v1")
 def test_processing_string(capsys):
-    usage_array, options_array = docopt.processing_string(doc=doc1,
-                                                          help_message=False, version="test 2.0")
+    usage_array, options_array = docopt_util.processing_string(
+        doc=doc1, help_message=False, version="test 2.0")
     assert usage.split('\n') == usage_array
     assert options.split('\n') == options_array
     print(usage_array)
     print(options_array)
 
-    res = docopt.processing_string(doc=None, help_message=False, version="test 2.0")
+    res = docopt_util.processing_string(doc=None, help_message=False, version="test 2.0")
     assert res is None
 
-    usage_array, options_array = docopt.processing_string(doc=doc1,
-                                                          help_message=True, version="test 2.0")
+    usage_array, options_array = docopt_util.processing_string(
+        doc=doc1, help_message=True, version="test 2.0")
     assert usage.split('\n') == usage_array
     assert options.split('\n') == options_array
     captured = capsys.readouterr()
@@ -246,27 +247,27 @@ def test_processing_string(capsys):
 
 # Test getting the usage and options strings from docstring
 def test_get_usage_and_options():
-    tmp_name, tmp_usage, tmp_options = docopt.get_usage_and_options(doc=doc1)
+    tmp_name, tmp_usage, tmp_options = docopt_util.get_usage_and_options(doc=doc1)
     assert tmp_name == name
     assert tmp_usage == usage
     assert tmp_options == options
 
-    tmp_name, tmp_usage, tmp_options = docopt.get_usage_and_options(doc=doc2)
+    tmp_name, tmp_usage, tmp_options = docopt_util.get_usage_and_options(doc=doc2)
     assert tmp_name == ""
     assert tmp_usage == usage
     assert tmp_options == options
 
-    tmp_name, tmp_usage, tmp_options = docopt.get_usage_and_options(doc=doc3)
+    tmp_name, tmp_usage, tmp_options = docopt_util.get_usage_and_options(doc=doc3)
     assert tmp_name == ""
     assert tmp_usage == usage
     assert tmp_options == ""
 
-    tmp_name, tmp_usage, tmp_options = docopt.get_usage_and_options(doc=doc4)
+    tmp_name, tmp_usage, tmp_options = docopt_util.get_usage_and_options(doc=doc4)
     assert tmp_name == ""
     assert tmp_usage == usage
     assert tmp_options == options_2
 
-    tmp_name, tmp_usage, tmp_options = docopt.get_usage_and_options(doc=doc5)
+    tmp_name, tmp_usage, tmp_options = docopt_util.get_usage_and_options(doc=doc5)
     assert tmp_name == name
     assert tmp_usage == usage
     assert tmp_options == options_2
@@ -275,22 +276,22 @@ def test_get_usage_and_options():
 # Test if the warnings will cause the function to return a correct integer value
 @pytest.mark.filterwarnings("ignore:api v1")
 def test_check_warnings():
-    res = docopt.check_warnings(usage=usage, options=options)
+    res = docopt_util.check_warnings(usage=usage, options=options)
     assert res == 0
 
-    res = docopt.check_warnings(usage="", options=options)
+    res = docopt_util.check_warnings(usage="", options=options)
     assert res == 1
 
-    res = docopt.check_warnings(usage=usage, options="")
+    res = docopt_util.check_warnings(usage=usage, options="")
     assert res == 2
 
 
 # Test if help message will display to user correctly
 def test_show_help():
-    res = docopt.show_help(name=name, version=version, usage=usage, options=options)
+    res = docopt_util.show_help(name=name, version=version, usage=usage, options=options)
     assert res == help1
 
-    res = docopt.show_help(name=name, version="", usage=usage, options=options)
+    res = docopt_util.show_help(name=name, version="", usage=usage, options=options)
     assert res == help2
 
 
@@ -794,12 +795,12 @@ def test_print_output_dictionary():
               '25': True, '26': 'haha', '27': False, '28': True, '29': 'haha', '30': False}
     usage_dic = {'usage1': 'x', 'usage2': 'y'}
     options_dic = {'options1': 'x', 'options2': 'y'}
-    dic_total, res = docopt.print_output_dictionary(usage_dic=usage_dic, options_dic=input1)
+    dic_total, res = docopt_util.print_output_dictionary(usage_dic=usage_dic, options_dic=input1)
     print(res)
     assert dic_total == {**usage_dic, **dic_total}
-    dic_total, res = docopt.print_output_dictionary(usage_dic={}, options_dic=input2)
+    dic_total, res = docopt_util.print_output_dictionary(usage_dic={}, options_dic=input2)
     assert dic_total == input2
-    dic_total, res = docopt.print_output_dictionary(usage_dic=input3, options_dic=options_dic)
+    dic_total, res = docopt_util.print_output_dictionary(usage_dic=input3, options_dic=options_dic)
     assert dic_total == {**input3, **options_dic}
 
 
@@ -818,8 +819,8 @@ def test_output_formatter():
             " '--output': 'ttt.pdf'     '--drifting': None\n" + \
             " '--version': False        '--rr': False}\n"
     dic_list = list(dic)
-    res = docopt.output_formatter(rows=4, length=len(dic_list), dic_list=dic_list,
-                                  dictionary_total=dic)
+    res = docopt_util.output_formatter(rows=4, length=len(dic_list), dic_list=dic_list,
+                                       dictionary_total=dic)
     assert res == after
 
 
@@ -827,34 +828,39 @@ def test_output_formatter():
 def test_insert_content():
     dic = {'--helping': True, '--sorted': None, '--output': 'ttt.pdf', '--speed': 10, '--aaa': 20.9}
     dic_list = list(dic)
-    res = docopt.insert_content(dic_list=dic_list, idx=0, rows=0, col_idx=0, dictionary_total=dic)
+    res = docopt_util.insert_content(dic_list=dic_list, idx=0, rows=0,
+                                     col_idx=0, dictionary_total=dic)
     assert '\'--helping\'' + ': ' + 'True' == res
 
-    res = docopt.insert_content(dic_list=dic_list, idx=1, rows=0, col_idx=0, dictionary_total=dic)
+    res = docopt_util.insert_content(dic_list=dic_list, idx=1, rows=0,
+                                     col_idx=0, dictionary_total=dic)
     assert '\'--sorted\'' + ': ' + 'None' == res
 
-    res = docopt.insert_content(dic_list=dic_list, idx=2, rows=0, col_idx=0, dictionary_total=dic)
+    res = docopt_util.insert_content(dic_list=dic_list, idx=2, rows=0,
+                                     col_idx=0, dictionary_total=dic)
     assert '\'--output\'' + ': ' + '\'ttt.pdf\'' == res
 
-    res = docopt.insert_content(dic_list=dic_list, idx=3, rows=0, col_idx=0, dictionary_total=dic)
+    res = docopt_util.insert_content(dic_list=dic_list, idx=3, rows=0,
+                                     col_idx=0, dictionary_total=dic)
     assert '\'--speed\'' + ': ' + '10' == res
 
-    res = docopt.insert_content(dic_list=dic_list, idx=4, rows=0, col_idx=0, dictionary_total=dic)
+    res = docopt_util.insert_content(dic_list=dic_list, idx=4, rows=0,
+                                     col_idx=0, dictionary_total=dic)
     assert '\'--aaa\'' + ': ' + '20.9' == res
 
 
 # Test function for the function that check if the value provided is primitive type or a string
 def test_check_value_type():
-    res = docopt.check_value_type(value="hello world")
+    res = docopt_util.check_value_type(value="hello world")
     assert not res
 
-    res = docopt.check_value_type(value=10)
+    res = docopt_util.check_value_type(value=10)
     assert res
 
-    res = docopt.check_value_type(value=10.67)
+    res = docopt_util.check_value_type(value=10.67)
     assert res
 
-    res = docopt.check_value_type(value=None)
+    res = docopt_util.check_value_type(value=None)
     assert res
 
 
@@ -868,7 +874,5 @@ def test_print_output_from_rows():
                  " 3      3       3333\n" + \
                  " 4      4\n" + \
                  " 5}\n"
-    res = docopt.print_output_from_rows(col1=col1,
-                                        col2=col2,
-                                        col3=col3, num_rows=5)
+    res = docopt_util.print_output_from_rows(col1=col1, col2=col2, col3=col3, num_rows=5)
     assert res == outputting
