@@ -86,6 +86,39 @@ def usage_parser(usages, argv, user_argv):
     Returns:
         usage_dic: Dictionary populated with keys from the usage patterns.
             Appropriate values are filled in from either argv or user_argv.
+    >>> usages = ['Usage:',\
+    >>>     "  naval_fate.py ship new <name>",\
+    >>>     "  naval_fate.py ship <name> move <x> <y> [--speed=<kn>]",\
+    >>>     "  naval_fate.py ship shoot <x> <y>",\
+    >>>     "  naval_fate.py mine (set|remove) <x> <y> [--moored | --drifting]",\
+    >>>     "  naval_fate.py (-h | --help)",\
+    >>>     "  naval_fate.py --version"]
+    >>> args1 = ["ship", "new", "Boat"]
+    >>> args2 = ["ship", "new"]
+    >>> args3 = ["ship", "shoot", "50", "100"]
+    >>> args4 = ["ship", "Boat", "move", "50", "100"]
+    >>> args5 = ["mine", "set", "remove", "50", "100", "--drifting"]
+    >>> args6 = ["mine", "remove", "50", "100"]
+    >>> usage_dic_1 = usage_parser(usages.copy(), None, args1)
+    >>> assert usage_dic_1["ship"] is True and usage_dic_1["new"] is True \
+    >>>     and usage_dic_1["name"] == "Boat"
+    >>> usage_parser(usages.copy(), None, args2)
+    Traceback (most recent call last):
+        ...
+    Exception: No matching usage pattern found.
+    >>> usage_dic_3 = usage_parser(usages.copy(), args3, None)
+    >>> assert usage_dic_3["ship"] is True and usage_dic_3["shoot"] is True \
+    >>>     and usage_dic_3["x"] == '50' and usage_dic_3["y"] == '100'
+    >>> usage_dic_4 = usage_parser(usages.copy(), args4, None)
+    >>> assert usage_dic_3["ship"] is True and usage_dic_3["shoot"] is True \
+    >>>     and usage_dic_3["x"] == '50' and usage_dic_3["y"] == '100'
+    >>> usage_parser(usages.copy(), None, args5)
+    Traceback (most recent call last):
+        ...
+    Exception: No matching usage pattern found.
+    >>> usage_dic_6 = usage_parser(usages.copy(), args6, None)
+    >>> assert usage_dic_6["mine"] is True and usage_dic_6["remove"] is True \
+    >>>     and usage_dic_6["x"] == '50' and usage_dic_6["set"] is False
     """
     arguments = user_argv
     if argv is not None:
@@ -592,6 +625,31 @@ def populate_usage_dic(pattern_to_use, patterns, arguments, usage_dic):
     Raises:
         Exception: If pattern_to_use is None.
             This means that no matching usage pattern was found.
+    >>> pattern1 = [docopt.Token("comm1", None, None, "Command")]
+    >>> pattern1.append(docopt.Token("<arg1>", None, None, "Argument"))
+    >>> pattern1.append(docopt.Token("<arg2>", None, None, "Argument"))
+    >>> pattern1.append([docopt.Token("--opt1", None, None, "Option"),\
+    >>>     docopt.Token("--opt2", None, None, "Option")])
+    >>> pattern1[3][0].is_req, pattern1[3][1].is_req = False, False
+    >>> pattern2 = [[docopt.Token("comm1", None, None, "Command"),\
+    >>>     docopt.Token("comm2", None, None, "Command")]]
+    >>> pattern2.append(docopt.Token("-o", None, None, "Option"))
+    >>> pattern2.append(docopt.Token("ARG3", None, None, "Argument"))
+    >>> patterns = [pattern1, pattern2]
+    >>> usage_dic_1 = {"comm1": False, "comm2": False, "arg1": None, "arg2": None, "ARG3": None}
+    >>> usage_dic_2 = {"comm1": False, "comm2": False, "arg1": None, "arg2": None, "ARG3": None}
+    >>> args1 = ["comm1", "50", "100", "--opt1"]
+    >>> args2 = ["comm2", "-o", "shoot"]
+    >>> populate_usage_dic(None, patterns, args1, usage_dic_1)
+    Traceback (most recent call last):
+        ...
+    Exception: No matching usage pattern found.
+    >>> populate_usage_dic(0, patterns, args1, usage_dic_1)
+    >>> assert usage_dic_1 == {"comm1": True, "comm2": False, "arg1": '50', "arg2": '100', \
+    >>>     "ARG3": None}
+    >>> populate_usage_dic(1, patterns, args2, usage_dic_2)
+    >>> assert usage_dic_2 == {"comm1": False, "comm2": True, "arg1": None, "arg2": None,\
+    >>>     "ARG3": "shoot"}
     """
     if pattern_to_use is not None:
         for index, token in enumerate(patterns[pattern_to_use]):
