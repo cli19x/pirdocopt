@@ -45,7 +45,7 @@ and the options that provided by you program, you just need to call docopt.py:
     from docopt import docopt
     
     if __name__ == '__main__':
-        res = docopt(__doc__, version="", help_message=False, argv=)
+        res = docopt(__doc__, version="", help_message=False, argv=['mine', 'set', '50', '200', '--moored'])
         print(res)
       
 Docopot will turns all your usage pattern and options into a tidy dictionary:
