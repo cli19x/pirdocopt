@@ -48,10 +48,16 @@ and the options that provided by you program, you just need to call docopt.py:
         res = docopt(__doc__, version="", help_message=False, argv=['mine', 'set', '50', '200', '--moored'])
         print(res)
       
-Docopot will turns all your usage pattern and options into a tidy dictionary:
+Docopot will turns all your usage pattern and options into a dictionary as the return value and standout the tidy JSON-like string:
 
 .. code:: javascript
 
+   res == {'ship': False, 'new': False, 'name': None, 
+   'move': False, 'x': '50', 'y': '200', 'shoot': False, 'mine': True, 
+   'set': True, 'remove': False, '--helping': False, '--sorted': False, 
+   '--output': './test.txt', '--version': False, '--speed': 10, '--moored': True, 
+   '--drifting': False, '--rr': False, '--aaa': 20, '--yyy': False}
+    
     {'ship': False      'set': True                  '--drifting': False
      'new': False       'remove': False              '--rr': False
      'name': None       '--helping': False           '--aaa': None
