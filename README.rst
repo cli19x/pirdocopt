@@ -20,7 +20,7 @@ and the options that provided by you program, you just need to call docopt.py:
 
 .. code:: python
 
-       """Perfect
+    """Perfect
 
        Usage:
          my_program.py ship new <name>
@@ -41,6 +41,7 @@ and the options that provided by you program, you just need to call docopt.py:
          --rr     Show version.
          --aaa=<file>      Other input argument with a value.
          --yyy    Other input argument without a value.
+         
     """
     from docopt import docopt
     
