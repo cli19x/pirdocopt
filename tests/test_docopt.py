@@ -654,6 +654,8 @@ def test_check_option_lines():
                    '--rr': False, '--aaa=<value>': 20, '--yyy': False}
 
     res = docopt.check_option_lines(options=options.split('\n'))
+    print(res)
+    print(options_dic)
     assert res == options_dic
 
 
@@ -680,38 +682,6 @@ def test_find_default_value():
     line = '--aaa=<value>   Moored (anchored) mine.'
     res = docopt.find_default_value(line=line, old_key="--aaa=<value>", options_dic=options_dic)
     assert res == {'--aaa=<value>': None}
-
-
-# Test function for the function for inserting new options into the dictionary
-def test_check_first_option():
-    tmp_array = ['--help', 'Show', ' this', 'screen.']
-    old_key, tmp_dic = docopt.check_first_option(tmp_array=tmp_array, count=0)
-    assert old_key == '--help'
-    assert tmp_dic == {'--help': False}
-
-    tmp_array = ['-o', 'FILE', 'Speed', 'in', 'knots']
-    old_key, tmp_dic = docopt.check_first_option(tmp_array=tmp_array, count=0)
-    assert old_key == '-o=<file>'
-    assert tmp_dic == {'-o=<file>': None}
-
-    tmp_array = ['--output=<file>', 'Speed', 'in', 'knots']
-    old_key, tmp_dic = docopt.check_first_option(tmp_array=tmp_array, count=0)
-    assert old_key == '--output=<file>'
-    assert tmp_dic == {'--output=<file>': None}
-
-
-# Test function for the function for inserting a secondary or
-# more keyword for an option into the dictionary
-def test_check_other_option():
-    tmp_array = ['--help', '-h', 'this', 'screen.']
-    old_key, new_key = docopt.check_other_option(tmp_array=tmp_array, count=1, old_key='--help')
-    assert old_key == '--help'
-    assert new_key == '--help -h'
-
-    tmp_array = ['-s=<kn>', '--speed', 'KN', 'Speed', 'in', 'knots']
-    old_key, tmp_dic = docopt.check_other_option(tmp_array=tmp_array, count=1, old_key='-s=<kn>')
-    assert old_key == '-s=<kn>'
-    assert tmp_dic == '-s=<kn> --speed=<kn>'
 
 
 # Test function for if the function can build a correct dictionary

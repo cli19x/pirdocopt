@@ -712,25 +712,28 @@ def check_option_lines(options):
     options_dic = {}
     for line in options:
         tmp_array = line.split()
-        # Skip the line that is not starts with '-' or '--'
+
         if len(tmp_array) > 0 and tmp_array[0].strip()[:1] != '-':
             continue
 
-        found = False
-        old_key = None
-        for count, _ in enumerate(tmp_array, start=0):
-            if tmp_array[count][:1] == '-':
-                if not found:
-                    old_key, tmp_dic = check_first_option(tmp_array, count)
-                    options_dic.update(tmp_dic)
+        key = ""
+        hasValue = False
+
+        for count, element in enumerate(tmp_array, start=0):
+            if element[:1] == '-':
+                if len(tmp_array) > count + 1 and tmp_array[count + 1].isupper():
+                    key += f"{element}=<{tmp_array[count + 1].lower()}> "
+                    hasValue = True
                 else:
-                    old_key, new_key = check_other_option(tmp_array, count, old_key)
-                    # This line is for updating the key in the option dictionary
-                    options_dic = {key if key != old_key else new_key: value for key, value in
-                                   options_dic.items()}
-                    old_key = new_key
-                found = True
-        options_dic = find_default_value(line, old_key, options_dic)
+                    key += element + ' '
+
+        if hasValue:
+            options_dic.update({key[:-1]: None})
+        else:
+            options_dic.update({key[:-1]: False})
+
+        options_dic = find_default_value(line, key[:-1], options_dic)
+
     return options_dic
 
 
@@ -781,66 +784,6 @@ def find_default_value(line, old_key, options_dic):
             options_dic.update(tmp_dic)
         return options_dic
     return options_dic
-
-
-# Insert the option into dictionary with no same option command
-# exist in the dictionary ('--sorted')
-def check_first_option(tmp_array, count):
-    """
-    Args:
-        tmp_array: the current checking line from options in the docstring.
-        count: specify the location of array for the string that is split by space.
-    Returns:
-        old_key: the old_key from matching the stored pattern in the dictionary for updating.
-        tmp_dic: the current new key for the dictionary for the current line.
-
-    >>> tmp_array1 = ['--help', 'Show', ' this', 'screen.']
-    >>> check_first_option(tmp_array=tmp_array, count=0)
-    '--help', {'--help': False}
-
-    >>> tmp_array1 = ['-o', 'FILE', 'Speed', 'in', 'knots']
-    >>> check_first_option(tmp_array=tmp_array, count=0)
-    '-o=<file>', {'-o=<file>': None}
-    """
-
-    if '=' in tmp_array[count]:
-        old_key = tmp_array[count]
-        tmp_dic = {old_key: None}
-    elif len(tmp_array) > count + 1 and tmp_array[count + 1].isupper():
-        old_key = f"{tmp_array[count]}=<{tmp_array[count + 1].lower()}>"
-        tmp_dic = {old_key: None}
-    else:
-        old_key = tmp_array[count]
-        tmp_dic = {old_key: False}
-
-    return old_key, tmp_dic
-
-
-# Insert the option into dictionary with same option command
-# already exist in the dictionary
-# e.g. insert '--help' when '-h' is exists already
-def check_other_option(tmp_array, count, old_key):
-    """
-     Args:
-        tmp_array: the current checking line from options in the docstring.
-        count: specify the location of array for the string that
-               is split by space.
-        old_key: the key that currenly stored in the dictionary.
-    Returns:
-        old_key: the old_key from matching the stored pattern in the dictionary for updating.
-        new_key: the current new key for the dictionary for the current line.
-
-    >>> tmp_array1 = ['--help', '-h', 'this', 'screen.']
-    >>> check_other_option(tmp_array=tmp_array, count=1, old_key='--help')
-    '--help', '--help -h'
-    """
-
-    if len(tmp_array) > count + 1 and tmp_array[count + 1].isupper():
-        new_key = old_key + " " + f"{tmp_array[count]}=<{tmp_array[count + 1].lower()}>"
-    else:
-        new_key = old_key + " " + tmp_array[count]
-
-    return old_key, new_key
 
 
 # Update the options dictionary with new value according to user arguments,
