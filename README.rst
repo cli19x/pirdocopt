@@ -209,18 +209,24 @@ Required and Optional Parameters
 Comparasion Table
 ---------------------------
 
-          +----------+---------------------------------------------------------+
-          | Column 1 | Column 2                                                |
-          +==========+=========================================================+
-          | Foo      | Put two (or more) spaces as a field separator.          |
-          +----------+---------------------------------------------------------+
-          | Bar      | Even very very long lines like these are fine, as long  |
-          |          | as you do not put in line endings here.                 |
-          +----------+---------------------------------------------------------+
-          | Qux      | This is the last line.                                  |
-          +----------+---------------------------------------------------------+
-
-
+          +---------------------------------------------------+-----------+---------+----------+-------+--------+
+          | Features                                          | pirdocopt |  getopt | optparse | click | docopt |
+          +===================================================+===========+=========+==========+=======+========+
+          | Parse usage partterns and options in docstring    |   True    |  False  |   False  | False |  True  | 
+          +---------------------------------------------------+-----------+---------+----------+-------+--------+
+          | Support default arguments fro programmer          |   True    |  False  |   False  | False |  True  |
+          +---------------------------------------------------+-----------+---------+----------+-------+--------+
+          | Support default values in options docstring       |   True    |  False  |   False  | False |  True  | 
+          +---------------------------------------------------+-----------+---------+----------+-------+--------+
+          | Enabling help message displaying when executes    |   True    |  False  |   False  | False |  True  |
+          +---------------------------------------------------+-----------+---------+----------+-------+--------+
+          | Enabling help message printing when executes      |   True    |  False  |   False  | False |  True  |
+          +---------------------------------------------------+-----------+---------+----------+-------+--------+
+          | Program version specifying                        |   True    |  False  |   False  | False |  True  |
+          +---------------------------------------------------+-----------+---------+----------+-------+--------+
+          | Exception for incorrect  user arugment pattern    |   True    |  Flase  |   False  | False |  True  |
+          +---------------------------------------------------+-----------+---------+----------+-------+--------+
+          
 Support
 -------
 
