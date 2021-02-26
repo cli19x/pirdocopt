@@ -212,17 +212,17 @@ Comparasion Table
           +---------------------------------------------------+-----------+---------+----------+-------+--------+
           | Features                                          | pirdocopt |  getopt | optparse | click | docopt |
           +===================================================+===========+=========+==========+=======+========+
-          | Parse usage partterns and options in docstring    |   True    |  False  |   False  | False |  True  | 
+          | Parse usage partterns and options in docstring    |   True    |  False  |  False   | False |  True  | 
           +---------------------------------------------------+-----------+---------+----------+-------+--------+
-          | Support default arguments fro programmer          |   True    |  False  |   False  | False |  True  |
+          | Support default arguments fro programmer          |   True    |  False  |  False   | False |  True  |
           +---------------------------------------------------+-----------+---------+----------+-------+--------+
-          | Support default values in options docstring       |   True    |  False  |   False  | False |  True  | 
+          | Support default values in options docstring       |   True    |  False  |  False   | False |  True  | 
           +---------------------------------------------------+-----------+---------+----------+-------+--------+
-          | Enabling help message displaying when executes    |   True    |  False  |   False  | False |  True  |
+          | Enabling help message displaying when executes    |   True    |  False  |  False   | False |  True  |
           +---------------------------------------------------+-----------+---------+----------+-------+--------+
-          | Enabling help message printing when executes      |   True    |  False  |   False  | False |  True  |
+          | Enabling help message printing when executes      |   True    |  False  |  False   | False |  True  |
           +---------------------------------------------------+-----------+---------+----------+-------+--------+
-          | Program version specifying                        |   True    |  False  |   False  | False |  True  |
+          | Program version specifying                        |   True    |  False  |  False   | False |  True  |
           +---------------------------------------------------+-----------+---------+----------+-------+--------+
           | Exception for incorrect  user arugment pattern    |   True    |  Flase  |   False  | False |  True  |
           +---------------------------------------------------+-----------+---------+----------+-------+--------+
