@@ -1,12 +1,12 @@
 """Perfect
 
 Usage:
-  naval_fate.py ship new <name>
-  naval_fate.py ship <name> move <x> <y> [--speed=<kn>]
-  naval_fate.py ship shoot <x> <y>
-  naval_fate.py mine (set|remove) <x> <y> [--moored | --drifting]
-  naval_fate.py (-h | --help)
-  naval_fate.py --version
+  user.py ship new <name>
+  user.py ship <name> move <x> <y> [--speed=<kn>]
+  user.py ship shoot <x> <y>
+  user.py mine (set|remove) <x> <y> [--moored | --drifting]
+  user.py (-h | --help)
+  user.py --version
 
 Options:
   -h --help --helping --haha -hhh --ooooo  Show this screen.
@@ -24,6 +24,7 @@ Options:
 
 from docopt import docopt
 
+# user.py mine (set|remove) <x> <y> [--moored | --drifting]
 if __name__ == '__main__':
     arguments = docopt(__doc__, version="test 2.0", help_message=False,
                        argv=['mine', 'set', '50', '200', '--moored'])

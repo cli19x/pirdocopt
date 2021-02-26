@@ -3,10 +3,10 @@
   to the users. this program allows....
 """
 
-import docopt_util
+
 import sys
 import re
-import math
+import docopt_util
 
 
 # Object for storing token information
@@ -177,8 +177,8 @@ def convert_tokens(pattern, name):
     Returns:
         token_objects: A linked list of Token objects.
     >>> p_name = "myProgram.py"
-    >>> pattern = "  myProgram.py arg1 arg2 arg3"
-    >>> tokens = convert_tokens(pattern, p_name)
+    >>> tmp_p = "  myProgram.py arg1 arg2 arg3"
+    >>> tokens = convert_tokens(tmp_p, p_name)
     >>> assert tokens[0].txt == "arg1" and tokens[1].txt == "arg2" and tokens[2].txt == "arg3"
     """
     # Split pattern into individual tokens and remove leading empty space
@@ -207,11 +207,11 @@ def parse_args(tokens):
     """Sets type attribute for all argument tokens to Argument.
     Args:
         tokens: List of Token objects for a given pattern.
-    >>> tokens = [Token("<arg>", None, None, None), Token("extra", None, None, None), \
+    >>> tmp_tokens = [Token("<arg>", None, None, None), Token("extra", None, None, None), \
     >>>       Token("ARG", None, None, None)]
-    >>> parse_args(tokens)
-    >>> assert tokens[0].type == "Argument" and tokens[1].type != "Argument" and tokens[ \
-    >>>       2].type == "Argument"
+    >>> parse_args(tmp_tokens)
+    >>> assert tmp_tokens[0].type == "Argument" and tmp_tokens[1].type != "Argument"  \
+    >>>       and tmp_tokens[2].type == "Argument"
     """
     for token in tokens:
         if token.txt.startswith('<') is True and token.txt.endswith('>') is True:
@@ -225,11 +225,11 @@ def parse_options(tokens):
     """Sets type attribute for all option tokens to Option.
     Args:
         tokens: List of Token objects for a given pattern.
-    >>> tokens = [Token("extra-", None, None, None), Token("-o", None, None, None),
+    >>> tmp_tokens = [Token("extra-", None, None, None), Token("-o", None, None, None),
     >>>       Token("--option", None, None, None)]
-    >>> parse_options(tokens)
-    >>> assert tokens[0].type != "Option" and tokens[1].type == "Option" and \
-    >>>       tokens[2].type == "Option"
+    >>> parse_options(tmp_tokens)
+    >>> assert tmp_tokens[0].type != "Option" and tmp_tokens[1].type == "Option" and \
+    >>>       tmp_tokens[2].type == "Option"
     """
     for token in tokens:
         if token.txt.startswith('-') is True:
@@ -240,12 +240,12 @@ def parse_commands(tokens):
     """Sets type attribute for all command tokens to Command.
     Args:
         tokens: List of Token objects for a given pattern.
-    >>> tokens = [Token("|", None, None, None), Token("-o", None, None, "Option")]
-    >>> tokens.extend( \
+    >>> tmp_tokens = [Token("|", None, None, None), Token("-o", None, None, "Option")]
+    >>> tmp_tokens.extend( \
     >>>     [Token("<arg>", None, None, "Argument"), Token("comm", None, None, None)])
-    >>> parse_commands(tokens)
-    >>> assert tokens[0].type != "Command" and tokens[1].type == "Option" and tokens[\
-    >>>     2].type == "Argument" and tokens[\
+    >>> parse_commands(tmp_tokens)
+    >>> assert tmp_tokens[0].type != "Command" and tmp_tokens[1].type == "Option" and tmp_tokens[\
+    >>>     2].type == "Argument" and tmp_tokens[\
     >>>            3].type == "Command"
     """
     for token in tokens:
@@ -370,8 +370,8 @@ def parse_usage(usages):
         patterns: Nested list of finalized tokens for each pattern.
         usage_dic: Dictionary with keys as commands and args from all patterns.
             Default values are set.
-    >>> usages = ['Usage:', '  myProgram.py <arg1> comm1 --opt1']
-    >>> pat, u = parse_usage(usages)
+    >>> tmp_u = ['Usage:', '  myProgram.py <arg1> comm1 --opt1']
+    >>> pat, u = parse_usage(tmp_u)
     >>> assert u == {"arg1":None, "comm1":None}
     >>> assert pat[0][0].txt == "<arg1>" and pat[0][0].type == "Argument"
     >>> assert pat[0][1].txt == "comm1" and pat[0][1].type == "Command"
@@ -419,16 +419,16 @@ def check_mutex(index, token, arguments):
         arguments: List of user input tokens.
     Returns:
         bool: True if a conflict is found, False otherwise.
-    >>> token = [Token("comm1", None, None, "Command"),\
+    >>> tmp_token = [Token("comm1", None, None, "Command"),\
     >>>     Token("comm2", None, None, "Command")]
     >>> args = ["blah", "bleh", "comm1", "blih"]
-    >>> check_mutex(2, token, args)
+    >>> check_mutex(2, tmp_token, args)
     False
     >>> args.insert(3, "comm2")
-    >>> check_mutex(2, token, args)
+    >>> check_mutex(2, tmp_token, args)
     True
     >>> args = ["blah", "bleh", "blih"]
-    >>> check_mutex(2, token, args)
+    >>> check_mutex(2, tmp_token, args)
     True
     """
     found_conflict = False
@@ -465,15 +465,15 @@ def check_tokens(index, token, arguments):
         arguments: List of user input tokens.
     Returns:
         bool: True if a conflict is found, False otherwise.
-    >>> token = Token("comm1", None, None, "Command")
-    >>> check_tokens(1, token, ["<arg1>", "comm1"])
+    >>> tmp_token = Token("comm1", None, None, "Command")
+    >>> check_tokens(1, tmp_token, ["<arg1>", "comm1"])
     False
-    >>> check_tokens(1, token, ["<arg1>", "--opt1"])
+    >>> check_tokens(1, tmp_token, ["<arg1>", "--opt1"])
     True
-    >>> token = Token("--opt1=<kn>", None, None, "Option")
-    >>> check_tokens(1, token, ["<arg1>", "--opt1=50"])
+    >>> tmp_token = Token("--opt1=<kn>", None, None, "Option")
+    >>> check_tokens(1, tmp_token, ["<arg1>", "--opt1=50"])
     False
-    >>> check_tokens(1, token, ["<arg1>", "comm1"])
+    >>> check_tokens(1, tmp_token, ["<arg1>", "comm1"])
     True
     """
     found_conflict = False
@@ -569,21 +569,21 @@ def find_matching_pattern(patterns, arguments):
     >>>     Token("comm2", None, None, "Command")]]
     >>> pattern2.append(Token("-o", None, None, "Option"))
     >>> pattern2.append(Token("ARG3", None, None, "Argument"))
-    >>> patterns = [pattern1, pattern2]
+    >>> tmp_patterns = [pattern1, pattern2]
     >>> args1 = ["comm1", "50", "Mine", "--opt2"]
     >>> args2 = ["comm1", "100", "Yours", "--opt1"]
     >>> args3 = ["comm2", "-o", "shoot"]
     >>> args4 = ["comm1", "50", "Mine"]
     >>> args5 = ["comm1", "comm2", "-o", "shoot"]
-    >>> find_matching_pattern(patterns, args1)
+    >>> find_matching_pattern(tmp_patterns, args1)
     0
-    >>> find_matching_pattern(patterns, args2)
+    >>> find_matching_pattern(tmp_patterns, args2)
     0
-    >>> find_matching_pattern(patterns, args3)
+    >>> find_matching_pattern(tmp_patterns, args3)
     1
-    >>> find_matching_pattern(patterns, args4)
+    >>> find_matching_pattern(tmp_patterns, args4)
     0
-    >>> find_matching_pattern(patterns, args5)
+    >>> find_matching_pattern(tmp_patterns, args5)
     None
     """
     pattern_to_use = None
