@@ -206,6 +206,21 @@ Required and Optional Parameters
 - ``help_message=False`` is a optional parameter that default is set to ``Ture``. It allows ``docopt`` to standard output your docstring and the version specified by you right after the program is executed.
 - ``argv=[]`` is also a optional parameter in which you can put an array of default arguments (must match your docstring usage pattern).
 
+Comparasion Table
+---------------------------
+
+          +----------+---------------------------------------------------------+
+          | Column 1 | Column 2                                                |
+          +==========+=========================================================+
+          | Foo      | Put two (or more) spaces as a field separator.          |
+          +----------+---------------------------------------------------------+
+          | Bar      | Even very very long lines like these are fine, as long  |
+          |          | as you do not put in line endings here.                 |
+          +----------+---------------------------------------------------------+
+          | Qux      | This is the last line.                                  |
+          +----------+---------------------------------------------------------+
+
+
 Support
 -------
 
