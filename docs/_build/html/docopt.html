@@ -176,9 +176,9 @@ to the users. this program allows….</p>
 <dl class="py function">
 <dt id="docopt.build_output_options_dictionary">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">build_output_options_dictionary</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">user_argv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options_dic</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.build_output_options_dictionary" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Args:</dt><dd><p>user_argv: passed in arguments from user command line.
-options_dic: passed in the options dictionary from main function.</p>
+<dd><dl>
+<dt>Args:</dt><dd><p>user_argv: passed in arguments from user command line.</p>
+<p>options_dic: passed in the options dictionary from main function.</p>
 </dd>
 <dt>Returns:</dt><dd><p>output_dic: the new dictionary and set values according to the user command line.</p>
 </dd>
@@ -194,20 +194,14 @@ options_dic: passed in the options dictionary from main function.</p>
 <dl class="py function">
 <dt id="docopt.build_usage_dic">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">build_usage_dic</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token_objects</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.build_usage_dic" title="Permalink to this definition">¶</a></dt>
-<dd><p>Uses finalized list of Token objects to return a default-value populated usage_dic.
-Args:</p>
-<blockquote>
-<div><dl class="simple">
-<dt>token_objects: Finalized list of Token objects for a given pattern.</dt><dd><p>All attributes for each Token object are properly set.</p>
-</dd>
-</dl>
-</div></blockquote>
+<dd><p>Uses finalized list of Token objects to return a default-value populated usage_dic.</p>
 <dl class="simple">
-<dt>Returns:</dt><dd><dl class="simple">
-<dt>usage_dic:</dt><dd><p>Dictionary with arguments and commands as keys for a given pattern.
-Default values (None and False) are set.</p>
+<dt>Args:</dt><dd><p>token_objects: Finalized list of Token objects for a given pattern.
+All attributes for each Token object are properly set.</p>
 </dd>
-</dl>
+<dt>Returns:</dt><dd><p>usage_dic:
+Dictionary with arguments and commands as keys for a given pattern.
+Default values (None and False) are set.</p>
 </dd>
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">t1</span> <span class="o">=</span> <span class="p">[</span><span class="n">Token</span><span class="p">(</span><span class="s2">&quot;comm1&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Command&quot;</span><span class="p">),</span>    <span class="o">&gt;&gt;&gt;</span>       <span class="n">Token</span><span class="p">(</span><span class="s2">&quot;comm2&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Command&quot;</span><span class="p">)]</span>
@@ -222,40 +216,15 @@ Default values (None and False) are set.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt id="docopt.check_first_option">
-<code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">check_first_option</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.check_first_option" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Args:</dt><dd><p>tmp_array: the current checking line from options in the docstring.
-count: specify the location of array for the string that is split by space.</p>
-</dd>
-<dt>Returns:</dt><dd><p>old_key: the old_key from matching the stored pattern in the dictionary for updating.
-tmp_dic: the current new key for the dictionary for the current line.</p>
-</dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tmp_array1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;--help&#39;</span><span class="p">,</span> <span class="s1">&#39;Show&#39;</span><span class="p">,</span> <span class="s1">&#39; this&#39;</span><span class="p">,</span> <span class="s1">&#39;screen.&#39;</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">check_first_option</span><span class="p">(</span><span class="n">tmp_array</span><span class="o">=</span><span class="n">tmp_array</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="go">&#39;--help&#39;, {&#39;--help&#39;: False}</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tmp_array1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;-o&#39;</span><span class="p">,</span> <span class="s1">&#39;FILE&#39;</span><span class="p">,</span> <span class="s1">&#39;Speed&#39;</span><span class="p">,</span> <span class="s1">&#39;in&#39;</span><span class="p">,</span> <span class="s1">&#39;knots&#39;</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">check_first_option</span><span class="p">(</span><span class="n">tmp_array</span><span class="o">=</span><span class="n">tmp_array</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-<span class="go">&#39;-o=&lt;file&gt;&#39;, {&#39;-o=&lt;file&gt;&#39;: None}</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py function">
 <dt id="docopt.check_key_contain_equal">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">check_key_contain_equal</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options_dic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dic</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.check_key_contain_equal" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Args:</dt><dd><p>element: one of the argument that pass in by the user command line.
-options_dic: the original options dictionary from main function.
-output_dic: a copy of the options dic.</p>
+<dd><dl>
+<dt>Args:</dt><dd><p>element: one of the argument that pass in by the user command line.</p>
+<p>options_dic: the original options dictionary from main function.</p>
+<p>output_dic: a copy of the options dic.</p>
 </dd>
-<dt>Returns:</dt><dd><dl class="simple">
-<dt>output_dic: a updated value dictionary according the arguments</dt><dd><p>in the user command line</p>
-</dd>
-</dl>
+<dt>Returns:</dt><dd><p>output_dic: a updated value dictionary according the arguments
+in the user command line</p>
 </dd>
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">options_dic1</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;--speed=&lt;kn&gt;&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;-o=&lt;file&gt; --output=&lt;file&gt;&#39;</span><span class="p">:</span> <span class="s1">&#39;default.txt&#39;</span><span class="p">}</span>
@@ -274,22 +243,14 @@ output_dic: a copy of the options dic.</p>
 <dl class="py function">
 <dt id="docopt.check_key_without_equal">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">check_key_without_equal</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options_dic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dic</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.check_key_without_equal" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><dl>
-<dt>Args:</dt><dd><p>element: one of the arguments that pass in by the user command line.
-options_dic: indicates whether the program  needs to remove</p>
-<blockquote>
-<div><p>duplicate keyword for options dictionary.</p>
-</div></blockquote>
+<dd><dl>
+<dt>Args:</dt><dd><p>element: one of the arguments that pass in by the user command line.</p>
+<p>options_dic: indicates whether the program  needs to remove
+duplicate keyword for options dictionary.</p>
 <p>output_dic: a copy of the options dic.</p>
 </dd>
-</dl>
-</div></blockquote>
-<dl class="simple">
-<dt>Returns:</dt><dd><dl class="simple">
-<dt>output_dic: a updated value dictionary according the arguments</dt><dd><p>in the user command line</p>
-</dd>
-</dl>
+<dt>Returns:</dt><dd><p>output_dic: a updated value dictionary according the arguments
+in the user command line</p>
 </dd>
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">options_dic1</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;-h --help --helping&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;--moored&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
@@ -306,14 +267,12 @@ options_dic: indicates whether the program  needs to remove</p>
 <dl class="py function">
 <dt id="docopt.check_mutex">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">check_mutex</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arguments</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.check_mutex" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks if input matches only one of the mutex tokens, returns false if no conflict.
-Args:</p>
-<blockquote>
-<div><p>index: Index value of which token we are examining.
-token: Usage Token object we are examining.
-arguments: List of user input tokens.</p>
-</div></blockquote>
-<dl class="simple">
+<dd><p>Checks if input matches only one of the mutex tokens, returns false if no conflict.</p>
+<dl>
+<dt>Args:</dt><dd><p>index: Index value of which token we are examining.</p>
+<p>token: Usage Token object we are examining.</p>
+<p>arguments: List of user input tokens.</p>
+</dd>
 <dt>Returns:</dt><dd><p>bool: True if a conflict is found, False otherwise.</p>
 </dd>
 </dl>
@@ -335,12 +294,10 @@ arguments: List of user input tokens.</p>
 <dt id="docopt.check_option_contain_value">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">check_option_contain_value</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options_dic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arguments</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.check_option_contain_value" title="Permalink to this definition">¶</a></dt>
 <dd><dl>
-<dt>Args:</dt><dd><p>output_dic: a copy of the options dictionary.
-options_dic: the original options dictionary from main function.
-arguments: a boolean to indicate whether needs to remove the duplicate keywords</p>
-<blockquote>
-<div><p>in the dictionary.</p>
-</div></blockquote>
+<dt>Args:</dt><dd><p>output_dic: a copy of the options dictionary.</p>
+<p>options_dic: the original options dictionary from main function.</p>
+<p>arguments: a boolean to indicate whether needs to remove the duplicate keywords
+in the dictionary.</p>
 </dd>
 <dt>Returns:</dt><dd><p>output_dic: the updated output_dic according to the user arguments.</p>
 </dd>
@@ -371,42 +328,14 @@ arguments: a boolean to indicate whether needs to remove the duplicate keywords<
 </dd></dl>
 
 <dl class="py function">
-<dt id="docopt.check_other_option">
-<code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">check_other_option</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tmp_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_key</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.check_other_option" title="Permalink to this definition">¶</a></dt>
-<dd><blockquote>
-<div><dl>
-<dt>Args:</dt><dd><p>tmp_array: the current checking line from options in the docstring.
-count: specify the location of array for the string that</p>
-<blockquote>
-<div><p>is split by space.</p>
-</div></blockquote>
-<p>old_key: the key that currenly stored in the dictionary.</p>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="simple">
-<dt>Returns:</dt><dd><p>old_key: the old_key from matching the stored pattern in the dictionary for updating.
-new_key: the current new key for the dictionary for the current line.</p>
-</dd>
-</dl>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tmp_array1</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;--help&#39;</span><span class="p">,</span> <span class="s1">&#39;-h&#39;</span><span class="p">,</span> <span class="s1">&#39;this&#39;</span><span class="p">,</span> <span class="s1">&#39;screen.&#39;</span><span class="p">]</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">check_other_option</span><span class="p">(</span><span class="n">tmp_array</span><span class="o">=</span><span class="n">tmp_array</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">old_key</span><span class="o">=</span><span class="s1">&#39;--help&#39;</span><span class="p">)</span>
-<span class="go">&#39;--help&#39;, &#39;--help -h&#39;</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py function">
 <dt id="docopt.check_tokens">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">check_tokens</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arguments</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.check_tokens" title="Permalink to this definition">¶</a></dt>
-<dd><p>Check individual tokens for a match with corresponding input token.
-Args:</p>
-<blockquote>
-<div><p>index: Index value of which token we are examining.
-token: Usage Token object we are examining.
-arguments: List of user input tokens.</p>
-</div></blockquote>
-<dl class="simple">
+<dd><p>Check individual tokens for a match with corresponding input token.</p>
+<dl>
+<dt>Args:</dt><dd><p>index: Index value of which token we are examining.</p>
+<p>token: Usage Token object we are examining.</p>
+<p>arguments: List of user input tokens.</p>
+</dd>
 <dt>Returns:</dt><dd><p>bool: True if a conflict is found, False otherwise.</p>
 </dd>
 </dl>
@@ -427,13 +356,11 @@ arguments: List of user input tokens.</p>
 <dl class="py function">
 <dt id="docopt.convert_tokens">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">convert_tokens</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.convert_tokens" title="Permalink to this definition">¶</a></dt>
-<dd><p>Extracts raw pattern tokens and converts them to list of converted Tokens.
-Args:</p>
-<blockquote>
-<div><p>pattern: String containing a single usage pattern.
-name: The name of the program.</p>
-</div></blockquote>
-<dl class="simple">
+<dd><p>Extracts raw pattern tokens and converts them to list of converted Tokens.</p>
+<dl>
+<dt>Args:</dt><dd><p>pattern: String containing a single usage pattern.</p>
+<p>name: The name of the program.</p>
+</dd>
 <dt>Returns:</dt><dd><p>token_objects: A linked list of Token objects.</p>
 </dd>
 </dl>
@@ -448,22 +375,16 @@ name: The name of the program.</p>
 <dl class="py function">
 <dt id="docopt.docopt">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">docopt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">help_message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.docopt" title="Permalink to this definition">¶</a></dt>
-<dd><p>Main function for docopt program
-Args:</p>
-<blockquote>
-<div><p>doc: docstring that pass from the user program
-argv: programmer can pre-pass some parameters into docopt and</p>
-<blockquote>
-<div><p>those parameters is treat as default existing arguments</p>
-</div></blockquote>
-<dl class="simple">
-<dt>help_message: user can specify whether they want docopt to display</dt><dd><p>the help message whenever user execute the program</p>
+<dd><p>Main function for docopt program</p>
+<dl>
+<dt>Args:</dt><dd><p>doc: docstring that pass from the user program</p>
+<p>argv: programmer can pre-pass some parameters into docopt and
+those parameters is treat as default existing arguments</p>
+<p>help_message: user can specify whether they want docopt to display
+the help message whenever user execute the program</p>
+<p>version: programmers can specify the version of
+the project and display to user</p>
 </dd>
-<dt>version: programmers can specify the version of</dt><dd><p>the project and display to user</p>
-</dd>
-</dl>
-</div></blockquote>
-<dl class="simple">
 <dt>Returns:</dt><dd><p>total_dic: returns the complete dictionary from parameters passed in</p>
 </dd>
 </dl>
@@ -481,13 +402,11 @@ argv: programmer can pre-pass some parameters into docopt and</p>
 <dl class="py function">
 <dt id="docopt.find_conflict">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">find_conflict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pat</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arguments</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.find_conflict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compare user args with a usage pattern p, return false if no conflict.
-Args:</p>
-<blockquote>
-<div><p>pat: List of Token objects for the usage pattern we are checking.
-arguments: List of user input tokens.</p>
-</div></blockquote>
-<dl class="simple">
+<dd><p>Compare user args with a usage pattern p, return false if no conflict.</p>
+<dl>
+<dt>Args:</dt><dd><p>pat: List of Token objects for the usage pattern we are checking.</p>
+<p>arguments: List of user input tokens.</p>
+</dd>
 <dt>Returns:</dt><dd><p>bool: True if a conflict is found, False otherwise.</p>
 </dd>
 </dl>
@@ -510,12 +429,10 @@ arguments: List of user input tokens.</p>
 <dt id="docopt.find_default_value">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">find_default_value</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">old_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options_dic</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.find_default_value" title="Permalink to this definition">¶</a></dt>
 <dd><dl>
-<dt>Args:</dt><dd><p>line: a string that holds the current line.
-old_key: a string that holds the current key for the options dictionary.
-options_dic: a dictionary that passed from main function,</p>
-<blockquote>
-<div><p>needs to do updates on it from this function.</p>
-</div></blockquote>
+<dt>Args:</dt><dd><p>line: a string that holds the current line.</p>
+<p>old_key: a string that holds the current key for the options dictionary.</p>
+<p>options_dic: a dictionary that passed from main function,
+needs to do updates on it from this function.</p>
 </dd>
 <dt>Returns:</dt><dd><p>options_dic: the updated options dic to the caller function</p>
 </dd>
@@ -545,13 +462,11 @@ options_dic: a dictionary that passed from main function,</p>
 <dl class="py function">
 <dt id="docopt.find_matching_pattern">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">find_matching_pattern</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">patterns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arguments</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.find_matching_pattern" title="Permalink to this definition">¶</a></dt>
-<dd><p>Finds which usage pattern matches user args and returns index of that pattern.
-Args:</p>
-<blockquote>
-<div><p>patterns: Nested list of finalized Tokens for each pattern.
-arguments: List of user input tokens.</p>
-</div></blockquote>
-<dl class="simple">
+<dd><p>Finds which usage pattern matches user args and returns index of that pattern.</p>
+<dl>
+<dt>Args:</dt><dd><p>patterns: Nested list of finalized Tokens for each pattern.</p>
+<p>arguments: List of user input tokens.</p>
+</dd>
 <dt>Returns:</dt><dd><p>pattern_to_use: Index of first usage pattern match found.</p>
 </dd>
 </dl>
@@ -586,10 +501,10 @@ arguments: List of user input tokens.</p>
 <dl class="py function">
 <dt id="docopt.options_parser">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">options_parser</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">argv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_argv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.options_parser" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="simple">
-<dt>Args:</dt><dd><p>argv: the default arguments that specify by the programmer.
-user_argv: the arguments passed from user command line.
-options: the options strings from docstring.</p>
+<dd><dl>
+<dt>Args:</dt><dd><p>argv: the default arguments that specify by the programmer.</p>
+<p>user_argv: the arguments passed from user command line.</p>
+<p>options: the options strings from docstring.</p>
 </dd>
 <dt>Returns:</dt><dd><p>returns the built options dictionary from another method.</p>
 </dd>
@@ -607,11 +522,11 @@ options: the options strings from docstring.</p>
 <dl class="py function">
 <dt id="docopt.parse_args">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">parse_args</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokens</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.parse_args" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets type attribute for all argument tokens to Argument.
-Args:</p>
-<blockquote>
-<div><p>tokens: List of Token objects for a given pattern.</p>
-</div></blockquote>
+<dd><p>Sets type attribute for all argument tokens to Argument.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>tokens: List of Token objects for a given pattern.</p>
+</dd>
+</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tmp_tokens</span> <span class="o">=</span> <span class="p">[</span><span class="n">Token</span><span class="p">(</span><span class="s2">&quot;&lt;arg&gt;&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">Token</span><span class="p">(</span><span class="s2">&quot;extra&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>     <span class="o">&gt;&gt;&gt;</span>       <span class="n">Token</span><span class="p">(</span><span class="s2">&quot;ARG&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parse_args</span><span class="p">(</span><span class="n">tmp_tokens</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">tmp_tokens</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Argument&quot;</span> <span class="ow">and</span> <span class="n">tmp_tokens</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">!=</span> <span class="s2">&quot;Argument&quot;</span>      <span class="o">&gt;&gt;&gt;</span>       <span class="ow">and</span> <span class="n">tmp_tokens</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Argument&quot;</span>
@@ -622,11 +537,11 @@ Args:</p>
 <dl class="py function">
 <dt id="docopt.parse_commands">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">parse_commands</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokens</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.parse_commands" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets type attribute for all command tokens to Command.
-Args:</p>
-<blockquote>
-<div><p>tokens: List of Token objects for a given pattern.</p>
-</div></blockquote>
+<dd><p>Sets type attribute for all command tokens to Command.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>tokens: List of Token objects for a given pattern.</p>
+</dd>
+</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tmp_tokens</span> <span class="o">=</span> <span class="p">[</span><span class="n">Token</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">Token</span><span class="p">(</span><span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Option&quot;</span><span class="p">)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">tmp_tokens</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>     <span class="o">&gt;&gt;&gt;</span>     <span class="p">[</span><span class="n">Token</span><span class="p">(</span><span class="s2">&quot;&lt;arg&gt;&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Argument&quot;</span><span class="p">),</span> <span class="n">Token</span><span class="p">(</span><span class="s2">&quot;comm&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)])</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parse_commands</span><span class="p">(</span><span class="n">tmp_tokens</span><span class="p">)</span>
@@ -638,11 +553,11 @@ Args:</p>
 <dl class="py function">
 <dt id="docopt.parse_mutex">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">parse_mutex</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token_objects</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.parse_mutex" title="Permalink to this definition">¶</a></dt>
-<dd><p>Replace tokens with mutex elements with a single list of mutex tokens.
-Args:</p>
-<blockquote>
-<div><p>token_objects: List of Token objects for a given pattern</p>
-</div></blockquote>
+<dd><p>Replace tokens with mutex elements with a single list of mutex tokens.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>token_objects: List of Token objects for a given pattern</p>
+</dd>
+</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">t1</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span><span class="s2">&quot;mu1|mu2&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Command&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">t2</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span><span class="s2">&quot;--opt&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Option&quot;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">t3</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span><span class="s2">&quot;--tex1&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Option&quot;</span><span class="p">)</span>
@@ -667,11 +582,11 @@ Args:</p>
 <dl class="py function">
 <dt id="docopt.parse_options">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">parse_options</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokens</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.parse_options" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets type attribute for all option tokens to Option.
-Args:</p>
-<blockquote>
-<div><p>tokens: List of Token objects for a given pattern.</p>
-</div></blockquote>
+<dd><p>Sets type attribute for all option tokens to Option.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>tokens: List of Token objects for a given pattern.</p>
+</dd>
+</dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tmp_tokens</span> <span class="o">=</span> <span class="p">[</span><span class="n">Token</span><span class="p">(</span><span class="s2">&quot;extra-&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="n">Token</span><span class="p">(</span><span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
 <span class="gp">&gt;&gt;&gt; </span>      <span class="n">Token</span><span class="p">(</span><span class="s2">&quot;--option&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)]</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">parse_options</span><span class="p">(</span><span class="n">tmp_tokens</span><span class="p">)</span>
@@ -683,17 +598,13 @@ Args:</p>
 <dl class="py function">
 <dt id="docopt.parse_usage">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">parse_usage</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">usages</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.parse_usage" title="Permalink to this definition">¶</a></dt>
-<dd><p>Processes usages string to return default usage_dic and list of tokens for each pattern.
-Args:</p>
-<blockquote>
-<div><p>usages: List of raw usage patterns.</p>
-</div></blockquote>
+<dd><p>Processes usages string to return default usage_dic and list of tokens for each pattern.</p>
 <dl>
-<dt>Returns:</dt><dd><p>patterns: Nested list of finalized tokens for each pattern.
-usage_dic: Dictionary with keys as commands and args from all patterns.</p>
-<blockquote>
-<div><p>Default values are set.</p>
-</div></blockquote>
+<dt>Args:</dt><dd><p>usages: List of raw usage patterns.</p>
+</dd>
+<dt>Returns:</dt><dd><p>patterns: Nested list of finalized tokens for each pattern.</p>
+<p>usage_dic: Dictionary with keys as commands and args from all patterns.
+Default values are set.</p>
 </dd>
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tmp_u</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Usage:&#39;</span><span class="p">,</span> <span class="s1">&#39;  myProgram.py &lt;arg1&gt; comm1 --opt1&#39;</span><span class="p">]</span>
@@ -709,18 +620,14 @@ usage_dic: Dictionary with keys as commands and args from all patterns.</p>
 <dl class="py function">
 <dt id="docopt.populate_usage_dic">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">populate_usage_dic</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern_to_use</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">patterns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arguments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usage_dic</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.populate_usage_dic" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fill usage_dic with appropriate input values if pattern match found.
-Args:</p>
-<blockquote>
-<div><p>pattern_to_use: Index of first matching usage pattern found.
-patterns: Nested list of finalized Tokens for each pattern.
-arguments: List of user input tokens.
-usage_dic: Dictionary with keys as commands and args from all patterns.</p>
-<blockquote>
-<div><p>Default values are currently set.</p>
-</div></blockquote>
-</div></blockquote>
-<dl class="simple">
+<dd><p>Fill usage_dic with appropriate input values if pattern match found.</p>
+<dl>
+<dt>Args:</dt><dd><p>pattern_to_use: Index of first matching usage pattern found.</p>
+<p>patterns: Nested list of finalized Tokens for each pattern.</p>
+<p>arguments: List of user input tokens.</p>
+<p>usage_dic: Dictionary with keys as commands and args from all patterns.
+Default values are currently set.</p>
+</dd>
 <dt>Raises:</dt><dd><dl class="simple">
 <dt>Exception: If pattern_to_use is None.</dt><dd><p>This means that no matching usage pattern was found.</p>
 </dd>
@@ -755,13 +662,11 @@ usage_dic: Dictionary with keys as commands and args from all patterns.</p>
 <dl class="py function">
 <dt id="docopt.process_paren">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">process_paren</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokens</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">open_c</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.process_paren" title="Permalink to this definition">¶</a></dt>
-<dd><p>Process and label tokens as optional or required using [] and ().
-Args:</p>
-<blockquote>
-<div><p>tokens: List of Token objects for a given pattern.
-open_c: Character used to denote whether to process () or []</p>
-</div></blockquote>
-<dl class="simple">
+<dd><p>Process and label tokens as optional or required using [] and ().</p>
+<dl>
+<dt>Args:</dt><dd><p>tokens: List of Token objects for a given pattern.</p>
+<p>open_c: Character used to denote whether to process () or []</p>
+</dd>
 <dt>Raises:</dt><dd><p>Exception: If there is an unclosed ‘(‘ or ‘[‘.</p>
 </dd>
 </dl>
@@ -776,16 +681,12 @@ open_c: Character used to denote whether to process () or []</p>
 <dl class="py function">
 <dt id="docopt.split_token">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">split_token</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.split_token" title="Permalink to this definition">¶</a></dt>
-<dd><p>Splits Token by ‘|’ and returns list of separated Tokens.
-Args:</p>
-<blockquote>
-<div><p>token: A Token object with a txt parameter of the form “token1|token2”.</p>
-</div></blockquote>
+<dd><p>Splits Token by ‘|’ and returns list of separated Tokens.</p>
 <dl class="simple">
-<dt>Returns:</dt><dd><dl class="simple">
-<dt>res: List of Token objects separated by ‘|’.</dt><dd><p>e.g. [“token1”, “token2”]</p>
+<dt>Args:</dt><dd><p>token: A Token object with a txt parameter of the form “token1|token2”.</p>
 </dd>
-</dl>
+<dt>Returns:</dt><dd><p>res: List of Token objects separated by ‘|’.
+e.g. [“token1”, “token2”]</p>
 </dd>
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">arg1</span> <span class="o">=</span> <span class="n">Token</span><span class="p">(</span><span class="s2">&quot;comm1|comm2&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Command&quot;</span><span class="p">)</span>
@@ -801,18 +702,14 @@ Args:</p>
 <dl class="py function">
 <dt id="docopt.usage_parser">
 <code class="sig-prename descclassname"><span class="pre">docopt.</span></code><code class="sig-name descname"><span class="pre">usage_parser</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">usages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argv</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">user_argv</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#docopt.usage_parser" title="Permalink to this definition">¶</a></dt>
-<dd><p>Matches user input with usage patterns and returns populated usage_dic.
-Args:</p>
-<blockquote>
-<div><p>usages: List of raw usage patterns.
-argv: List of arguments provided by the programmer
-user_argv: List of arguments provided by the user</p>
-</div></blockquote>
-<dl class="simple">
-<dt>Returns:</dt><dd><dl class="simple">
-<dt>usage_dic: Dictionary populated with keys from the usage patterns.</dt><dd><p>Appropriate values are filled in from either argv or user_argv.</p>
+<dd><p>Matches user input with usage patterns and returns populated usage_dic.</p>
+<dl>
+<dt>Args:</dt><dd><p>usages: List of raw usage patterns.</p>
+<p>argv: List of arguments provided by the programmer</p>
+<p>user_argv: List of arguments provided by the user</p>
 </dd>
-</dl>
+<dt>Returns:</dt><dd><p>usage_dic: Dictionary populated with keys from the usage patterns.
+Appropriate values are filled in from either argv or user_argv.</p>
 </dd>
 </dl>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">usages</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Usage:&#39;</span><span class="p">,</span>    <span class="o">&gt;&gt;&gt;</span>     <span class="s2">&quot;  naval_fate.py ship new &lt;name&gt;&quot;</span><span class="p">,</span>    <span class="o">&gt;&gt;&gt;</span>     <span class="s2">&quot;  naval_fate.py ship &lt;name&gt; move &lt;x&gt; &lt;y&gt; [--speed=&lt;kn&gt;]&quot;</span><span class="p">,</span>    <span class="o">&gt;&gt;&gt;</span>     <span class="s2">&quot;  naval_fate.py ship shoot &lt;x&gt; &lt;y&gt;&quot;</span><span class="p">,</span>    <span class="o">&gt;&gt;&gt;</span>     <span class="s2">&quot;  naval_fate.py mine (set|remove) &lt;x&gt; &lt;y&gt; [--moored | --drifting]&quot;</span><span class="p">,</span>    <span class="o">&gt;&gt;&gt;</span>     <span class="s2">&quot;  naval_fate.py (-h | --help)&quot;</span><span class="p">,</span>    <span class="o">&gt;&gt;&gt;</span>     <span class="s2">&quot;  naval_fate.py --version&quot;</span><span class="p">]</span>

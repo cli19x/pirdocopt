@@ -41,14 +41,18 @@ class Token:
 #
 def docopt(doc, argv=None, help_message=True, version=None):
     """ Main function for docopt program
+
     Args:
         doc: docstring that pass from the user program
+
         argv: programmer can pre-pass some parameters into docopt and
-              those parameters is treat as default existing arguments
+        those parameters is treat as default existing arguments
+
         help_message: user can specify whether they want docopt to display
-                      the help message whenever user execute the program
+        the help message whenever user execute the program
+
         version: programmers can specify the version of
-                 the project and display to user
+        the project and display to user
     Returns:
         total_dic: returns the complete dictionary from parameters passed in
 
@@ -79,13 +83,17 @@ def docopt(doc, argv=None, help_message=True, version=None):
 
 def usage_parser(usages, argv, user_argv):
     """Matches user input with usage patterns and returns populated usage_dic.
+
     Args:
         usages: List of raw usage patterns.
+
         argv: List of arguments provided by the programmer
+
         user_argv: List of arguments provided by the user
     Returns:
         usage_dic: Dictionary populated with keys from the usage patterns.
-            Appropriate values are filled in from either argv or user_argv.
+        Appropriate values are filled in from either argv or user_argv.
+    
     >>> usages = ['Usage:',\
     >>>     "  naval_fate.py ship new <name>",\
     >>>     "  naval_fate.py ship <name> move <x> <y> [--speed=<kn>]",\
@@ -131,11 +139,13 @@ def usage_parser(usages, argv, user_argv):
 
 def split_token(token):
     """Splits Token by '|' and returns list of separated Tokens.
+
     Args:
         token: A Token object with a txt parameter of the form "token1|token2".
     Returns:
         res: List of Token objects separated by '|'.
-            e.g. ["token1", "token2"]
+        e.g. ["token1", "token2"]
+    
     >>> arg1 = Token("comm1|comm2", None, None, "Command")
     >>> arg2 = Token("--opt1|--opt2", None, None, "Option")
     >>> res1 = split_token(arg1)
@@ -171,11 +181,14 @@ def split_token(token):
 
 def convert_tokens(pattern, name):
     """Extracts raw pattern tokens and converts them to list of converted Tokens.
+
     Args:
         pattern: String containing a single usage pattern.
+
         name: The name of the program.
     Returns:
         token_objects: A linked list of Token objects.
+    
     >>> p_name = "myProgram.py"
     >>> tmp_p = "  myProgram.py arg1 arg2 arg3"
     >>> tokens = convert_tokens(tmp_p, p_name)
@@ -205,8 +218,10 @@ def convert_tokens(pattern, name):
 
 def parse_args(tokens):
     """Sets type attribute for all argument tokens to Argument.
+
     Args:
         tokens: List of Token objects for a given pattern.
+    
     >>> tmp_tokens = [Token("<arg>", None, None, None), Token("extra", None, None, None), \
     >>>       Token("ARG", None, None, None)]
     >>> parse_args(tmp_tokens)
@@ -223,8 +238,10 @@ def parse_args(tokens):
 
 def parse_options(tokens):
     """Sets type attribute for all option tokens to Option.
+
     Args:
         tokens: List of Token objects for a given pattern.
+    
     >>> tmp_tokens = [Token("extra-", None, None, None), Token("-o", None, None, None),
     >>>       Token("--option", None, None, None)]
     >>> parse_options(tmp_tokens)
@@ -238,8 +255,10 @@ def parse_options(tokens):
 
 def parse_commands(tokens):
     """Sets type attribute for all command tokens to Command.
+
     Args:
         tokens: List of Token objects for a given pattern.
+    
     >>> tmp_tokens = [Token("|", None, None, None), Token("-o", None, None, "Option")]
     >>> tmp_tokens.extend( \
     >>>     [Token("<arg>", None, None, "Argument"), Token("comm", None, None, None)])
@@ -258,8 +277,10 @@ def parse_commands(tokens):
 
 def parse_mutex(token_objects):
     """Replace tokens with mutex elements with a single list of mutex tokens.
+
     Args:
         token_objects: List of Token objects for a given pattern
+    
     >>> t1 = Token("mu1|mu2", None, None, "Command")
     >>> t2 = Token("--opt", None, None, "Option")
     >>> t3 = Token("--tex1", None, None, "Option")
@@ -289,13 +310,15 @@ def parse_mutex(token_objects):
 
 def build_usage_dic(token_objects):
     """Uses finalized list of Token objects to return a default-value populated usage_dic.
+
     Args:
         token_objects: Finalized list of Token objects for a given pattern.
-            All attributes for each Token object are properly set.
+        All attributes for each Token object are properly set.
     Returns:
         usage_dic:
-            Dictionary with arguments and commands as keys for a given pattern.
-            Default values (None and False) are set.
+        Dictionary with arguments and commands as keys for a given pattern.
+        Default values (None and False) are set.
+    
     >>> t1 = [Token("comm1", None, None, "Command"),\
     >>>       Token("comm2", None, None, "Command")]
     >>> t2 = Token("<arg1>", None, None, "Argument")
@@ -321,11 +344,14 @@ def build_usage_dic(token_objects):
 
 def process_paren(tokens, open_c):
     """Process and label tokens as optional or required using [] and ().
+
     Args:
         tokens: List of Token objects for a given pattern.
+
         open_c: Character used to denote whether to process () or []
     Raises:
         Exception: If there is an unclosed '(' or '['.
+    
     >>> process_paren([Token("[<arg2>", None, None, None)])
     Traceback (most recent call last):
         ...
@@ -364,12 +390,15 @@ def process_paren(tokens, open_c):
 
 def parse_usage(usages):
     """Processes usages string to return default usage_dic and list of tokens for each pattern.
+
     Args:
         usages: List of raw usage patterns.
     Returns:
         patterns: Nested list of finalized tokens for each pattern.
+
         usage_dic: Dictionary with keys as commands and args from all patterns.
-            Default values are set.
+        Default values are set.
+
     >>> tmp_u = ['Usage:', '  myProgram.py <arg1> comm1 --opt1']
     >>> pat, u = parse_usage(tmp_u)
     >>> assert u == {"arg1":None, "comm1":None}
@@ -413,12 +442,16 @@ def parse_usage(usages):
 
 def check_mutex(index, token, arguments):
     """Checks if input matches only one of the mutex tokens, returns false if no conflict.
+
     Args:
         index: Index value of which token we are examining.
+
         token: Usage Token object we are examining.
+
         arguments: List of user input tokens.
     Returns:
         bool: True if a conflict is found, False otherwise.
+    
     >>> tmp_token = [Token("comm1", None, None, "Command"),\
     >>>     Token("comm2", None, None, "Command")]
     >>> args = ["blah", "bleh", "comm1", "blih"]
@@ -459,12 +492,16 @@ def check_mutex(index, token, arguments):
 
 def check_tokens(index, token, arguments):
     """Check individual tokens for a match with corresponding input token.
+
     Args:
         index: Index value of which token we are examining.
+
         token: Usage Token object we are examining.
+
         arguments: List of user input tokens.
     Returns:
         bool: True if a conflict is found, False otherwise.
+    
     >>> tmp_token = Token("comm1", None, None, "Command")
     >>> check_tokens(1, tmp_token, ["<arg1>", "comm1"])
     False
@@ -511,11 +548,14 @@ def check_tokens(index, token, arguments):
 
 def find_conflict(pat, arguments):
     """Compare user args with a usage pattern p, return false if no conflict.
+
     Args:
         pat: List of Token objects for the usage pattern we are checking.
+
         arguments: List of user input tokens.
     Returns:
         bool: True if a conflict is found, False otherwise.
+    
     >>> usage = [[Token("mut1", None, None, "Command"),\
     >>>     Token("mut2", None, None, "Command")]]
     >>> usage.extend([Token("<arg1>", None, None, "Argument"),\
@@ -554,11 +594,14 @@ def find_conflict(pat, arguments):
 
 def find_matching_pattern(patterns, arguments):
     """Finds which usage pattern matches user args and returns index of that pattern.
+
     Args:
         patterns: Nested list of finalized Tokens for each pattern.
+
         arguments: List of user input tokens.
     Returns:
         pattern_to_use: Index of first usage pattern match found.
+    
     >>> pattern1 = [Token("comm1", None, None, "Command")]
     >>> pattern1.append(Token("<arg1>", None, None, "Argument"))
     >>> pattern1.append(Token("<arg2>", None, None, "Argument"))
@@ -616,15 +659,20 @@ def find_matching_pattern(patterns, arguments):
 
 def populate_usage_dic(pattern_to_use, patterns, arguments, usage_dic):
     """Fill usage_dic with appropriate input values if pattern match found.
+
     Args:
         pattern_to_use: Index of first matching usage pattern found.
+
         patterns: Nested list of finalized Tokens for each pattern.
+
         arguments: List of user input tokens.
+
         usage_dic: Dictionary with keys as commands and args from all patterns.
-            Default values are currently set.
+        Default values are currently set.
     Raises:
         Exception: If pattern_to_use is None.
             This means that no matching usage pattern was found.
+    
     >>> pattern1 = [docopt.Token("comm1", None, None, "Command")]
     >>> pattern1.append(docopt.Token("<arg1>", None, None, "Argument"))
     >>> pattern1.append(docopt.Token("<arg2>", None, None, "Argument"))
@@ -672,7 +720,9 @@ def options_parser(argv, user_argv, options):
     """
     Args:
         argv: the default arguments that specify by the programmer.
+
         user_argv: the arguments passed from user command line.
+
         options: the options strings from docstring.
 
     Returns:
@@ -743,9 +793,11 @@ def find_default_value(line, old_key, options_dic):
     """
     Args:
         line: a string that holds the current line.
+
         old_key: a string that holds the current key for the options dictionary.
+
         options_dic: a dictionary that passed from main function,
-                     needs to do updates on it from this function.
+        needs to do updates on it from this function.
     Returns:
         options_dic: the updated options dic to the caller function
 
@@ -792,6 +844,7 @@ def build_output_options_dictionary(user_argv, options_dic):
     """
     Args:
         user_argv: passed in arguments from user command line.
+
         options_dic: passed in the options dictionary from main function.
     Returns:
         output_dic: the new dictionary and set values according to the user command line.
@@ -825,9 +878,11 @@ def check_option_contain_value(output_dic, options_dic, arguments):
     """
     Args:
         output_dic: a copy of the options dictionary.
+
         options_dic: the original options dictionary from main function.
+
         arguments: a boolean to indicate whether needs to remove the duplicate keywords
-                   in the dictionary.
+        in the dictionary.
     Returns:
         output_dic: the updated output_dic according to the user arguments.
 
@@ -849,14 +904,16 @@ def check_option_contain_value(output_dic, options_dic, arguments):
 # Helper function for check keys that not contains a value
 def check_key_without_equal(element, options_dic, output_dic):
     """
-     Args:
+    Args:
         element: one of the arguments that pass in by the user command line.
+
         options_dic: indicates whether the program  needs to remove
-                     duplicate keyword for options dictionary.
+        duplicate keyword for options dictionary.
+
         output_dic: a copy of the options dic.
     Returns:
         output_dic: a updated value dictionary according the arguments
-                    in the user command line
+        in the user command line
 
     >>> options_dic1 = {'-h --help --helping': False, '--moored': False}
     >>> before = {'-h --help --helping': False, '--moored': False}
@@ -879,11 +936,13 @@ def check_key_contain_equal(element, options_dic, output_dic):
     """
     Args:
         element: one of the argument that pass in by the user command line.
+
         options_dic: the original options dictionary from main function.
+
         output_dic: a copy of the options dic.
     Returns:
         output_dic: a updated value dictionary according the arguments
-                    in the user command line
+        in the user command line
 
     >>> options_dic1 = {'--speed=<kn>': 0, '-o=<file> --output=<file>': 'default.txt'}
     >>> before = {'--speed=<kn>': 0, '-o=<file> --output=<file>': 'default.txt'}
