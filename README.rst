@@ -53,6 +53,10 @@ Docopot will turns all your usage pattern and options into a dictionary as the r
 
 .. code:: javascript
 
+   {'ship': True, 'new': False, 'name': None, 'move': False,
+   'x': '50', 'y': '100', 'shoot': True, 'mine': True,
+   'set': True, 'remove': False}
+
    res == {'ship': False, 'new': False, 'name': None, 
    'move': False, 'x': '50', 'y': '200', 'shoot': False, 'mine': True, 
    'set': True, 'remove': False, '--helping': False, '--sorted': False, 
