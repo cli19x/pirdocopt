@@ -93,7 +93,6 @@ def usage_parser(usages, argv, user_argv):
     Returns:
         usage_dic: Dictionary populated with keys from the usage patterns.
         Appropriate values are filled in from either argv or user_argv.
-    
     >>> usages = ['Usage:',\
     >>>     "  naval_fate.py ship new <name>",\
     >>>     "  naval_fate.py ship <name> move <x> <y> [--speed=<kn>]",\
@@ -145,7 +144,6 @@ def split_token(token):
     Returns:
         res: List of Token objects separated by '|'.
         e.g. ["token1", "token2"]
-    
     >>> arg1 = Token("comm1|comm2", None, None, "Command")
     >>> arg2 = Token("--opt1|--opt2", None, None, "Option")
     >>> res1 = split_token(arg1)
@@ -221,7 +219,6 @@ def parse_args(tokens):
 
     Args:
         tokens: List of Token objects for a given pattern.
-    
     >>> tmp_tokens = [Token("<arg>", None, None, None), Token("extra", None, None, None), \
     >>>       Token("ARG", None, None, None)]
     >>> parse_args(tmp_tokens)
@@ -672,7 +669,6 @@ def populate_usage_dic(pattern_to_use, patterns, arguments, usage_dic):
     Raises:
         Exception: If pattern_to_use is None.
             This means that no matching usage pattern was found.
-    
     >>> pattern1 = [docopt.Token("comm1", None, None, "Command")]
     >>> pattern1.append(docopt.Token("<arg1>", None, None, "Argument"))
     >>> pattern1.append(docopt.Token("<arg2>", None, None, "Argument"))
@@ -767,17 +763,17 @@ def check_option_lines(options):
             continue
 
         key = ""
-        hasValue = False
+        has_value = False
 
         for count, element in enumerate(tmp_array, start=0):
             if element[:1] == '-':
                 if len(tmp_array) > count + 1 and tmp_array[count + 1].isupper():
                     key += f"{element}=<{tmp_array[count + 1].lower()}> "
-                    hasValue = True
+                    has_value = True
                 else:
                     key += element + ' '
 
-        if hasValue:
+        if has_value:
             options_dic.update({key[:-1]: None})
         else:
             options_dic.update({key[:-1]: False})
