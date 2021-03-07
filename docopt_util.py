@@ -37,18 +37,19 @@ def processing_string(doc, help_message, version):
     if doc is None:
         warnings.warn('No docstring found')
         return None
-    name, usage, options = get_usage_and_options(doc)
+    name, usage, options, display_help = get_usage_and_options(doc, version)
     check_warnings(usage, options)
     if help_message:
-        print(show_help(name, version, usage, options))
+        print(display_help)
     return usage.split("\n"), options.split("\n")
 
 
 # Helper function for getting usage, options and name strings from doc
-def get_usage_and_options(doc):
+def get_usage_and_options(doc, version):
     """
      Args:
         doc: docstring that passed from main function.
+        version: the version string pass from main function.
     Returns:
         name: returns the strings of name of program.
         usage: returns the strings of usage patterns.
@@ -75,25 +76,39 @@ def get_usage_and_options(doc):
     usage = ""
     options = ""
     partition_string = doc.strip().split('\n\n')
-    name = partition_string[0]
-    if "Usage:" in name:
-        usage = name.strip()
-        name = ""
-    for line in partition_string:
-        if "Usage:" in line:
-            usage = line.strip()
-        if "Options:" in line:
-            options = line.strip()
 
-    if len(options) == 0 and len(name) == 0:
-        for i in range(1, len(partition_string)):
-            if len(partition_string[i]) > 0:
-                options = partition_string[i].strip()
-    elif len(options) == 0 and len(name) != 0:
-        for i in range(2, len(partition_string)):
-            if len(partition_string[i]) > 0:
-                options = partition_string[i].strip()
-    return name, usage, options
+    name = partition_string[0].strip()
+    partition_string.pop(0)
+
+    if "Usage:" in name:
+        usage = name
+        name = ""
+    else:
+        for element in partition_string:
+            if 'Usage:' in element.strip():
+                usage = element
+                partition_string.remove(element)
+
+    if version is not None and len(name) > 0:
+        display_help = name + "\n\n" + "Version:\n" + version + "\n\n" + usage + "\n\n" + \
+                       "\n\n".join(partition_string) + "\n\n"
+    elif version is not None:
+        display_help = "Version:\n  " + version + "\n\n" + usage + "\n\n" + "\n\n".join(
+            partition_string) + "\n\n"
+    elif len(name) > 0:
+        display_help = name + "\n\n" + usage + "\n\n" + "\n\n".join(
+            partition_string) + "\n\n"
+    else:
+        display_help = usage + "\n\n" + "\n\n".join(partition_string) + '\n\n'
+
+    for element in partition_string:
+        if element.strip()[:1] == '-' or 'Options:' in element.strip():
+            options = element
+            partition_string.remove(element)
+    print(name)
+    print(usage)
+    print(options)
+    return name, usage, options, display_help
 
 
 # Will display warning to the user program when missing parts
@@ -123,40 +138,6 @@ def check_warnings(usage, options):
         warnings.warn('No options indicated from docstring')
         return 2
     return 0
-
-
-#
-def show_help(name, version, usage, options):
-    """ This function will be involved when user program specify help=True.
-    Args:
-        name: name passed from the main function that retrieve
-              from the docstring.
-        version: version information that retrieve from the docstring.
-        usage: usage string that retrieve from the docstring.
-        options: options string that retrieve from the docstring.
-    Returns:
-        output: returns the help message to caller function
-
-    >>> show_help('Perfect', 'test 2.0', 'Usage: ...', 'Options: ...')
-    Perfect
-
-    Version:
-      test 2.0
-
-    Usage: ...
-
-    Options: ...
-
-    """
-
-    output = ""
-    if len(name) > 0:
-        output += name + "\n\n"
-    if version is not None:
-        output += "Version:\n  " + version + "\n\n"
-    output += usage + "\n\n"
-    output += options + "\n\n"
-    return output
 
 
 # Main function for building output strings to user

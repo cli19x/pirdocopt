@@ -144,7 +144,7 @@ options = """Options:
   --aaa=<value>      Moored (anchored) mine [default: 20].
   --yyy    Drifting mine."""
 
-options_2 = """-h --help --helping --haha -hhh --ooooo  Show this screen.
+options_2 = """  -h --help --helping --haha -hhh --ooooo  Show this screen.
   --sorted  Show sorted.
   -o FILE --output=<value>  Speed in knots [default: ./test.txt].
   --version     Show version.
@@ -182,6 +182,8 @@ Options:
   --aaa=<value>      Moored (anchored) mine [default: 20].
   --yyy    Drifting mine.
 
+testing
+
 """
 
 help2 = """Perfect
@@ -209,8 +211,11 @@ Options:
   --aaa=<value>      Moored (anchored) mine [default: 20].
   --yyy    Drifting mine.
 
+testing
+
 """
 
+other = "testing"
 
 #################################################################################
 #################################################################################
@@ -247,31 +252,41 @@ def test_processing_string(capsys):
 
 # Test getting the usage and options strings from docstring
 def test_get_usage_and_options():
-    tmp_name, tmp_usage, tmp_options = docopt_util.get_usage_and_options(doc=doc1)
+    tmp_name, tmp_usage, tmp_options, display = \
+        docopt_util.get_usage_and_options(doc=doc1, version=version)
     assert tmp_name == name
     assert tmp_usage == usage
     assert tmp_options == options
+    print(display)
 
-    tmp_name, tmp_usage, tmp_options = docopt_util.get_usage_and_options(doc=doc2)
+    tmp_name, tmp_usage, tmp_options, display = \
+        docopt_util.get_usage_and_options(doc=doc2, version=version)
     assert tmp_name == ""
     assert tmp_usage == usage
     assert tmp_options == options
 
-    tmp_name, tmp_usage, tmp_options = docopt_util.get_usage_and_options(doc=doc3)
+    tmp_name, tmp_usage, tmp_options, display = \
+        docopt_util.get_usage_and_options(doc=doc3, version=version)
     assert tmp_name == ""
     assert tmp_usage == usage
     assert tmp_options == ""
 
-    tmp_name, tmp_usage, tmp_options = docopt_util.get_usage_and_options(doc=doc4)
+    tmp_name, tmp_usage, tmp_options, display = \
+        docopt_util.get_usage_and_options(doc=doc4, version=version)
     assert tmp_name == ""
     assert tmp_usage == usage
+    print(tmp_options)
+    print(options_2)
     assert tmp_options == options_2
 
-    tmp_name, tmp_usage, tmp_options = docopt_util.get_usage_and_options(doc=doc5)
+    tmp_name, tmp_usage, tmp_options, display = \
+        docopt_util.get_usage_and_options(doc=doc5, version=version)
     assert tmp_name == name
     assert tmp_usage == usage
     assert tmp_options == options_2
 
+if __name__ == '__main__':
+    test_get_usage_and_options()
 
 # Test if the warnings will cause the function to return a correct integer value
 @pytest.mark.filterwarnings("ignore:api v1")
@@ -284,15 +299,6 @@ def test_check_warnings():
 
     res = docopt_util.check_warnings(usage=usage, options="")
     assert res == 2
-
-
-# Test if help message will display to user correctly
-def test_show_help():
-    res = docopt_util.show_help(name=name, version=version, usage=usage, options=options)
-    assert res == help1
-
-    res = docopt_util.show_help(name=name, version="", usage=usage, options=options)
-    assert res == help2
 
 
 #################################################################################
