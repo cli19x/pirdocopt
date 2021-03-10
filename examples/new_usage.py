@@ -157,9 +157,6 @@ def main_function():
     usages.pop(0)
     usages, usage_dic = get_patterns_and_dict(usages)
     args = sys.argv[1:]
-    for pattern in usages:
-        left = args
-        for token in pattern:
 
 
 def get_patterns_and_dict(usages):
