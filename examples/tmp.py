@@ -1,4 +1,5 @@
 import re
+import sys
 import docopt_util
 
 doc2 = """Usage:
@@ -24,108 +25,64 @@ Options:
 """
 
 
-class UsageToken:
-    def __init__(self, e_list, pointers, contain_options):
-        self.e_list = e_list
-        self.pointers = pointers
-        self.contain_options = contain_options
+def check_patterns_with_user_input(usage_tree, usage_dic, arg):
+    """
+
+     Args:
+        usage_tree: The usage pattern tree for checking user input arguments.
+
+        usage_dic: The dictionary for output the results of usage pattern.
+
+        arg: Array of user input arguments, either is default or from command line.
+
+    Returns:
+        res: Boolean value for if input pattern is matching the patterns in docstring.
+        usage_dic: Return None if no pattern matching, else return the updated usage dictionary.
+
+    """
+
+    res, usage_dic = check_patterns_with_user_input_helper(usage_tree, usage_dic, arg)
+    return usage_dic if res is not False else None
 
 
-def main_function():
-    usage_array, options_array = docopt_util.processing_string(doc2, False, version="testing tmp")
-    token = UsageToken([], [], False)
-    usage_dic, token = processing_usages(usage_array, token)
-    turned_on_options = []
-    usage_dic, turned_on_options = check_usage_pattern(usage_dic, token, turned_on_options)
+def check_patterns_with_user_input_helper(usage_tree, usage_dic, arg):
+    """
 
+     Args:
+        usage_tree: The usage pattern tree for checking user input arguments.
 
-def processing_usages(usage_array, token):
-    usage_dic = {}
-    for usage in usage_array:
-        if 'Usage:' in usage:
-            continue
-        res = re.sub(r'\[.*?]', lambda x: ''.join(x.group(0).split()), usage)
-        res = re.sub(r'\(.*?\)', lambda x: ''.join(x.group(0).split()), res)
-        res = re.sub(r'<.*?>', lambda x: ''.join(x.group(0).split()), res)
-        tmp_dic, token = processing_element(res.split(), token)
-        usage_dic.update(tmp_dic)
-    return usage_dic, token
+        usage_dic: The dictionary for output the results of usage pattern.
 
+        arg: Array of user input arguments, either is default or from command line.
 
-def processing_element(line_usage, token):
-    usage_dic = {}
-    usage_list = []
-    for element in line_usage:
-        element = element.strip()
-        if element[-3:] == '.py':
-            token.e_list = element
-        elif '(' in element:
-            res = re.search(r'\((.*?)\)', element.strip()).group(1)
-            usage_dic.update(update_usage_dic(res.split('|'), False))
-            usage_list.append(res.split('|'))
-        elif '[' in element:
-            res = re.search(r'\[(.*?)]', element.strip()).group(1)
-            usage_dic.update(update_usage_dic(res.split('|'), False))
-            usage_list.append(res.split('|'))
-        elif '<' and '...' in element:
-            usage_dic.update(update_usage_dic([element], True))
-            usage_list.append([element])
-        elif '<' in element:
-            res = re.search(r'<(.*?)>', element.strip()).group(1)
-            usage_dic.update(update_usage_dic([res], True))
-            usage_list.append([element])
-        else:
-            usage_dic.update(update_usage_dic([element], False))
-            usage_list.append([element])
-    token = update_usage_tree(usage_list, token)
-    return usage_dic, token
+    Returns:
+        res: Boolean value for if input pattern is matching the patterns in docstring.
+        usage_dic: Return the updated usage dictionary or stay the same if no pattern found.
 
+    """
 
-def update_usage_dic(element_list, is_value):
-    tmp_dic = {}
-    for element in element_list:
-        if is_value and len(element) == 1:
-            tmp_dic.update({element: 0})
-        elif is_value and len(element) > 1:
-            tmp_dic.update({element: None})
-        else:
-            tmp_dic.update({element: False})
-    return tmp_dic
+    if len(arg) == 0:
+        for child in usage_tree.chirden:
+            if child.match('`/0'):
+                return True, usage_dic
+        return False, usage_dic
 
-
-def update_usage_tree(usage_array, token):
-    token = update_usage_tree_helper(usage_array, token)
-    return token
-
-
-def update_usage_tree_helper(usage_array, token):
-    if len(usage_array) == 0:
-        for pointer in token.pointers:
-            if '`/0' in pointer.e_list:
-                return token
-        token.pointers.append(UsageToken('`/0', [], False))
-        return token
-
-    current_array = usage_array.pop(0)
-    for element in current_array:
-        contain = False
-        for index, current_pointer in enumerate(token.pointers):
-            if element == current_pointer.e_list:
-                token.pointers[index] = update_usage_tree_helper(usage_array, token.pointers[index])
-                contain = True
-        if not contain:
-            if element[:1] == "-":
-                token.pointers.append(UsageToken(element, [], True))
-            else:
-                token.pointers.append(UsageToken(element, [], False))
-            token.pointers[-1] = update_usage_tree_helper(usage_array, token.pointers[-1])
-
-    return token
-
-
-def check_usage_pattern(usage_dic, token, turned_on_options):
-    return usage_dic, turned_on_options
-
-
-if __name__ == '__main__':
-    main_function()
+    current_element = arg.pop(0)
+    res = False
+    for child in usage_tree.chirden:
+        # matching the repeat values (<name>...), skip_to is the index of the last repeat element
+        # in user argument list
+        # return skip_to == -1 if not matching
+        # tmp_dic(2) contains {'<name>...': ['e1', 'e2', 'e3']} for repeat values,
+        # and {'ship': Ture} for others
+        skip_to, tmp_dic = child.match(arg.insert(0, current_element), 0)
+        # skip_to2 is just for the easiness of design of the match function
+        skip_to2, tmp_dic2 = child.match(current_element)
+        if skip_to > 0:
+            arg = arg[skip_to - 1:]
+            res, usage_dic = check_patterns_with_user_input_helper(child, usage_dic, arg)
+            usage_dic.update(tmp_dic)
+        elif tmp_dic2 is not None:
+            res, usage_dic = check_patterns_with_user_input_helper(child, usage_dic, arg)
+            usage_dic.update(tmp_dic2)
+    return res, usage_dic
