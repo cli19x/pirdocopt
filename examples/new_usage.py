@@ -21,22 +21,26 @@ Options:
   --rr     Show version.
   --aaa=<value>      Moored (anchored) mine [default: 20].
   --yyy    Drifting mine.
-
 """
 
 
 class Token:
-    def __init__(self, prev=None, next=None, children=[]):
+    def __init__(self, prev=None, post=None, children=None):
+        if children is None:
+            children = []
         self.prev = prev
-        self.next = next
+        self.post = post
         self.children = children
 
 
 class Leaf(Token):
-    def __init__(self, text, value=None, prev=None, next=None, children=[]):
+    def __init__(self, text, value=None, prev=None, post=None, children=None):
+        if children is None:
+            children = []
         self.text = text
         self.value = value
-        super(Leaf, self).__init__(prev, next, children)
+        self.post = post
+        super(Leaf, self).__init__(prev, post, children)
 
     def __repr__(self):
         return '%s(%r, %r)' % (self.__class__.__name__, self.text, self.value)
@@ -44,73 +48,86 @@ class Leaf(Token):
     def flat(self, *types):
         return self if not types or type(self) in types else None
 
-    def match(self, left):
+    def match(self, left, index):
         return True if left else False
 
 
 class Argument(Leaf):
     """ Placeholder """
 
-    def __init__(self, text, value=None, prev=None, next=None, children=[]):
+    def __init__(self, text, prev=None, post=None, children=None):
+        if children is None:
+            children = []
         self.value = None if len(text.strip("<>")) > 1 else 0
-        super(Argument, self).__init__(text, self.value, prev, next, children)
+        super(Argument, self).__init__(text, self.value, prev, post, children)
 
     def match(self, args, index):
         if index < len(args):
             if self.value == 0 and not is_num(args[index]):
                 print(f"Argument {self.text} not match 1")
-                return False, index+1
+                return False, index + 1
             self.value = args[index]
-            return True, index+1
+            return True, index + 1
         print(f"Argument {self.text} not match 2")
-        return False, index+1
+        return False, index + 1
 
 
 class Option(Leaf):
     """ Placeholder """
 
-    def __init__(self, text, value=False, short=False, long=False, prev=None, next=None, children=[]):
+    def __init__(self, text, value=False, short=False, long=False, prev=None, post=None,
+                 children=None):
+        if children is None:
+            children = []
         self.short = short
         self.long = long
+        self.value = value
         if '=' in text:
-            arg = re.search('<\S+>', text).group()
-            text = re.search('\S+=', text).group().strip("=")
+            arg = re.search('<\\S+>', text).group()
+            text = re.search('\\S+=', text).group().strip("=")
             self.value = None if len(arg.strip("<>")) > 1 else 0
         else:
             self.value = None if '=' in text else False
-        super(Option, self).__init__(text, self.value, prev, next, children)
+        super(Option, self).__init__(text, self.value, prev, post, children)
 
     def match(self, args, index):
         if index < len(args):
             if self.text == args[index]:
                 self.value = True
-                return True, index+1
+                return True, index + 1
         print(f"Option {self.text} not match")
-        return False, index+1
+        return False, index + 1
 
 
 class Command(Leaf):
     """ Placeholder """
 
-    def __init__(self, text, value=None, prev=None, next=None, children=[]):
-        self.value = False
-        super(Command, self).__init__(text, self.value, prev, next, children)
+    def __init__(self, text, value=False, prev=None, post=None, children=None):
+        if children is None:
+            children = []
+        self.value = value
+        super(Command, self).__init__(text, self.value, prev, post, children)
 
     def match(self, args, index):
         if index < len(args):
             if self.text == args[index]:
                 self.value = True
-                return True, index+1
+                return True, index + 1
         print(f"Command {self.text} not match")
-        return False, index+1
+        return False, index + 1
+
 
 # Used for grouping Tokens by optional, required, mutex, or repeating
 
 
 class Branch(Token):
-    def __init__(self, tokens=[], prev=None, next=None, children=[]):
+    def __init__(self, tokens=None, prev=None, post=None, children=None):
+        if children is None:
+            children = []
+        if tokens is None:
+            tokens = []
         self.tokens = tokens
-        super(Branch, self).__init__(prev, next, children)
+        super(Branch, self).__init__(prev, post, children)
 
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
@@ -146,6 +163,7 @@ class Required(Branch):
                 return False, index
         return True, child_index
 
+
 class Mutex(Branch):
     """ Placeholder """
 
@@ -164,7 +182,7 @@ class Repeating(Branch):
     # BUG: index 1 less than it should be when repeating pattern incomplete
     def match(self, args, index):
         is_match, new_index = self.tokens[0].match(args, index)
-        #old_index = new_index
+        # old_index = new_index
         if not is_match:
             return False, new_index
         while new_index < len(args):
@@ -172,38 +190,42 @@ class Repeating(Branch):
             is_match, new_index = self.tokens[0].match(args, new_index)
             if not is_match:
                 new_index = new_index - 1
-                break       
+                break
         return True, new_index
 
 
 # Used for identifying branch tokens (Optional, Required, Mutex, Repeating)
 class SpecialToken(Token):
-    def __init__(self, prev=None, next=None, children=[]):
-        super(SpecialToken, self).__init__(prev, next, children)
+    def __init__(self, prev=None, post=None, children=None):
+        if children is None:
+            children = []
+        super(SpecialToken, self).__init__(prev, post, children)
 
     def __repr__(self):
         return self.__class__.__name__
 
 
-class Optional_Open(SpecialToken):
+class OptionalOpen(SpecialToken):
     """ Placeholder """
+
     @property
     def closed_class(self):
-        return Optional_Closed
+        return OptionalClosed
 
 
-class Optional_Closed(SpecialToken):
+class OptionalClosed(SpecialToken):
     """ Placeholder """
 
 
-class Required_Open(SpecialToken):
+class RequiredOpen(SpecialToken):
     """ Placeholder """
+
     @property
     def closed_class(self):
-        return Required_Closed
+        return RequiredClosed
 
 
-class Required_Closed(SpecialToken):
+class RequiredClosed(SpecialToken):
     """ Placeholder """
 
 
@@ -213,7 +235,7 @@ class Pipe(SpecialToken):
     #   E.g. (run [--fast]) | (jump [--high])
 
 
-class Ellipsis(SpecialToken):
+class Repeats(SpecialToken):
     """ Placeholder """
 
 
@@ -222,11 +244,14 @@ def main_function():
         doc2, False, "testing new_usage")
     usages.pop(0)
     usages, usage_dic, token_set, tree_heads = get_patterns_and_dict(usages)
-    '''print(usages)
-    print(usage_dic)
-    print(token_set)
-    print(tree_heads)'''
-    args = sys.argv[1:]
+    # print(options_array)
+    # print(usages)
+    # print(usage_dic)
+    # print(token_set)
+    # print(tree_heads)
+    args = ['naval_fate.py', 'ship', 'shoot', '60', '50']
+    args = args[1:]
+    usage_dic = check_patterns_with_user_input(tree_heads, usage_dic, args)
     test_arg = usages[0][0]
     found_patt_match = False
     patt_match = None
@@ -236,11 +261,11 @@ def main_function():
         for token in pattern:
             is_match, index = token.match(args, index)
             if not is_match:
-                #print(f"NOT A MATCH\n{usages[0]}\n{args}")
+                # print(f"NOT A MATCH\n{usages[0]}\n{args}")
                 found_patt_match = False
                 break
         if found_patt_match:
-            #print("match")
+            # print("match")
             patt_match = patt_ind
             break
     if patt_match is not None:
@@ -257,22 +282,23 @@ def get_patterns_and_dict(usages):
     token_set = []
     tree_heads = []
     for pattern in usages:
-        pattern = re.sub(r'([\[\]\(\)\|]|\.\.\.)', r' \1 ', pattern).split()
+        pattern = re.sub(r'([\[\]()|]|\.\.\.)', r' \1 ', pattern).split()
         pattern.pop(0)
         pattern = identify_tokens(pattern)
         create_opt_and_req(pattern)
         create_mutex(pattern)
         create_repeating(pattern)
         for index, token in enumerate(pattern):
-            if isinstance(token.next, SpecialToken):
-                token.next = pattern[index+1]
+            if isinstance(token.post, SpecialToken):
+                token.post = pattern[index + 1]
         new_usages.append(pattern)
         usage_dic.update(dict_populate_loop(pattern))
-        #print(pattern[0])
+        # print(pattern[0])
         token_set = build_token_set(pattern, token_set)
         tree_heads = build_tree_heads(token_set, pattern[0], tree_heads)
 
     return new_usages, usage_dic, token_set, tree_heads
+
 
 def is_num(arg):
     try:
@@ -284,14 +310,14 @@ def is_num(arg):
 
 def build_tree_heads(token_set, first_token, tree_heads):
     for token in token_set:
-        #print(token, first_token)
+        # print(token, first_token)
         if not isinstance(first_token, Branch):
             if token == first_token:
                 tree_heads.append(token)
                 return tree_heads
         elif isinstance(first_token, Mutex):
             for child in first_token.tokens:
-                #print(child)
+                # print(child)
                 if token.text == child.text:
                     tree_heads.append(token)
                     break
@@ -302,9 +328,10 @@ def build_tree_heads(token_set, first_token, tree_heads):
                 return tree_heads
     return tree_heads
 
+
 def build_token_set(pattern, token_set):
     for token in pattern:
-        tree_child = token.next if token.next else None
+        tree_child = token.post if token.post else None
         if isinstance(token, Branch):
             token_set = build_token_set(token.tokens, token_set)
         else:
@@ -317,11 +344,11 @@ def build_token_set(pattern, token_set):
             if not in_set:
                 token_set.append(token)
             if tree_child:
-                #print(f"Child added to {token}: {tree_child}\t{hex(id(token))}")
+                # print(f"Child added to {token}: {tree_child}\t{hex(id(token))}")
                 token.children.append(tree_child)
 
-            #if token.text == pattern[0].text:
-             #   tree_heads.append(token)
+            # if token.text == pattern[0].text:
+            #   tree_heads.append(token)
 
     return token_set
 
@@ -340,17 +367,17 @@ def identify_tokens(pattern):
     new_pat = []
     for index, token in enumerate(pattern):
         if token == '(':
-            token = Required_Open()
+            token = RequiredOpen()
         elif token == ')':
-            token = Required_Closed()
+            token = RequiredClosed()
         elif token == '[':
-            token = Optional_Open()
+            token = OptionalOpen()
         elif token == ']':
-            token = Optional_Closed()
+            token = OptionalClosed()
         elif token == '|':
             token = Pipe()
         elif token == '...':
-            token = Ellipsis()
+            token = Repeats()
         elif (token.startswith('<') and token.endswith('>')) or token.isupper():
             token = Argument(token)
         elif token.startswith('--'):
@@ -362,38 +389,38 @@ def identify_tokens(pattern):
         new_pat.append(token)
     for index, token in enumerate(new_pat):
         if index == 0:
-            token.next = new_pat[index+1] if len(new_pat) > 1 else None
-        elif index == len(new_pat)-1:
-            token.prev = new_pat[index-1]
+            token.post = new_pat[index + 1] if len(new_pat) > 1 else None
+        elif index == len(new_pat) - 1:
+            token.prev = new_pat[index - 1]
         else:
-            token.prev = new_pat[index-1]
-            token.next = new_pat[index+1]
+            token.prev = new_pat[index - 1]
+            token.post = new_pat[index + 1]
     return new_pat
 
 
 def create_opt_and_req(pattern):
-    length = len(pattern)-1
+    length = len(pattern) - 1
     for index, token in enumerate(pattern[::-1]):
         index = length - index
-        if (isinstance(token, Optional_Open) or isinstance(token, Required_Open)):
-            #print(f"Index: {index}, Token: {token}")
+        if isinstance(token, OptionalOpen) or isinstance(token, RequiredOpen):
+            # print(f"Index: {index}, Token: {token}")
             open_class = token.__class__
             closed_class = token.closed_class
             prev = token.prev if token.prev else None
-            next = None
+            post = None
             collected = []
             del pattern[index]
             for x in pattern[index:]:
                 if isinstance(x, closed_class):
-                    next = x.next if x.next else None
+                    post = x.post if x.post else None
                     del pattern[index]
                     break
                 collected.append(x)
                 del pattern[index]
             collected[0].prev = prev
-            collected[-1].next = next
-            res = Required(collected, prev, next) if isinstance(
-                token, Required_Open) else Optional(collected, prev, next)
+            collected[-1].post = post
+            res = Required(collected, prev, post) if isinstance(
+                token, RequiredOpen) else Optional(collected, prev, post)
             pattern.insert(index, res)
 
 
@@ -403,30 +430,94 @@ def create_mutex(pattern):
             create_mutex(token.tokens)
         elif isinstance(token, Pipe):
             prev = token.prev.prev if token.prev else None
-            next = token.next.next if token.next else None
-            collected = [token.prev, token.next]
+            post = token.post.post if token.post else None
+            collected = [token.prev, token.post]
             for tok in collected:
                 tok.prev = prev
-                tok.next = next
-            for i in range(index-1, index+2):
-                del pattern[index-1]
-            res = Mutex(collected, prev, next)
-            pattern.insert(index-1, res)
+                tok.post = post
+            for i in range(index - 1, index + 2):
+                del pattern[index - 1]
+            res = Mutex(collected, prev, post)
+            pattern.insert(index - 1, res)
 
 
 def create_repeating(pattern):
     for index, token in enumerate(pattern):
         prev = token.prev if token.prev else None
-        next = token.next if token.next else None
+        post = token.post if token.post else None
         if isinstance(token, Optional) or isinstance(token, Required) or isinstance(token, Mutex):
             create_repeating(token.tokens)
-        elif isinstance(token, Ellipsis):
-            token.prev.next = next
+        elif isinstance(token, Repeats):
+            token.prev.post = post
             collected = [token.prev]
-            res = Repeating(collected, prev, next)
-            for i in range(index-1, index+1):
-                del pattern[index-1]
-            pattern.insert(index-1, res)
+            res = Repeating(collected, prev, post)
+            for i in range(index - 1, index + 1):
+                del pattern[index - 1]
+            pattern.insert(index - 1, res)
+
+
+def check_patterns_with_user_input(usage_tree, usage_dic, arg):
+    """
+
+     Args:
+        usage_tree: The usage pattern tree for checking user input arguments.
+
+        usage_dic: The dictionary for output the results of usage pattern.
+
+        arg: Array of user input arguments, either is default or from command line.
+
+    Returns:
+        res: Boolean value for if input pattern is matching the patterns in docstring.
+        usage_dic: Return None if no pattern matching, else return the updated usage dictionary.
+
+    """
+
+    res, usage_dic = check_patterns_with_user_input_helper(usage_tree, usage_dic, arg)
+    return usage_dic if res is not False else None
+
+
+def check_patterns_with_user_input_helper(children, usage_dic, arg):
+    """
+
+     Args:
+        children: The List of current node's children.
+
+        usage_dic: The dictionary for output the results of usage pattern.
+
+        arg: Array of user input arguments, either is default or from command line.
+
+    Returns:
+        res: Boolean value for if input pattern is matching the patterns in docstring.
+        usage_dic: Return the updated usage dictionary or stay the same if no pattern found.
+
+    """
+
+    if len(arg) == 0:
+        for child in children:
+            if child.match('`/0', 0):
+                return True, usage_dic
+        return False, usage_dic
+
+    current_element = arg.pop(0)
+    res = False
+    for child in children:
+        # matching the repeat values (<name>...), skip_to is the index of the last repeat element
+        # in user argument list
+        # return skip_to == -1 if not matching
+        # tmp_dic(2) contains {'<name>...': ['e1', 'e2', 'e3']} for repeat values,
+        # and {'ship': Ture} for others
+        print([current_element] + arg)
+        skip_to, tmp_dic = child.match([current_element] + arg, 0)
+        # skip_to2 is just for the easiness of design of the match function
+        skip_to2, tmp_dic2 = child.match(current_element, 0)
+        if skip_to > 0:
+            arg = arg[skip_to - 1:]
+            res, usage_dic = check_patterns_with_user_input_helper(child.children, usage_dic, arg)
+            usage_dic.update(tmp_dic)
+        elif tmp_dic2 is not None:
+            res, usage_dic = check_patterns_with_user_input_helper(child.children, usage_dic, arg)
+            usage_dic.update(tmp_dic2)
+    return res, usage_dic
 
 
 if __name__ == "__main__":

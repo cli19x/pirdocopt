@@ -74,10 +74,8 @@ def docopt(doc, argv=None, help_message=True, version=None):
     """
 
     usages, options = docopt_util.processing_string(doc, help_message, version)
-    print(usages, options)
     options_dic = options_parser(argv, sys.argv, options)
     usage_dic = usage_parser(usages, argv, sys.argv[1:])
-
     total_dic, output_string = docopt_util.print_output_dictionary(usage_dic, options_dic)
     print(output_string)
     return total_dic

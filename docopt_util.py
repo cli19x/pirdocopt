@@ -105,9 +105,6 @@ def get_usage_and_options(doc, version):
         if element.strip()[:1] == '-' or 'Options:' in element.strip():
             options = element
             partition_string.remove(element)
-    print(name)
-    print(usage)
-    print(options)
     return name, usage, options, display_help
 
 
