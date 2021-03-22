@@ -62,14 +62,18 @@ class Argument(Leaf):
         super(Argument, self).__init__(text, self.value, prev, post, children)
 
     def match(self, args, index):
+        is_match = False
         if index < len(args):
-            if self.value == 0 and not is_num(args[index]):
-                print(f"Argument {self.text} not match 1")
-                return False, index + 1
-            self.value = args[index]
-            return True, index + 1
-        print(f"Argument {self.text} not match 2")
-        return False, index + 1
+            if self.value != 0 or is_num(args[index]):
+                self.value, is_match = args[index], True
+        res_dict = self.get_res_dict(is_match)
+        return is_match, index + 1, res_dict
+
+    def get_res_dict(self, is_match):
+        if not is_match:
+            return dict()
+        else:
+            return dict({self.text: self.value})
 
 
 class Option(Leaf):
@@ -91,13 +95,18 @@ class Option(Leaf):
         super(Option, self).__init__(text, self.value, prev, post, children)
 
     def match(self, args, index):
+        is_match = False
         if index < len(args):
             if self.text == args[index]:
-                self.value = True
-                return True, index + 1
-        print(f"Option {self.text} not match")
-        return False, index + 1
+                self.value, is_match = True, True
+        res_dict = self.get_res_dict(is_match)
+        return is_match, index+1, res_dict
 
+    def get_res_dict(self, is_match):
+        if not is_match:
+            return dict()
+        else:
+            return dict({self.text: True})
 
 class Command(Leaf):
     """ Placeholder """
@@ -109,13 +118,18 @@ class Command(Leaf):
         super(Command, self).__init__(text, self.value, prev, post, children)
 
     def match(self, args, index):
+        is_match = False
         if index < len(args):
             if self.text == args[index]:
-                self.value = True
-                return True, index + 1
-        print(f"Command {self.text} not match")
-        return False, index + 1
+                self.value, is_match = True, True
+        res_dict = self.get_res_dict(is_match)
+        return is_match, index + 1, res_dict
 
+    def get_res_dict(self, is_match):
+        if not is_match:
+            return dict()
+        else:
+            return dict({self.text: True})
 
 # Used for grouping Tokens by optional, required, mutex, or repeating
 
@@ -127,6 +141,7 @@ class Branch(Token):
         if tokens is None:
             tokens = []
         self.tokens = tokens
+        #print(self.tokens)
         super(Branch, self).__init__(prev, post, children)
 
     def __repr__(self):
@@ -144,36 +159,46 @@ class Optional(Branch):
 
     # Currently only implements all-or-nothing
     def match(self, args, index):
-        child_index = index
+        is_match, child_index, res_dict = True, index, dict()
         for child in self.tokens:
-            is_match, child_index = child.match(args, child_index)
+            old_index = child_index
+            is_match, child_index, child_dict = child.match(args, child_index)
             if not is_match:
-                child_index = child_index - 1
-        return True, child_index
+                child_index = old_index
+            else:
+                res_dict.update(child_dict)
+            
+        return True, child_index, res_dict
 
 
 class Required(Branch):
     """ Placeholder """
 
     def match(self, args, index):
-        child_index = index
+        is_match, child_index, res_dict = True, index, dict()
         for child in self.tokens:
-            is_match, child_index = child.match(args, child_index)
+            old_index = child_index
+            is_match, child_index, child_dict = child.match(args, child_index)
+            
             if not is_match:
-                return False, index
-        return True, child_index
+                child_index = old_index
+                break
+            else:
+                res_dict.update(child_dict)
+        return is_match, child_index, res_dict
 
 
 class Mutex(Branch):
     """ Placeholder """
 
     def match(self, args, index):
-        res, new_index = False, index
+        is_match, new_index, res_dict = False, index, dict()
         for child in self.tokens:
-            res, new_index = child.match(args, index)
-            if res:
-                return True, new_index
-        return False, new_index
+            is_match, new_index, temp_dict = child.match(args, index)
+            if is_match:
+                res_dict = temp_dict
+                break
+        return is_match, new_index, res_dict
 
 
 class Repeating(Branch):
@@ -181,17 +206,27 @@ class Repeating(Branch):
 
     # BUG: index 1 less than it should be when repeating pattern incomplete
     def match(self, args, index):
-        is_match, new_index = self.tokens[0].match(args, index)
-        # old_index = new_index
+        res_dict_full = dict()
+        res_list = []
+        is_match, new_index, res_dict_item = self.tokens[0].match(args, index)
+        res_list.append(res_dict_item)
         if not is_match:
-            return False, new_index
+            return False, new_index, dict()
         while new_index < len(args):
-            print("Loop")
-            is_match, new_index = self.tokens[0].match(args, new_index)
+            is_match, new_index, res_dict_item = self.tokens[0].match(args, new_index)
             if not is_match:
                 new_index = new_index - 1
                 break
-        return True, new_index
+            res_list.append(res_dict_item)
+        for item in res_list:
+            for key, val in zip(item.keys(), item.values()):
+                if key in res_dict_full.keys():
+                    if not isinstance(res_dict_full[key], list):
+                        res_dict_full[key] = [res_dict_full[key]]
+                    res_dict_full[key].append(val)
+                else:
+                    res_dict_full[key] = [val]
+        return True, new_index, res_dict_full
 
 
 # Used for identifying branch tokens (Optional, Required, Mutex, Repeating)
@@ -244,36 +279,46 @@ def main_function():
         doc2, False, "testing new_usage")
     usages.pop(0)
     usages, usage_dic, token_set, tree_heads = get_patterns_and_dict(usages)
+
+
     # print(options_array)
     # print(usages)
-    # print(usage_dic)
-    # print(token_set)
-    # print(tree_heads)
+    #print(usage_dic)
+    # print(token_set)\
+
+
+    #args = sys.argv[1:]
+
     args = ['naval_fate.py', 'ship', 'shoot', '60', '50']
     args = args[1:]
     usage_dic = check_patterns_with_user_input(tree_heads, usage_dic, args)
-    test_arg = usages[0][0]
-    found_patt_match = False
-    patt_match = None
-    for patt_ind, pattern in enumerate(usages):
-        is_match, index = False, 0
-        found_patt_match = True
+
+    #token = Option('--trap')
+    '''for ind, pattern in enumerate(usages):
+        index = 0
+        is_match = True
+        old_dic = usage_dic.copy()
         for token in pattern:
-            is_match, index = token.match(args, index)
+            is_match, index, res_dict = token.match(args, index)
             if not is_match:
-                # print(f"NOT A MATCH\n{usages[0]}\n{args}")
-                found_patt_match = False
                 break
-        if found_patt_match:
-            # print("match")
-            patt_match = patt_ind
+            usage_dic.update(res_dict)
+        if is_match:
+            print(f"PATTERN {ind} MATCHED")
             break
-    if patt_match is not None:
-        print(f"FOUND A MATCH: {patt_match}")
-        for token in usages[patt_match]:
-            print(token)
-    else:
-        print("NO MATCHES FOUND")
+        print(f"pattern {ind} not matched")
+        usage_dic = old_dic
+    print(usage_dic)
+
+    #print(res_dict, index)'''
+    
+    '''for head in tree_heads:
+        while head.children is not None:
+            print(head)
+            head = head.children[0]'''
+
+    #usage_dic = check_patterns_with_user_input(tree_heads, usage_dic, args)
+    #test_arg = usages[0][0]
 
 
 def get_patterns_and_dict(usages):
@@ -307,6 +352,11 @@ def is_num(arg):
     except ValueError:
         return False
 
+def set_children(pattern):
+    for token in pattern:
+        if token.post:
+            token.children.append(token.post)
+
 
 def build_tree_heads(token_set, first_token, tree_heads):
     for token in token_set:
@@ -323,7 +373,8 @@ def build_tree_heads(token_set, first_token, tree_heads):
                     break
         else:
             old_len = len(tree_heads)
-            tree_heads = build_tree_heads(token_set, first_token.tokens[0], tree_heads)
+            tree_heads = build_tree_heads(
+                token_set, first_token.tokens[0], tree_heads)
             if len(tree_heads) > old_len:
                 return tree_heads
     return tree_heads
@@ -472,7 +523,8 @@ def check_patterns_with_user_input(usage_tree, usage_dic, arg):
 
     """
 
-    res, usage_dic = check_patterns_with_user_input_helper(usage_tree, usage_dic, arg)
+    res, usage_dic = check_patterns_with_user_input_helper(
+        usage_tree, usage_dic, arg)
     return usage_dic if res is not False else None
 
 
@@ -500,22 +552,29 @@ def check_patterns_with_user_input_helper(children, usage_dic, arg):
 
     current_element = arg.pop(0)
     res = False
+    print(children)
     for child in children:
+        print(child)
         # matching the repeat values (<name>...), skip_to is the index of the last repeat element
         # in user argument list
         # return skip_to == -1 if not matching
         # tmp_dic(2) contains {'<name>...': ['e1', 'e2', 'e3']} for repeat values,
         # and {'ship': Ture} for others
-        print([current_element] + arg)
-        skip_to, tmp_dic = child.match([current_element] + arg, 0)
+        #print([current_element] + arg)
+        is_match, skip_to, tmp_dic = child.match([current_element] + arg, 0)
         # skip_to2 is just for the easiness of design of the match function
-        skip_to2, tmp_dic2 = child.match(current_element, 0)
+        is_match2, skip_to2, tmp_dic2 = child.match([current_element], 0)
+        print(tmp_dic, tmp_dic2)
+        #if not is_match:
+
         if skip_to > 0:
             arg = arg[skip_to - 1:]
-            res, usage_dic = check_patterns_with_user_input_helper(child.children, usage_dic, arg)
+            res, usage_dic = check_patterns_with_user_input_helper(
+                child.children, usage_dic, arg)
             usage_dic.update(tmp_dic)
         elif tmp_dic2 is not None:
-            res, usage_dic = check_patterns_with_user_input_helper(child.children, usage_dic, arg)
+            res, usage_dic = check_patterns_with_user_input_helper(
+                child.children, usage_dic, arg)
             usage_dic.update(tmp_dic2)
     return res, usage_dic
 
