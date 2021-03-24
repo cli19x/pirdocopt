@@ -32,6 +32,7 @@ class Token:
         self.prev = prev
         self.post = post
         self.children = children
+        self.index = 0
 
 
 class Leaf(Token):
@@ -42,6 +43,7 @@ class Leaf(Token):
         self.value = value
         self.post = post
         super(Leaf, self).__init__(prev, post, children)
+        self.index = 0
 
     def __repr__(self):
         return '%s(%r, %r)' % (self.__class__.__name__, self.text, self.value)
@@ -295,8 +297,8 @@ def main_function():
 
     args = ['naval_fate.py', 'ship', 'shoot', '60', '50']
     args = args[1:]
-    # usage_dic = check_patterns_with_user_input(tree_heads, usage_dic, args)
-
+    usage_dic = check_patterns_with_user_input(tree_heads, usage_dic, args)
+    print(usage_dic)
     # token = Option('--trap')
     '''for ind, pattern in enumerate(usages):
         index = 0
