@@ -278,7 +278,7 @@ def main_function():
     usages, options_array = docopt_util.processing_string(
         doc2, False, "testing new_usage")
     usages.pop(0)
-    usages, usage_dic, token_set, tree_heads = get_patterns_and_dict(usages)
+    usages, usage_dic, tree_heads = get_patterns_and_dict(usages)
 
 
     # print(options_array)
@@ -291,7 +291,9 @@ def main_function():
 
     args = ['naval_fate.py', 'ship', 'shoot', '60', '50']
     args = args[1:]
-    usage_dic = check_patterns_with_user_input(tree_heads, usage_dic, args)
+    #usage_dic = check_patterns_with_user_input(tree_heads, usage_dic, args)
+
+
 
     #token = Option('--trap')
     '''for ind, pattern in enumerate(usages):
@@ -324,7 +326,6 @@ def main_function():
 def get_patterns_and_dict(usages):
     new_usages = []
     usage_dic = {}
-    token_set = []
     tree_heads = []
     for pattern in usages:
         pattern = re.sub(r'([\[\]()|]|\.\.\.)', r' \1 ', pattern).split()
@@ -339,10 +340,14 @@ def get_patterns_and_dict(usages):
         new_usages.append(pattern)
         usage_dic.update(dict_populate_loop(pattern))
         # print(pattern[0])
-        token_set = build_token_set(pattern, token_set)
-        tree_heads = build_tree_heads(token_set, pattern[0], tree_heads)
+        tree_heads = build_tree_heads(pattern, tree_heads)
+        #tree_heads = build_tree_heads(token_set, pattern[0], tree_heads)
 
-    return new_usages, usage_dic, token_set, tree_heads
+    for pattern in new_usages:
+        for index, token in enumerate(pattern):
+            token.post = pattern[index+1] if index+1<len(pattern) else None
+
+    return new_usages, usage_dic, tree_heads
 
 
 def is_num(arg):
@@ -358,50 +363,25 @@ def set_children(pattern):
             token.children.append(token.post)
 
 
-def build_tree_heads(token_set, first_token, tree_heads):
-    for token in token_set:
-        # print(token, first_token)
-        if not isinstance(first_token, Branch):
-            if token == first_token:
-                tree_heads.append(token)
-                return tree_heads
-        elif isinstance(first_token, Mutex):
-            for child in first_token.tokens:
-                # print(child)
-                if token.text == child.text:
-                    tree_heads.append(token)
-                    break
-        else:
-            old_len = len(tree_heads)
-            tree_heads = build_tree_heads(
-                token_set, first_token.tokens[0], tree_heads)
-            if len(tree_heads) > old_len:
-                return tree_heads
+def build_tree_heads(pattern, tree_heads):
+    token = pattern[0]
+    tree_child = token.post if token.post else None
+    if isinstance(token, Leaf):
+        in_set = False
+        test_set = [t for t in tree_heads if isinstance(t, Leaf)]
+        for t in test_set:
+            if token.text == t.text:
+                token = t
+                in_set = True
+                break
+        if not in_set:
+            tree_heads.append(token)
+    else:
+        tree_heads.append(token)
+    if tree_child:
+        token.children.append(tree_child)
+
     return tree_heads
-
-
-def build_token_set(pattern, token_set):
-    for token in pattern:
-        tree_child = token.post if token.post else None
-        if isinstance(token, Branch):
-            token_set = build_token_set(token.tokens, token_set)
-        else:
-            in_set = False
-            for t in token_set:
-                if token.text == t.text:
-                    token = t
-                    in_set = True
-                    break
-            if not in_set:
-                token_set.append(token)
-            if tree_child:
-                # print(f"Child added to {token}: {tree_child}\t{hex(id(token))}")
-                token.children.append(tree_child)
-
-            # if token.text == pattern[0].text:
-            #   tree_heads.append(token)
-
-    return token_set
 
 
 def dict_populate_loop(pattern):
