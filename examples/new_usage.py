@@ -1,5 +1,6 @@
+import operator
 import re
-import sys
+
 import docopt_util
 
 doc2 = """Usage:
@@ -60,6 +61,7 @@ class Argument(Leaf):
             children = []
         self.value = None if len(text.strip("<>")) > 1 else 0
         super(Argument, self).__init__(text, self.value, prev, post, children)
+        self.index = 2
 
     def match(self, args, index):
         is_match = False
@@ -93,29 +95,7 @@ class Option(Leaf):
         else:
             self.value = None if '=' in text else False
         super(Option, self).__init__(text, self.value, prev, post, children)
-
-    def match(self, args, index):
-        is_match = False
-        if index < len(args):
-            if self.text == args[index]:
-                self.value, is_match = True, True
-        res_dict = self.get_res_dict(is_match)
-        return is_match, index+1, res_dict
-
-    def get_res_dict(self, is_match):
-        if not is_match:
-            return dict()
-        else:
-            return dict({self.text: True})
-
-class Command(Leaf):
-    """ Placeholder """
-
-    def __init__(self, text, value=False, prev=None, post=None, children=None):
-        if children is None:
-            children = []
-        self.value = value
-        super(Command, self).__init__(text, self.value, prev, post, children)
+        self.index = 3
 
     def match(self, args, index):
         is_match = False
@@ -131,6 +111,32 @@ class Command(Leaf):
         else:
             return dict({self.text: True})
 
+
+class Command(Leaf):
+    """ Placeholder """
+
+    def __init__(self, text, value=False, prev=None, post=None, children=None):
+        if children is None:
+            children = []
+        self.value = value
+        super(Command, self).__init__(text, self.value, prev, post, children)
+        self.index = 1
+
+    def match(self, args, index):
+        is_match = False
+        if index < len(args):
+            if self.text == args[index]:
+                self.value, is_match = True, True
+        res_dict = self.get_res_dict(is_match)
+        return is_match, index + 1, res_dict
+
+    def get_res_dict(self, is_match):
+        if not is_match:
+            return dict()
+        else:
+            return dict({self.text: True})
+
+
 # Used for grouping Tokens by optional, required, mutex, or repeating
 
 
@@ -141,7 +147,7 @@ class Branch(Token):
         if tokens is None:
             tokens = []
         self.tokens = tokens
-        #print(self.tokens)
+        # print(self.tokens)
         super(Branch, self).__init__(prev, post, children)
 
     def __repr__(self):
@@ -167,7 +173,7 @@ class Optional(Branch):
                 child_index = old_index
             else:
                 res_dict.update(child_dict)
-            
+
         return True, child_index, res_dict
 
 
@@ -179,7 +185,7 @@ class Required(Branch):
         for child in self.tokens:
             old_index = child_index
             is_match, child_index, child_dict = child.match(args, child_index)
-            
+
             if not is_match:
                 child_index = old_index
                 break
@@ -280,22 +286,18 @@ def main_function():
     usages.pop(0)
     usages, usage_dic, tree_heads = get_patterns_and_dict(usages)
 
-
     # print(options_array)
     # print(usages)
-    #print(usage_dic)
+    # print(usage_dic)
     # print(token_set)\
 
-
-    #args = sys.argv[1:]
+    # args = sys.argv[1:]
 
     args = ['naval_fate.py', 'ship', 'shoot', '60', '50']
     args = args[1:]
-    #usage_dic = check_patterns_with_user_input(tree_heads, usage_dic, args)
+    # usage_dic = check_patterns_with_user_input(tree_heads, usage_dic, args)
 
-
-
-    #token = Option('--trap')
+    # token = Option('--trap')
     '''for ind, pattern in enumerate(usages):
         index = 0
         is_match = True
@@ -313,14 +315,14 @@ def main_function():
     print(usage_dic)
 
     #print(res_dict, index)'''
-    
+
     '''for head in tree_heads:
         while head.children is not None:
             print(head)
             head = head.children[0]'''
 
-    #usage_dic = check_patterns_with_user_input(tree_heads, usage_dic, args)
-    #test_arg = usages[0][0]
+    # usage_dic = check_patterns_with_user_input(tree_heads, usage_dic, args)
+    # test_arg = usages[0][0]
 
 
 def get_patterns_and_dict(usages):
@@ -341,11 +343,11 @@ def get_patterns_and_dict(usages):
         usage_dic.update(dict_populate_loop(pattern))
         # print(pattern[0])
         tree_heads = build_tree_heads(pattern, tree_heads)
-        #tree_heads = build_tree_heads(token_set, pattern[0], tree_heads)
+        # tree_heads = build_tree_heads(token_set, pattern[0], tree_heads)
 
     for pattern in new_usages:
         for index, token in enumerate(pattern):
-            token.post = pattern[index+1] if index+1<len(pattern) else None
+            token.post = pattern[index + 1] if index + 1 < len(pattern) else None
 
     return new_usages, usage_dic, tree_heads
 
@@ -356,6 +358,7 @@ def is_num(arg):
         return True
     except ValueError:
         return False
+
 
 def set_children(pattern):
     for token in pattern:
@@ -532,6 +535,7 @@ def check_patterns_with_user_input_helper(children, usage_dic, arg):
 
     current_element = arg.pop(0)
     res = False
+    children = sorted(children, key=operator.attrgetter('index'))
     print(children)
     for child in children:
         print(child)
@@ -540,12 +544,12 @@ def check_patterns_with_user_input_helper(children, usage_dic, arg):
         # return skip_to == -1 if not matching
         # tmp_dic(2) contains {'<name>...': ['e1', 'e2', 'e3']} for repeat values,
         # and {'ship': Ture} for others
-        #print([current_element] + arg)
+        # print([current_element] + arg)
         is_match, skip_to, tmp_dic = child.match([current_element] + arg, 0)
         # skip_to2 is just for the easiness of design of the match function
         is_match2, skip_to2, tmp_dic2 = child.match([current_element], 0)
         print(tmp_dic, tmp_dic2)
-        #if not is_match:
+        # if not is_match:
 
         if skip_to > 0:
             arg = arg[skip_to - 1:]
