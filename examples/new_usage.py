@@ -1,7 +1,7 @@
 import operator
 import re
 
-import docopt_util
+from old import old_docopt_util
 
 doc2 = """Usage:
   naval_fate.py ship new <name>...
@@ -283,7 +283,7 @@ class Repeats(SpecialToken):
 
 
 def main_function():
-    usages, options_array = docopt_util.processing_string(
+    usages, options_array = old_docopt_util.processing_string(
         doc2, False, "testing new_usage")
     usages.pop(0)
     usages, usage_dic, tree_heads = get_patterns_and_dict(usages)
@@ -295,11 +295,13 @@ def main_function():
 
     # args = sys.argv[1:]
 
-    args = ['naval_fate.py', 'ship', 'shoot', '60', '50']
+    args = ['naval_fate.py', 'ship', 'shoot', 60, 50]
     args = args[1:]
+    print(tree_heads[0].children[2].post)
     usage_dic = check_patterns_with_user_input(tree_heads, usage_dic, args)
     print(usage_dic)
     # token = Option('--trap')
+
     '''for ind, pattern in enumerate(usages):
         index = 0
         is_match = True
@@ -530,38 +532,50 @@ def check_patterns_with_user_input_helper(children, usage_dic, arg):
     """
 
     if len(arg) == 0:
-        for child in children:
-            if child.match('`/0', 0):
-                return True, usage_dic
+        print('hahahahahahaa')
+        if isinstance(children, list):
+            print('xixixixixixiixix')
+            for child in children:
+                if child.match('`/0', 0):
+                    return True, usage_dic
+        else:
+            return True, usage_dic
         return False, usage_dic
 
     current_element = arg.pop(0)
     res = False
-    children = sorted(children, key=operator.attrgetter('index'))
     print(children)
-    for child in children:
-        print(child)
-        # matching the repeat values (<name>...), skip_to is the index of the last repeat element
-        # in user argument list
-        # return skip_to == -1 if not matching
-        # tmp_dic(2) contains {'<name>...': ['e1', 'e2', 'e3']} for repeat values,
-        # and {'ship': Ture} for others
-        # print([current_element] + arg)
-        is_match, skip_to, tmp_dic = child.match([current_element] + arg, 0)
-        # skip_to2 is just for the easiness of design of the match function
-        is_match2, skip_to2, tmp_dic2 = child.match([current_element], 0)
-        print(tmp_dic, tmp_dic2)
-        # if not is_match:
+    if isinstance(children, list) and len(children) > 0:
+        children = sorted(children, key=operator.attrgetter('index'))
+        print('++++++++++++++++++++++++++++++++++++++++++++')
+        print(children)
+        print([current_element] + arg)
+        for child in children:
+            print("------------------------------------")
+            print(child)
+            is_match, skip_to, tmp_dic = child.match([current_element] + arg, 0)
+            print(is_match, skip_to, tmp_dic)
+            if is_match:
+                if len(child.children) == 0:
+                    print('===========================')
+                    res, usage_dic = check_patterns_with_user_input_helper(
+                        child.post, usage_dic, arg)
 
-        if skip_to > 0:
-            arg = arg[skip_to - 1:]
+                arg = arg[skip_to - 1:]
+                print(child.children)
+                res, usage_dic = check_patterns_with_user_input_helper(
+                    child.children, usage_dic, arg)
+                usage_dic.update(tmp_dic)
+            if res:
+                break
+
+    else:
+        is_match, skip_to, tmp_dic = children.match([current_element] + arg, 0)
+        print(is_match, skip_to, tmp_dic)
+        if is_match:
             res, usage_dic = check_patterns_with_user_input_helper(
-                child.children, usage_dic, arg)
+                children.post, usage_dic, arg)
             usage_dic.update(tmp_dic)
-        elif tmp_dic2 is not None:
-            res, usage_dic = check_patterns_with_user_input_helper(
-                child.children, usage_dic, arg)
-            usage_dic.update(tmp_dic2)
     return res, usage_dic
 
 

@@ -1,5 +1,5 @@
 """
-  This module is for the helper functions of docopt.py.
+  This module is for the helper functions of old_docopt.py.
   Contains the function for processing docstrings and
   formatting the print strings to user
 """
@@ -76,7 +76,6 @@ def get_usage_and_options(doc, version):
     usage = ""
     options = ""
     partition_string = doc.strip().split('\n\n')
-
     name = partition_string[0].strip()
     partition_string.pop(0)
 
@@ -127,7 +126,6 @@ def check_warnings(usage, options):
     >>> check_warnings(usage="Usages: ...", options="")
     2
     """
-
     if len(usage) == 0:
         warnings.warn('No usage indicated from docstring')
         return 1

@@ -17,7 +17,7 @@ Options:
 
 import sys
 import cmd
-from docopt import docopt, DocoptExit
+from old.old_docopt import docopt, DocoptExit
 
 
 def docopt_cmd(func):

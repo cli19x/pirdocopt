@@ -1,9 +1,7 @@
 """
-   module for unit test of res = docopt.py
+   module for unit test of res = old_docopt.py
 """
 import examples.new_usage as docopt
-import docopt_util
-import pytest
 
 
 def test_get_patterns_and_dict():
