@@ -317,10 +317,8 @@ def get_post_match(child, args, index, child_dict):
     post = child.post
     post_match = True
     while post:
-        old_index = index
         is_match, index, dic_entry = post.match(args, index)
         if not is_match:
-            index = old_index
             post_match = False
             break
         child_dict.update(dic_entry)
@@ -441,8 +439,6 @@ def create_opt_and_req(pattern):
     for index, token in enumerate(pattern[::-1]):
         index = length - index
         if isinstance(token, OptionalOpen) or isinstance(token, RequiredOpen):
-            # print(f"Index: {index}, Token: {token}")
-            open_class = token.__class__
             closed_class = token.closed_class
             prev = token.prev if token.prev else None
             post = None
