@@ -81,17 +81,25 @@ class Option(Leaf):
 
     def match(self, args, index):
         is_match = False
+        new_index = index+1
         if index < len(args):
             if self.text == args[index]:
-                self.value, is_match = True, True
+                if self.has_value:
+                    if index+1 < len(args):
+                        self.value = args[index+1]
+                        is_match = True
+                        new_index = index+2
+                else:
+                    self.value = True
+                    is_match = True
         res_dict = self.get_res_dict(is_match)
-        return is_match, index + 1, res_dict
+        return is_match, new_index, res_dict
 
     def get_res_dict(self, is_match):
         if not is_match:
             return dict()
         else:
-            return dict({self.text: True})
+            return dict({self.text: self.value})
 
 
 class Command(Leaf):
@@ -261,7 +269,6 @@ class Pipe(SpecialToken):
 
 class Repeats(SpecialToken):
     """ Placeholder """
-
 
 def docopt(doc, version=None, help_message=True, argv=None):
     usages, options_array = docopt_util.processing_string(
