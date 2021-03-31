@@ -62,16 +62,111 @@ def test_create_repeating():
 
 
 def test_check_option_lines():
-    res = docopt.check_option_lines(options=None)
+    res = docopt.check_option_lines(options='-h --help Show Help Message.')
+    after = docopt.Option('-h', False, has_value=False, short='-h', long='--help')
+    print(res)
+    assert after == res
+
+    res = docopt.check_option_lines(options='-v=<input> --value=<input> User input value.')
+    after = docopt.Option('-v', None, has_value=True, short='-v', long='--value')
+    print(res)
+    assert after == res
+
+    res = docopt.check_option_lines(options='-s KN --speed KN User input speed [default: 10].')
+    after = docopt.Option('-s', 10, has_value=True, short='-s', long='--speed')
+    print(res)
+    assert after == res
 
 
 def test_check_option_lines_long():
-    res = docopt.check_option_lines_long(element=None, tmp_array=None, count=0, token=None)
+    element = '--help'
+    tmp_array = ['--help', '-h', 'Show', 'help', 'message']
+    token = None
+    res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=0, token=token)
+    after = docopt.Option('--help', False, has_value=False, short=None, long='--help')
+    assert res == after
+
+    tmp_array = ['-h', '--help', 'Show', 'help', 'message']
+    token = docopt.Option('-h', False, has_value=False, short='-h', long=None)
+    res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=1, token=token)
+    assert res.long == '--help'
+
+    element = '--value=<input>'
+    tmp_array = ['--value=<input>', '-v=<input>', 'User', 'input', 'value.']
+    token = None
+    res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=0, token=token)
+    after = docopt.Option('--value', None, has_value=True, short=None, long='--value')
+    assert res == after
+
+    tmp_array = ['-v=<input>', '--value=<input>', 'User', 'input', 'value.']
+    token = docopt.Option('-v', None, has_value=True, short='-v', long=None)
+    res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=1, token=token)
+    assert res.long == '--value'
+
+    element = '--speed'
+    tmp_array = '--speed KN -s KN User input speed.'.split()
+    token = None
+    res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=0, token=token)
+    after = docopt.Option('--speed', None, has_value=True, short=None, long='--speed')
+    assert res == after
+
+    tmp_array = '-s KN --speed KN User input speed.'.split()
+    token = docopt.Option('-s', None, has_value=True, short='-s', long='--speed')
+    res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=1, token=token)
+    assert res.long == '--speed'
 
 
 def test_check_option_lines_short():
-    res = docopt.check_option_lines_short(element=None, tmp_array=None, count=0, token=None)
+    element = '-h'
+    tmp_array = ['-h', '--help', 'Show', 'help', 'message']
+    token = None
+    res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=0, token=token)
+    after = docopt.Option('-h', False, has_value=False, short='-h', long=None)
+    assert res == after
+
+    tmp_array = ['--help', '-h', 'Show', 'help', 'message']
+    token = docopt.Option('--help', False, has_value=False, short=None, long='--help')
+    res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=1, token=token)
+    assert res.short == '-h'
+
+    element = '-v=<input>'
+    tmp_array = ['-v=<input>', '--value=<input>', 'User', 'input', 'value.']
+    token = None
+    res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=0, token=token)
+    after = docopt.Option('-v', None, has_value=True, short='-v', long=None)
+    assert res == after
+
+    tmp_array = ['--value=<input>', '-v=<input>', 'User', 'input', 'value.']
+    token = docopt.Option('--value', None, has_value=True, short=None, long='--value')
+    res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=1, token=token)
+    assert res.short == '-v'
+
+    element = '-s'
+    tmp_array = '-s KN --speed KN User input speed [default: 10].'.split()
+    token = None
+    res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=0, token=token)
+    after = docopt.Option('-s', None, has_value=True, short='-s', long=None)
+    assert res == after
+
+    tmp_array = '--speed KN -s KN User input speed [default: 10].'.split()
+    token = docopt.Option('--speed', 10, has_value=True, short=None, long='--speed')
+    res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=1, token=token)
+    assert res.short == '-s'
 
 
-def find_default_value(line, token):
-    res = docopt.find_default_value(line="", token=None)
+def find_default_value():
+    tmp_token = docopt.Option('-v', None, True, '-v', None)
+    tmp_token = docopt.find_default_value('-v FILE input file [default: ./test.txt].', tmp_token)
+    after = docopt.Option('-v', './test.txt', True, '-v', None)
+    assert tmp_token == after
+
+    tmp_token = docopt.Option('--location', None, True, '-l', '--location')
+    tmp_token = docopt.find_default_value('-l=<location_value> --location=<location_value> '
+                                          'insert coordinate [default: 10.88].', tmp_token)
+    after = docopt.Option('--location', 10.88, True, '-l', '--location')
+    assert tmp_token == after
+
+    tmp_token = docopt.Option('--speed', None, True, '-s', '--speed')
+    tmp_token = docopt.find_default_value('--speed KN -s KN input speed [default: 20].', tmp_token)
+    after = docopt.Option('--speed', 20, True, '-s', '--speed')
+    assert tmp_token == after

@@ -136,11 +136,10 @@ def check_warnings(usage, options):
 
 
 # Main function for building output strings to user
-def print_output_dictionary(usage_dic, options_dic):
+def print_output_dictionary(usage_dic):
     """
     Args:
         usage_dic: the original usage dictionary from main function.
-        options_dic: the original options dictionary from main function.
     Returns:
         dictionary_total: the final dictionary object that built from usage pattern and options.
         return the formatted json like dictionary string to user.
@@ -159,9 +158,7 @@ def print_output_dictionary(usage_dic, options_dic):
     }
     """
 
-    dictionary_total = {}
-    dictionary_total.update(usage_dic)
-    dictionary_total.update(options_dic)
+    dictionary_total = dict.copy(usage_dic)
     dic_list = list(dictionary_total)
     length = len(dictionary_total)
     if length > 24:

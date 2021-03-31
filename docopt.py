@@ -81,14 +81,14 @@ class Option(Leaf):
 
     def match(self, args, index):
         is_match = False
-        new_index = index+1
+        new_index = index + 1
         if index < len(args):
             if self.text == args[index]:
                 if self.has_value:
-                    if index+1 < len(args):
-                        self.value = args[index+1]
+                    if index + 1 < len(args):
+                        self.value = args[index + 1]
                         is_match = True
-                        new_index = index+2
+                        new_index = index + 2
                 else:
                     self.value = True
                     is_match = True
@@ -270,16 +270,24 @@ class Pipe(SpecialToken):
 class Repeats(SpecialToken):
     """ Placeholder """
 
+
 def docopt(doc, version=None, help_message=True, argv=None):
     usages, options_array = docopt_util.processing_string(
         doc, help_message, version)
     args = sys.argv[1:]
     if len(args) == 0 and argv is not None:
         args = argv
-    usages.pop(0)
-    usages, usage_dic, tree_heads = get_patterns_and_dict(usages)
-    usage_dic = match_user_input(tree_heads, usage_dic, args)
-    total_dic, output_string = docopt_util.print_output_dictionary(usage_dic, {})
+
+    if 'Usage:' in usages[0]:
+        tmp = usages[0].split()
+        if len(tmp) == 1:
+            usages.pop(0)
+        else:
+            usages[0] = ' '.join(tmp.pop(0))
+
+    usages, output_dic, tree_heads = get_patterns_and_dict(usages, options_array)
+    output_dic = match_user_input(tree_heads, output_dic, args)
+    total_dic, output_string = docopt_util.print_output_dictionary(output_dic)
     print(output_string)
     return total_dic
 
@@ -333,14 +341,15 @@ def get_post_match(child, args, index, child_dict):
     return post_match
 
 
-def get_patterns_and_dict(usages):
+def get_patterns_and_dict(usages, options):
     new_usages = []
     usage_dic = {}
     tree_heads = []
+    options_pat = check_option_lines(options)
     for pattern in usages:
         pattern = re.sub(r'([\[\]()|]|\.\.\.)', r' \1 ', pattern).split()
         pattern.pop(0)
-        pattern = identify_tokens(pattern)
+        pattern = identify_tokens(pattern, options_pat)
         create_opt_and_req(pattern)
         create_mutex(pattern)
         create_repeating(pattern)
@@ -406,7 +415,7 @@ def dict_populate_loop(pattern):
     return updated_dic
 
 
-def identify_tokens(pattern):
+def identify_tokens(pattern, options_pat):
     new_pat = []
     for index, token in enumerate(pattern):
         if token == '(':
@@ -424,9 +433,9 @@ def identify_tokens(pattern):
         elif (token.startswith('<') and token.endswith('>')) or token.isupper():
             token = Argument(token)
         elif token.startswith('--'):
-            token = Option(token, long=True)
+            token = get_match_option(token, options_pat)
         elif token.startswith('-'):
-            token = Option(token, short=True)
+            token = get_match_option(token, options_pat)
         else:
             token = Command(token)
         new_pat.append(token)
@@ -497,6 +506,15 @@ def create_repeating(pattern):
             pattern.insert(index - 1, res)
 
 
+def get_match_option(token, options_pat):
+    if '=' in token:
+        token = re.search('\\S+=', token).group().strip("=")
+    for option in options_pat:
+        if token == option.long or token == option.short:
+            return option
+    return None
+
+
 # Process options from docstring, treat lines that
 # starts with '-' or '--' as options
 def check_option_lines(options):
@@ -512,7 +530,7 @@ def check_option_lines(options):
     >>> check_option_lines(options= "hello world")
     []
     """
-    new_pat = []
+    options_pat = []
     for line in options:
         tmp_array = line.split()
         if len(tmp_array) > 0 and tmp_array[0].strip()[:1] != '-':
@@ -526,8 +544,8 @@ def check_option_lines(options):
                 token = check_option_lines_short(element, tmp_array, count, token)
 
         token = find_default_value(line, token)
-        new_pat.append(token)
-    return new_pat
+        options_pat.append(token)
+    return options_pat
 
 
 # create the Option with long keyword type if the current keyword is not exists.
@@ -544,11 +562,11 @@ def check_option_lines_long(element, tmp_array, count, token):
        Returns:
            token: the updated options object with long form of the keyword.
 
-       >>> check_option_lines_long('--value=<help>', '--value=<help> Input value', 0, None)
+       >>> check_option_lines_long('--value=<help>', ['--value=<help>', 'Input', 'value'], 0, None)
        token = Option('--value', None, True, None, '--value')
-       >>> check_option_lines_long('--value', '--value HELP', 0, None)
+       >>> check_option_lines_long('--value', ['--value', 'HELP'], 0, None)
        token = Option('--value', None, True, None, '--value')
-       >>> check_option_lines_long('--help', '--help show help message', 0, None)
+       >>> check_option_lines_long('--help', ['--help', 'show', 'help', 'message'], 0, None)
        token = Option(''--help', False, False, None, ''--help')
        """
     if len(tmp_array) > count + 1 and tmp_array[count + 1].isupper():
@@ -556,17 +574,20 @@ def check_option_lines_long(element, tmp_array, count, token):
             token = Option(element, None, has_value=True, short=None, long=element)
         else:
             token.long = element
+            token.text = element
     elif '=' in element:
         if token is None:
             text = re.search('\\S+=', element).group().strip("=")
             token = Option(text, None, has_value=True, short=None, long=text)
         else:
             token.long = re.search('\\S+=', element).group().strip("=")
+            token.text = re.search('\\S+=', element).group().strip("=")
     else:
         if token is None:
             token = Option(element, False, has_value=False, short=None, long=element)
         else:
             token.long = element
+            token.text = element
     return token
 
 
@@ -583,11 +604,11 @@ def check_option_lines_short(element, tmp_array, count, token):
         Returns:
             token: the updated options object with short form of the keyword.
 
-       >>> check_option_lines_long('-v=<help>', '-v=<help> Input value', 0, None)
+       >>> check_option_lines_long('-v=<help>', ['-v=<help>', 'Input', 'value'], 0, None)
        token = Option('-v', None, True, '-v', None)
-       >>> check_option_lines_long('-v', '-v HELP', 0, None)
+       >>> check_option_lines_long('-v', ['-v', 'HELP'], 0, None)
        token = Option('-v', None, True, '-v', None)
-       >>> check_option_lines_long('-h', '-h show help message', 0, None)
+       >>> check_option_lines_long('-h', ['-h', 'show', 'help', 'message'], 0, None)
        token = Option('-h', False, False, '-h', None)
     """
     if len(tmp_array) > count + 1 and tmp_array[count + 1].isupper():
