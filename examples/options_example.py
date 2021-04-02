@@ -31,7 +31,7 @@ Options:
   --doctest            run doctest on myself
 
 """
-from old.old_docopt import docopt
+from docopt import docopt
 
 
 if __name__ == '__main__':

@@ -154,8 +154,7 @@ def print_output_dictionary(usage_dic):
      '2': 'haha'
      '3': False
      '4': True
-     '5': 'haha'
-    }
+     '5': 'haha'}
     """
 
     dictionary_total = dict.copy(usage_dic)
@@ -285,7 +284,8 @@ def print_output_from_rows(col1, col2, col3, num_rows):
     " 4      4\n" + \
     " 5}\n"
     """
-
+    col1 = [i for i in col1 if len(i) > 1]
+    num_rows = min(len(col1), num_rows)
     spaces1 = len(max(col1, key=len))
     spaces2 = len(max(col2, key=len))
     final_output = ""

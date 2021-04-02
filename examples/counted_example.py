@@ -10,7 +10,7 @@ Try: counted_example.py -vvvvvvvvvv
      counted_example.py this.txt that.txt
 
 """
-from old.old_docopt import docopt
+from docopt import docopt
 
 
 print(docopt(__doc__))

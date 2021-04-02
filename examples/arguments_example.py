@@ -19,7 +19,7 @@ Options:
   --right  use right-hand side
 
 """
-from old.old_docopt import docopt
+from docopt import docopt
 
 
 if __name__ == '__main__':

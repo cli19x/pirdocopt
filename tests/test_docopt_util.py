@@ -298,14 +298,11 @@ def test_print_output_dictionary():
               '25': True, '26': 'haha', '27': False, '28': True, '29': 'haha', '30': False}
     usage_dic = {'usage1': 'x', 'usage2': 'y'}
     options_dic = {'options1': 'x', 'options2': 'y'}
-    dic_total, res = docopt_util.print_output_dictionary(usage_dic=usage_dic,
-                                                         options_dic=input1)
-    print(res)
+    dic_total, res = docopt_util.print_output_dictionary(usage_dic=usage_dic)
     assert dic_total == {**usage_dic, **dic_total}
-    dic_total, res = docopt_util.print_output_dictionary(usage_dic={}, options_dic=input2)
+    dic_total, res = docopt_util.print_output_dictionary(usage_dic={})
     assert dic_total == input2
-    dic_total, res = docopt_util.print_output_dictionary(usage_dic=input3,
-                                                         options_dic=options_dic)
+    dic_total, res = docopt_util.print_output_dictionary(usage_dic=input3)
     assert dic_total == {**input3, **options_dic}
 
 

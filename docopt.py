@@ -439,6 +439,7 @@ def identify_tokens(pattern, options_pat):
         else:
             token = Command(token)
         new_pat.append(token)
+    print(new_pat)
     for index, token in enumerate(new_pat):
         if index == 0:
             token.post = new_pat[index + 1] if len(new_pat) > 1 else None
@@ -506,13 +507,60 @@ def create_repeating(pattern):
             pattern.insert(index - 1, res)
 
 
+# Match token (keyword for option) with option object in the option pattern array
 def get_match_option(token, options_pat):
+    """
+        Args:
+            token: A string that represent the keyword for option
+            options_pat: Array of option objects
+        Returns:
+            option: return option object if found else return None
+        >>>pat = [Option('--help', False), Option('--sorted', False),
+        >>> Option('--output', './test.txt'), Option('--version', False)]
+        >>> get_match_option('--help', pat)
+        Option('--help', False)
+        >>> get_match_option('--hello', pat)
+        Option('--hello', False)
+        >>> get_match_option('--hi', [None])
+        Option('--hi', False)
+        """
+    has_value = False
     if '=' in token:
+        has_value = True
         token = re.search('\\S+=', token).group().strip("=")
+
     for option in options_pat:
+        if option is None:
+            return create_tmp_token(token, has_value)
         if token == option.long or token == option.short:
             return option
-    return None
+
+    return create_tmp_token(token, has_value)
+
+
+def create_tmp_token(token, has_value):
+    """
+        Args:
+            token: A string that represent the keyword for option
+            has_value: Boolean value for check if keyword contain value
+        Returns:
+            option: return option object
+        >>> create_tmp_token('--hello', False)
+        Option('--hello', False)
+        >>> create_tmp_token('--hi', True)
+        Option('--hello', True)
+        """
+    if token.startswith('--'):
+        if has_value:
+            return Option(token, None, has_value, None, token)
+        else:
+            return Option(token, False, has_value, None, token)
+
+    elif token.startswith('-'):
+        if has_value:
+            return Option(token, None, has_value, token, None)
+        else:
+            return Option(token, False, has_value, token, None)
 
 
 # Process options from docstring, treat lines that
