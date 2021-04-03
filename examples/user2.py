@@ -9,7 +9,7 @@ Usage:
   user2.py --version
 
 Options:
-  -h --help --helping --haha -hhh --ooooo  Show this screen.
+  -h --help Show this screen.
   --sorted  Show sorted.
   -o FILE --output=<file>  Speed in knots [default: ./test.txt].
   --version     Show version.

@@ -137,7 +137,6 @@ class Branch(Token):
         if tokens is None:
             tokens = []
         self.tokens = tokens
-        # print(self.tokens)
         super(Branch, self).__init__(prev, post, children)
 
     def __repr__(self):
@@ -274,7 +273,6 @@ class Repeats(SpecialToken):
 def docopt(doc, version=None, help_message=True, argv=None):
     usages, options_array = docopt_util.processing_string(
         doc, help_message, version)
-    print(usages, options_array)
     args = sys.argv[1:]
     if len(args) == 0 and argv is not None:
         args = argv
@@ -359,9 +357,7 @@ def get_patterns_and_dict(usages, options):
                 token.post = pattern[index + 1]
         new_usages.append(pattern)
         usage_dic.update(dict_populate_loop(pattern))
-        # print(pattern[0])
         tree_heads = build_tree_heads(pattern, tree_heads)
-        # tree_heads = build_tree_heads(token_set, pattern[0], tree_heads)
 
     for pattern in new_usages:
         for index, token in enumerate(pattern):
