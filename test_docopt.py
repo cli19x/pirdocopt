@@ -71,13 +71,34 @@ def test_create_repeating():
 # Test If matching option and keyword is working correctly
 def test_get_match_option():
     options_pat = docopt.check_option_lines(options=options.split('\n'))
-    print(options_pat)
     assert docopt.get_match_option('--help', options_pat) is not None
     assert docopt.get_match_option('--output=<value>', options_pat) is not None
     assert docopt.get_match_option('-h', options_pat) is not None
 
-    assert docopt.get_match_option('--www', options_pat) is None
-    assert docopt.get_match_option('--hello', options_pat) is None
+    assert docopt.get_match_option('--www', options_pat) is not None
+    assert docopt.get_match_option('--hello', options_pat) is not None
+
+# Test If matching option and keyword is working correctly
+def test_create_tmp_token():
+    res = docopt.create_tmp_token('--hello', False)
+    assert res.text == '--hello'
+    assert res.long == '--hello'
+    assert res.has_value is False
+
+    res = docopt.create_tmp_token('-h', False)
+    assert res.text == '-h'
+    assert res.short == '-h'
+    assert res.has_value is False
+
+    res = docopt.create_tmp_token('--hello', True)
+    assert res.text == '--hello'
+    assert res.long == '--hello'
+    assert res.has_value is True
+
+    res = docopt.create_tmp_token('-h', True)
+    assert res.text == '-h'
+    assert res.short == '-h'
+    assert res.has_value is True
 
 
 # Test function for paring the options lines into array of option tokens

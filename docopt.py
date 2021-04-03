@@ -408,6 +408,7 @@ def build_tree_heads(pattern, tree_heads):
 def dict_populate_loop(pattern):
     updated_dic = {}
     for token in pattern:
+        print(token)
         if isinstance(token, Branch):
             updated_dic.update(dict_populate_loop(token.tokens))
         else:
@@ -439,7 +440,6 @@ def identify_tokens(pattern, options_pat):
         else:
             token = Command(token)
         new_pat.append(token)
-    print(new_pat)
     for index, token in enumerate(new_pat):
         if index == 0:
             token.post = new_pat[index + 1] if len(new_pat) > 1 else None
@@ -552,13 +552,14 @@ def create_tmp_token(token, has_value):
         """
     if token.startswith('--'):
         if has_value:
-            return Option(token, None, has_value, None, token)
+            print(token + '--------------------')
+            return Option(text=token, value=None, has_value=has_value,  short=None, long=token)
         else:
             return Option(token, False, has_value, None, token)
 
     elif token.startswith('-'):
         if has_value:
-            return Option(token, None, has_value, token, None)
+            return Option(text=token, value=None, has_value=has_value,  short=token, long=None)
         else:
             return Option(token, False, has_value, token, None)
 
