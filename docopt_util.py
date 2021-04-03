@@ -3,8 +3,14 @@
   Contains the function for processing docstrings and
   formatting the print strings to user
 """
-import warnings
 import math
+import warnings
+
+
+class DocoptExit(Exception):
+    def __init__(self, message="Exception occur."):
+        self.message = message
+        super().__init__(self.message)
 
 
 # Main Controller for processing the docstring.
@@ -78,6 +84,11 @@ def get_usage_and_options(doc, version):
     partition_string = doc.strip().split('\n\n')
     name = partition_string[0].strip()
     partition_string.pop(0)
+
+    if usage is not None and not isinstance(usage, str) or \
+            version is not None and not isinstance(version, str) or \
+            name is not None and not isinstance(name, str):
+        raise DocoptExit("Argument type error occur")
 
     if "Usage:" in name:
         usage = name

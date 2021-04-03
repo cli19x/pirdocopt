@@ -274,6 +274,7 @@ class Repeats(SpecialToken):
 def docopt(doc, version=None, help_message=True, argv=None):
     usages, options_array = docopt_util.processing_string(
         doc, help_message, version)
+    print(usages, options_array)
     args = sys.argv[1:]
     if len(args) == 0 and argv is not None:
         args = argv
@@ -354,7 +355,7 @@ def get_patterns_and_dict(usages, options):
         create_mutex(pattern)
         create_repeating(pattern)
         for index, token in enumerate(pattern):
-            if isinstance(token.post, SpecialToken):
+            if isinstance(token.post, SpecialToken) and index < len(pattern) - 1:
                 token.post = pattern[index + 1]
         new_usages.append(pattern)
         usage_dic.update(dict_populate_loop(pattern))
@@ -408,7 +409,6 @@ def build_tree_heads(pattern, tree_heads):
 def dict_populate_loop(pattern):
     updated_dic = {}
     for token in pattern:
-        print(token)
         if isinstance(token, Branch):
             updated_dic.update(dict_populate_loop(token.tokens))
         else:
@@ -552,7 +552,6 @@ def create_tmp_token(token, has_value):
         """
     if token.startswith('--'):
         if has_value:
-            print(token + '--------------------')
             return Option(text=token, value=None, has_value=has_value,  short=None, long=token)
         else:
             return Option(token, False, has_value, None, token)
