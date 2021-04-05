@@ -31,16 +31,11 @@ and the options that provided by you program, you just need to call docopt.py:
          my_program.py --version
 
        Options:
-         -h --help --helping --haha -hhh  Show this screen.
-         --sorted  Show sorted.
-         -o FILE --output=<file>  Speed in knots [default: ./test.txt].
+         -h --help  Show this screen.
          --version     Show version.
          --speed=<kn> -s KN  Speed in knots [default: 10].
          --moored      Moored (anchored) mine.
          --drifting    Drifting mine.
-         --rr     Show version.
-         --aaa=<file>      Other input argument with a value.
-         --yyy    Other input argument without a value.
          
     """
     from docopt import docopt
