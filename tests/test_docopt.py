@@ -25,6 +25,30 @@ options = """Options:
 
 
 #################################################################################
+# Helper functions
+
+def set_prev_post(pat):
+    for index, token in enumerate(pat):
+        if index == 0:
+            token.post = pat[index + 1] if len(pat) > 1 else None
+        elif index == len(pat) - 1:
+            token.prev = pat[index - 1]
+        else:
+            token.prev = pat[index - 1]
+            token.post = pat[index + 1]
+
+
+def check_loop(test, pat):
+    for x, y in zip(test, pat):
+        print(x, y)
+        assert x.__class__ == y.__class__
+        if isinstance(x, docopt.Branch):
+            check_loop(x.tokens, y.tokens)
+        else:
+            assert x.text == y.text
+            assert x.value == y.value
+
+#################################################################################
 #################################################################################
 # Main function test
 def test_docopt():
@@ -53,15 +77,46 @@ def test_dict_populate_loop(pattern):
 
 
 def test_identify_tokens():
-    res = docopt.identify_tokens(pattern=None)
+    pat = ['mine','(','set','|','remove',')',\
+        '<x>','<y>','[','--moored','|','--drifting',']']
+    test = [docopt.Command('mine',False),docopt.RequiredOpen(),docopt.Command('set',False),\
+        docopt.Pipe(),docopt.Command('remove',False),docopt.RequiredClosed(),docopt.Argument('<x>',0)\
+            ,docopt.Argument('<y>',0),docopt.OptionalOpen(),docopt.Option('--moored',False),\
+                docopt.Pipe(),docopt.Option('--drifting',False),docopt.OptionalClosed()]
+    opt_pat = ['Options:', '--moored      Moored (anchored) mine.',\
+                                    '  --drifting    Drifting mine.']
+    opt_pat = docopt.check_option_lines(opt_pat)
+    res = docopt.identify_tokens(pat,opt_pat)
 
+    for x, y in zip(test, res):
+        assert x.__class__ == y.__class__
+        if not isinstance(x, docopt.SpecialToken):
+            #print(x.__class__, x.text, x.value)
+            assert x.text == y.text
+            assert x.value == y.value
 
 def test_create_opt_and_req():
-    res = docopt.create_opt_and_req(pattern=None)
+    pat = [docopt.RequiredOpen(), docopt.Command("set"), docopt.OptionalOpen(), \
+        docopt.Command("remove"), docopt.OptionalClosed(), docopt.RequiredClosed(), \
+            docopt.Argument("<file>"), docopt.OptionalOpen(), docopt.Option("-o"), \
+                docopt.OptionalClosed()]
+    test = [ docopt.Required([ docopt.Command("set"), docopt.Optional(\
+        [ docopt.Command("remove") ]) ]), docopt.Argument("<file>"),  \
+            docopt.Optional([ docopt.Option("-o") ])]
+    set_prev_post(pat)
+    docopt.create_opt_and_req(pat)
+    check_loop(test, pat)
 
 
 def test_create_mutex():
-    res = docopt.create_mutex(pattern=None)
+    pat = [docopt.Required([ docopt.Required([ docopt.Command("set"), docopt.Option("--aflame") ]),\
+        docopt.Pipe(), docopt.Command("cool") ])]
+    test = [docopt.Required([ docopt.Mutex([ docopt.Required([ docopt.Command("set"), docopt.Option("--aflame") ]),\
+        docopt.Command("cool") ]) ])]
+    pat[0].tokens[1].prev = pat[0].tokens[0]
+    pat[0].tokens[1].post = pat[0].tokens[2]
+    docopt.create_mutex(pat)
+    check_loop(test, pat)
 
 
 def test_create_repeating():
