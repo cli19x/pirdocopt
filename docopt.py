@@ -357,6 +357,7 @@ def get_patterns_and_dict(usages, options):
                 token.post = pattern[index + 1]
         new_usages.append(pattern)
         usage_dic.update(dict_populate_loop(pattern))
+        print(new_usages)
         tree_heads = build_tree_heads(pattern, tree_heads)
 
     for pattern in new_usages:

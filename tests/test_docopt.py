@@ -78,6 +78,7 @@ def test_get_match_option():
     assert docopt.get_match_option('--www', options_pat) is not None
     assert docopt.get_match_option('--hello', options_pat) is not None
 
+
 # Test If matching option and keyword is working correctly
 def test_create_tmp_token():
     res = docopt.create_tmp_token('--hello', False)
