@@ -62,11 +62,15 @@ def test_docopt():
 
 
 def test_get_patterns_and_dict():
-    res = docopt.get_patterns_and_dict(usages=None)
+    res = docopt.get_patterns_and_dict(usages=None, options=None)
 
 
 def test_is_num():
-    res = docopt.is_num(arg=None)
+    assert docopt.is_num("5") is True
+    assert docopt.is_num("0.87") is True
+    assert docopt.is_num("-4.2") is True
+    assert docopt.is_num("x") is False
+    assert docopt.is_num("argument") is False
 
 
 def test_build_tree_heads():
@@ -74,7 +78,12 @@ def test_build_tree_heads():
 
 
 def test_dict_populate_loop():
-    res = docopt.dict_populate_loop(pattern=None)
+    pat = [docopt.Command("set"), docopt.Mutex([ docopt.Argument("<file>"), \
+        docopt.Option("--speed=<k>") ]), docopt.Option("--sort=<kn>"), \
+            docopt.Optional([docopt.Option("-o")])]
+    test = { "set": False, "<file>": None, "--speed": 0, "--sort": None, "-o": False }
+    res = docopt.dict_populate_loop(pat)
+    assert res == test
 
 
 def test_identify_tokens():
@@ -124,7 +133,11 @@ def test_create_mutex():
 
 
 def test_create_repeating():
-    res = docopt.create_repeating(pattern=None)
+    pat = [docopt.Command("set"), docopt.Required([ docopt.Argument("<file1>"), docopt.Argument("<file2>") ]), docopt.Repeats()]
+    test = [ docopt.Command("set"), docopt.Repeating([ docopt.Required([ docopt.Argument("<file1>"), docopt.Argument("<file2>") ]) ]) ]
+    pat[2].prev = pat[1]
+    docopt.create_repeating(pat)
+    check_loop(test, pat)
 
 
 # Test If matching option and keyword is working correctly
