@@ -8,6 +8,10 @@ import docopt_util
 
 
 class Token:
+    """
+    class token
+    """
+
     def __init__(self, prev=None, post=None, children=None):
         if children is None:
             children = []
@@ -18,6 +22,10 @@ class Token:
 
 
 class Leaf(Token):
+    """
+    class leaf
+    """
+
     def __init__(self, text, value=None, prev=None, post=None, children=None):
         if children is None:
             children = []
@@ -34,7 +42,7 @@ class Leaf(Token):
         return self if not types or type(self) in types else None
 
     def match(self, left, index):
-        return True if left else False
+        return bool(left)
 
 
 class Argument(Leaf):
@@ -274,6 +282,39 @@ class Repeats(SpecialToken):
 
 
 def docopt(doc, version=None, help_message=True, argv=None):
+    """ Main function for docopt program
+
+        Args:
+            doc: docstring that pass from the user program
+
+            argv: programmer can pre-pass some parameters into docopt and
+            those parameters is treat as default existing arguments
+
+            help_message: user can specify whether they want docopt to display
+            the help message whenever user execute the program
+
+            version: programmers can specify the version of
+            the project and display to user
+        Returns:
+            total_dic: returns the complete dictionary from parameters passed in
+
+        >>>  doc0 = "Perfect" \
+        >>>
+        >>>         "Usage:" \
+        >>>           "naval_fate.py ship new <name>..." \
+        >>>           "naval_fate.py ship <name> move <x> <y> [--speed=<kn>]" \
+        >>>
+        >>>         "Options:" \
+        >>>           '-h --help --helping --haha -hhh Show this screen.' \
+        >>>           '-o FILE --output=<value>  Speed in knots [default: ./test.txt].' \
+        >>>           '--speed=<kn> -s KN  Speed in knots [default: 10].' \
+        >>>
+        >>>  docopt(doc=doc0, version="test 2.0", help_message=False,
+        >>>                    argv=['ship', 'Titanic', 'move', 10, 90, '--speed=70'])
+        {'ship': True, 'new': False, '<name>...': False, 'name': 'Titanic', 'move': True,
+        'x': 10, 'y': 90, '--helping': False, '--output': './test.txt', '--speed': 70}
+        """
+
     usages, options_array = docopt_util.processing_string(
         doc, help_message, version)
     args = sys.argv[1:]
@@ -295,6 +336,13 @@ def docopt(doc, version=None, help_message=True, argv=None):
 
 
 def match_user_input(tree_heads, usage_dic, args):
+    """
+
+    :param tree_heads:
+    :param usage_dic:
+    :param args:
+    :return:
+    """
     index = 0
     for head in tree_heads:
         head_dict = dict()
@@ -311,6 +359,14 @@ def match_user_input(tree_heads, usage_dic, args):
 
 
 def get_child_match(children, args, index, head_dict):
+    """
+
+    :param children:
+    :param args:
+    :param index:
+    :param head_dict:
+    :return:
+    """
     children_match = False
     if not children:
         children_match = True
@@ -331,6 +387,14 @@ def get_child_match(children, args, index, head_dict):
 
 
 def get_post_match(child, args, index, child_dict):
+    """
+
+    :param child:
+    :param args:
+    :param index:
+    :param child_dict:
+    :return:
+    """
     post = child.post
     post_match = True
     while post:
@@ -344,6 +408,15 @@ def get_post_match(child, args, index, child_dict):
 
 
 def get_patterns_and_dict(usages, options):
+    """
+        Args:
+            usages: array of usage pattern from docstring.
+            options: array of option keywords from docstring.
+
+        Returns:
+            return the usage pattern, keyword dictionary, and array of token of
+            the first layer of the tree structure.
+        """
     new_usages = []
     usage_dic = {}
     tree_heads = []
@@ -372,6 +445,13 @@ def get_patterns_and_dict(usages, options):
 
 
 def is_num(arg):
+    """
+        Args:
+            arg: input object that going to check if it is a number.
+
+        Returns:
+            true is input is number, else return false.
+        """
     try:
         float(arg)
         return True
@@ -380,12 +460,24 @@ def is_num(arg):
 
 
 def set_children(pattern):
+    """
+        Args:
+            pattern: array of tokens that represents the tokens.
+        """
     for token in pattern:
         if token.post:
             token.children.append(token.post)
 
 
 def build_tree_heads(pattern, tree_heads):
+    """
+        Args:
+            pattern: array of tokens that represents the tokens.
+            tree_heads: array of tokens of the first argument.
+
+        Returns:
+            tree_heads: updated array of tokens of the first argument.
+        """
     token = pattern[0]
     tree_child = token.post if token.post else None
     if isinstance(token, Leaf):
@@ -407,6 +499,13 @@ def build_tree_heads(pattern, tree_heads):
 
 
 def dict_populate_loop(pattern):
+    """
+        Args:
+            pattern: array of tokens that represents the tokens.
+
+        Returns:
+            updated_dic: a dictionary that contains all the keywords from docstrings.
+        """
     updated_dic = {}
     for token in pattern:
         if isinstance(token, Branch):
@@ -417,6 +516,14 @@ def dict_populate_loop(pattern):
 
 
 def identify_tokens(pattern, options_pat):
+    """
+        Args:
+            pattern: array of tokens that represents the tokens.
+            options_pat: array of option tokens.
+
+        Returns:
+            new_pat: array of tokens that contain the updated tokens for all types of keywords.
+        """
     new_pat = []
     for index, token in enumerate(pattern):
         if token == '(':
@@ -452,6 +559,11 @@ def identify_tokens(pattern, options_pat):
 
 
 def create_opt_and_req(pattern):
+    """
+        Args:
+            pattern: array of tokens that represents the tokens.
+
+        """
     length = len(pattern) - 1
     for index, token in enumerate(pattern[::-1]):
         index = length - index
@@ -476,8 +588,14 @@ def create_opt_and_req(pattern):
 
 
 def create_mutex(pattern):
+    """
+        Args:
+            pattern: array of tokens that represents the tokens.
+
+        """
+
     for index, token in enumerate(pattern):
-        if isinstance(token, Optional) or isinstance(token, Required):
+        if isinstance(token, Optional) or isinstance(token, ):
             create_mutex(token.tokens)
         elif isinstance(token, Pipe):
             prev = token.prev.prev if token.prev else None
@@ -493,6 +611,11 @@ def create_mutex(pattern):
 
 
 def create_repeating(pattern):
+    """
+        Args:
+            pattern: array of tokens that represents the tokens
+
+        """
     for index, token in enumerate(pattern):
         prev = token.prev if token.prev else None
         post = token.post if token.post else None
@@ -552,12 +675,12 @@ def create_tmp_token(token, has_value):
         """
     if token.startswith('--'):
         if has_value:
-            return Option(text=token, value=None, has_value=has_value,  short=None, long=token)
+            return Option(text=token, value=None, has_value=has_value, short=None, long=token)
         return Option(token, False, has_value, None, token)
 
     if token.startswith('-'):
         if has_value:
-            return Option(text=token, value=None, has_value=has_value,  short=token, long=None)
+            return Option(text=token, value=None, has_value=has_value, short=token, long=None)
 
         return Option(token, False, has_value, token, None)
     return None
