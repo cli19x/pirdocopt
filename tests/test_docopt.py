@@ -61,22 +61,27 @@ def test_docopt():
     assert after == res
 
 
+# Test function for building the usage patterns and a output dictionary from docstrings
 def test_get_patterns_and_dict():
     res = docopt.get_patterns_and_dict(usages=None)
 
 
+# Test function for identifying if the input is a number
 def test_is_num():
     res = docopt.is_num(arg=None)
 
 
+# Test function for building correct tree structure for the matching process
 def test_build_tree_heads():
     res = docopt.build_tree_heads(pattern=None, tree_heads=None)
 
 
+# Test function for recursive function for building patterns
 def test_dict_populate_loop():
     res = docopt.dict_populate_loop(pattern=None)
 
 
+# Test function for identifying keywords and put them into tokens
 def test_identify_tokens():
     pat = ['mine', '(', 'set', '|', 'remove', ')',
            '<x>', '<y>', '[', '--moored', '|', '--drifting', ']']
@@ -98,6 +103,7 @@ def test_identify_tokens():
             assert x.value == y.value
 
 
+# Test function for creating options tokens and required tokens
 def test_create_opt_and_req():
     pat = [docopt.RequiredOpen(), docopt.Command("set"), docopt.OptionalOpen(),
            docopt.Command("remove"), docopt.OptionalClosed(), docopt.RequiredClosed(),
@@ -111,6 +117,7 @@ def test_create_opt_and_req():
     check_loop(test, pat)
 
 
+# Test function for creating mutex tokens from options, command and other types of tokens
 def test_create_mutex():
     pat = [docopt.Required([docopt.Required([docopt.Command("set"), docopt.Option("--aflame")]),
                             docopt.Pipe(), docopt.Command("cool")])]
@@ -123,6 +130,7 @@ def test_create_mutex():
     check_loop(test, pat)
 
 
+# Test function for repeat parameters
 def test_create_repeating():
     res = docopt.create_repeating(pattern=None)
 
