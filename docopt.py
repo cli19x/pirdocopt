@@ -1,3 +1,6 @@
+"""
+ Docopt is for making beautiful command line program for python.
+"""
 import re
 import sys
 
@@ -388,9 +391,9 @@ def build_tree_heads(pattern, tree_heads):
     if isinstance(token, Leaf):
         in_set = False
         test_set = [t for t in tree_heads if isinstance(t, Leaf)]
-        for t in test_set:
-            if token.text == t.text:
-                token = t
+        for test in test_set:
+            if token.text == test.text:
+                token = test
                 in_set = True
                 break
         if not in_set:
@@ -483,7 +486,7 @@ def create_mutex(pattern):
             for tok in collected:
                 tok.prev = prev
                 tok.post = post
-            for i in range(index - 1, index + 2):
+            for _ in range(index - 1, index + 2):
                 del pattern[index - 1]
             res = Mutex(collected, prev, post)
             pattern.insert(index - 1, res)
@@ -493,13 +496,13 @@ def create_repeating(pattern):
     for index, token in enumerate(pattern):
         prev = token.prev if token.prev else None
         post = token.post if token.post else None
-        if isinstance(token, Optional) or isinstance(token, Required) or isinstance(token, Mutex):
+        if isinstance(token, (Optional, Required, Mutex)):
             create_repeating(token.tokens)
         elif isinstance(token, Repeats):
             token.prev.post = post
             collected = [token.prev]
             res = Repeating(collected, prev, post)
-            for i in range(index - 1, index + 1):
+            for _ in range(index - 1, index + 1):
                 del pattern[index - 1]
             pattern.insert(index - 1, res)
 
@@ -529,7 +532,7 @@ def get_match_option(token, options_pat):
     for option in options_pat:
         if option is None:
             return create_tmp_token(token, has_value)
-        if token == option.long or token == option.short:
+        if token in (option.long, option.short):
             return option
 
     return create_tmp_token(token, has_value)
@@ -550,14 +553,14 @@ def create_tmp_token(token, has_value):
     if token.startswith('--'):
         if has_value:
             return Option(text=token, value=None, has_value=has_value,  short=None, long=token)
-        else:
-            return Option(token, False, has_value, None, token)
+        return Option(token, False, has_value, None, token)
 
-    elif token.startswith('-'):
+    if token.startswith('-'):
         if has_value:
             return Option(text=token, value=None, has_value=has_value,  short=token, long=None)
-        else:
-            return Option(token, False, has_value, token, None)
+
+        return Option(token, False, has_value, token, None)
+    return None
 
 
 # Process options from docstring, treat lines that

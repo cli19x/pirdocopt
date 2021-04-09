@@ -48,6 +48,7 @@ def check_loop(test, pat):
             assert x.text == y.text
             assert x.value == y.value
 
+
 #################################################################################
 #################################################################################
 # Main function test
@@ -72,47 +73,50 @@ def test_build_tree_heads():
     res = docopt.build_tree_heads(pattern=None, tree_heads=None)
 
 
-def test_dict_populate_loop(pattern):
+def test_dict_populate_loop():
     res = docopt.dict_populate_loop(pattern=None)
 
 
 def test_identify_tokens():
-    pat = ['mine','(','set','|','remove',')',\
-        '<x>','<y>','[','--moored','|','--drifting',']']
-    test = [docopt.Command('mine',False),docopt.RequiredOpen(),docopt.Command('set',False),\
-        docopt.Pipe(),docopt.Command('remove',False),docopt.RequiredClosed(),docopt.Argument('<x>',0)\
-            ,docopt.Argument('<y>',0),docopt.OptionalOpen(),docopt.Option('--moored',False),\
-                docopt.Pipe(),docopt.Option('--drifting',False),docopt.OptionalClosed()]
-    opt_pat = ['Options:', '--moored      Moored (anchored) mine.',\
-                                    '  --drifting    Drifting mine.']
+    pat = ['mine', '(', 'set', '|', 'remove', ')',
+           '<x>', '<y>', '[', '--moored', '|', '--drifting', ']']
+    test = [docopt.Command('mine', False), docopt.RequiredOpen(), docopt.Command('set', False),
+            docopt.Pipe(), docopt.Command('remove', False), docopt.RequiredClosed(),
+            docopt.Argument('<x>', 0), docopt.Argument('<y>', 0),
+            docopt.OptionalOpen(), docopt.Option('--moored', False),
+            docopt.Pipe(), docopt.Option('--drifting', False), docopt.OptionalClosed()]
+    opt_pat = ['Options:', '--moored      Moored (anchored) mine.',
+               '  --drifting    Drifting mine.']
     opt_pat = docopt.check_option_lines(opt_pat)
-    res = docopt.identify_tokens(pat,opt_pat)
+    res = docopt.identify_tokens(pat, opt_pat)
 
     for x, y in zip(test, res):
         assert x.__class__ == y.__class__
         if not isinstance(x, docopt.SpecialToken):
-            #print(x.__class__, x.text, x.value)
+            # print(x.__class__, x.text, x.value)
             assert x.text == y.text
             assert x.value == y.value
 
+
 def test_create_opt_and_req():
-    pat = [docopt.RequiredOpen(), docopt.Command("set"), docopt.OptionalOpen(), \
-        docopt.Command("remove"), docopt.OptionalClosed(), docopt.RequiredClosed(), \
-            docopt.Argument("<file>"), docopt.OptionalOpen(), docopt.Option("-o"), \
-                docopt.OptionalClosed()]
-    test = [ docopt.Required([ docopt.Command("set"), docopt.Optional(\
-        [ docopt.Command("remove") ]) ]), docopt.Argument("<file>"),  \
-            docopt.Optional([ docopt.Option("-o") ])]
+    pat = [docopt.RequiredOpen(), docopt.Command("set"), docopt.OptionalOpen(),
+           docopt.Command("remove"), docopt.OptionalClosed(), docopt.RequiredClosed(),
+           docopt.Argument("<file>"), docopt.OptionalOpen(), docopt.Option("-o"),
+           docopt.OptionalClosed()]
+    test = [docopt.Required([docopt.Command("set"), docopt.Optional(
+        [docopt.Command("remove")])]), docopt.Argument("<file>"),
+            docopt.Optional([docopt.Option("-o")])]
     set_prev_post(pat)
     docopt.create_opt_and_req(pat)
     check_loop(test, pat)
 
 
 def test_create_mutex():
-    pat = [docopt.Required([ docopt.Required([ docopt.Command("set"), docopt.Option("--aflame") ]),\
-        docopt.Pipe(), docopt.Command("cool") ])]
-    test = [docopt.Required([ docopt.Mutex([ docopt.Required([ docopt.Command("set"), docopt.Option("--aflame") ]),\
-        docopt.Command("cool") ]) ])]
+    pat = [docopt.Required([docopt.Required([docopt.Command("set"), docopt.Option("--aflame")]),
+                            docopt.Pipe(), docopt.Command("cool")])]
+    test = [docopt.Required(
+        [docopt.Mutex([docopt.Required([docopt.Command("set"), docopt.Option("--aflame")]),
+                       docopt.Command("cool")])])]
     pat[0].tokens[1].prev = pat[0].tokens[0]
     pat[0].tokens[1].post = pat[0].tokens[2]
     docopt.create_mutex(pat)
