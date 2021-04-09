@@ -82,10 +82,11 @@ def test_build_tree_heads():
 
 # Test function for recursive function for building patterns
 def test_dict_populate_loop():
-    pat = [docopt.Command("set"), docopt.Mutex([ docopt.Argument("<file>"), \
-        docopt.Option("--speed=<k>") ]), docopt.Option("--sort=<kn>"), \
-            docopt.Optional([docopt.Option("-o")])]
-    test = { "set": False, "<file>": None, "--speed": 0, "--sort": None, "-o": False }
+    pat = [docopt.Command("set"), docopt.Mutex([docopt.Argument("<file>"),
+                                                docopt.Option("--speed=<k>")]),
+           docopt.Option("--sort=<kn>"),
+           docopt.Optional([docopt.Option("-o")])]
+    test = {"set": False, "<file>": None, "--speed": 0, "--sort": None, "-o": False}
     res = docopt.dict_populate_loop(pat)
     assert res == test
 
@@ -141,8 +142,11 @@ def test_create_mutex():
 
 # Test function for repeat parameters
 def test_create_repeating():
-    pat = [docopt.Command("set"), docopt.Required([ docopt.Argument("<file1>"), docopt.Argument("<file2>") ]), docopt.Repeats()]
-    test = [ docopt.Command("set"), docopt.Repeating([ docopt.Required([ docopt.Argument("<file1>"), docopt.Argument("<file2>") ]) ]) ]
+    pat = [docopt.Command("set"),
+           docopt.Required([docopt.Argument("<file1>"), docopt.Argument("<file2>")]),
+           docopt.Repeats()]
+    test = [docopt.Command("set"), docopt.Repeating(
+        [docopt.Required([docopt.Argument("<file1>"), docopt.Argument("<file2>")])])]
     pat[2].prev = pat[1]
     docopt.create_repeating(pat)
     check_loop(test, pat)
