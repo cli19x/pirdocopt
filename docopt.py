@@ -328,7 +328,7 @@ def docopt(doc, version=None, help_message=True, argv=None):
         else:
             usages[0] = ' '.join(tmp.pop(0))
 
-    usages, output_dic, tree_heads = get_patterns_and_dict(usages, options_array)
+    output_dic, tree_heads = get_heads_and_dict(usages, options_array)
     output_dic = match_user_input(tree_heads, output_dic, args)
     total_dic, output_string = docopt_util.print_output_dictionary(output_dic)
     print(output_string)
@@ -407,7 +407,7 @@ def get_post_match(child, args, index, child_dict):
     return post_match
 
 
-def get_patterns_and_dict(usages, options):
+def get_heads_and_dict(usages, options):
     """
         Args:
             usages: array of usage pattern from docstring.
@@ -417,6 +417,7 @@ def get_patterns_and_dict(usages, options):
             return the usage pattern, keyword dictionary, and array of token of
             the first layer of the tree structure.
         """
+    print(f"Usages: {usages}\nOptions: {options}")
     new_usages = []
     usage_dic = {}
     tree_heads = []
@@ -433,15 +434,16 @@ def get_patterns_and_dict(usages, options):
                 token.post = pattern[index + 1]
         new_usages.append(pattern)
         usage_dic.update(dict_populate_loop(pattern))
-        print(new_usages)
         tree_heads = build_tree_heads(pattern, tree_heads)
 
     for pattern in new_usages:
         for index, token in enumerate(pattern):
             token.post = pattern[index + 1] if index + \
                                                1 < len(pattern) else None
-
-    return new_usages, usage_dic, tree_heads
+    print(f"Usage_Dic: {usage_dic}\nTree Heads: {tree_heads}")
+    for head in tree_heads:
+        print(f"Head: {head}\tChildren: {head.children}")
+    return usage_dic, tree_heads
 
 
 def is_num(arg):
@@ -595,7 +597,7 @@ def create_mutex(pattern):
         """
 
     for index, token in enumerate(pattern):
-        if isinstance(token, Optional) or isinstance(token, ):
+        if isinstance(token, (Optional, Required)):
             create_mutex(token.tokens)
         elif isinstance(token, Pipe):
             prev = token.prev.prev if token.prev else None

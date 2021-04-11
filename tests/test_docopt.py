@@ -6,7 +6,7 @@ import docopt as docopt
 doc0 = """Perfect
 
 Usage:
-  user_program.py ship new <name>... 
+  user_program.py ship new <name>...
   user_program.py ship <name> move <x> <y> [--speed=<kn>]
   user_program.py ship --help
 
@@ -62,8 +62,25 @@ def test_docopt():
 
 
 # Test function for building the usage patterns and a output dictionary from docstrings
-def test_get_patterns_and_dict():
-    res = docopt.get_patterns_and_dict(usages=None, options=None)
+def test_get_heads_and_dict():
+    usages = ['  user_program.py ship new <name>... ', '  \
+        user_program.py ship <name> move <x> <y> [--speed=<kn>]',\
+             '  user_program.py (-h | --help)']
+    options = ['Options:', '  -h --help Show this screen.', \
+        '  -o FILE --output=<value>  Speed in knots [default: ./test.txt].',\
+             '  --speed=<kn> -s KN  Speed in knots [default: 10].']
+    usage_dic, tree_heads = docopt.get_heads_and_dict(usages, options)
+
+    test_heads = [docopt.Command('ship', False), docopt.Required( \
+        [docopt.Mutex( [docopt.Option('--help', False), \
+            docopt.Option('--help', False)] )] )]
+    test_children = [docopt.Command('new', False), docopt.Argument('<name>', None)]
+    test_dic = {'ship': False, 'new': False, '<name>': None, \
+        'move': False, '<x>': 0, '<y>': 0, '--speed': 10, '--help': False}
+
+    check_loop(test_heads, tree_heads)
+    check_loop(test_children, tree_heads[0].children)
+    assert test_dic == usage_dic
 
 
 # Test function for identifying if the input is a number
@@ -77,7 +94,22 @@ def test_is_num():
 
 # Test function for building correct tree structure for the matching process
 def test_build_tree_heads():
-    res = docopt.build_tree_heads(pattern=None, tree_heads=None)
+    pat1 = [docopt.Command("ship"), docopt.Command("new"), docopt.Argument("<name>")]
+    pat2 = [docopt.Command("ship"), docopt.Argument("<name>"), docopt.Command("move")]
+    pat3 = [docopt.Mutex([docopt.Option("-h"), docopt.Option("--help")])]
+    pat1[0].post = pat1[1]
+    pat2[0].post = pat2[1]
+
+    test = [docopt.Command("ship"), docopt.Mutex([docopt.Option("-h"), docopt.Option("--help")])]
+    test_children = [docopt.Command("new"), docopt.Argument("<name>")]
+
+    tree_heads = []
+    tree_heads = docopt.build_tree_heads(pat1, tree_heads)
+    tree_heads = docopt.build_tree_heads(pat2, tree_heads)
+    tree_heads = docopt.build_tree_heads(pat3, tree_heads)
+
+    check_loop(test, tree_heads)
+    check_loop(test_children, tree_heads[0].children)
 
 
 # Test function for recursive function for building patterns
