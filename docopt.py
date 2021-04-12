@@ -810,7 +810,7 @@ def create_mutex(pattern):
         """
 
     for index, token in enumerate(pattern):
-        if isinstance(token, Optional):
+        if isinstance(token, (Optional, Required)):
             create_mutex(token.tokens)
         elif isinstance(token, Pipe):
             prev = token.prev.prev if token.prev else None

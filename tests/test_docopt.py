@@ -40,7 +40,7 @@ def set_prev_post(pat):
 
 def check_loop(test, pat):
     for x, y in zip(test, pat):
-        print(x, y)
+        #print(x, y)
         assert x.__class__ == y.__class__
         if isinstance(x, docopt.Branch):
             check_loop(x.tokens, y.tokens)
