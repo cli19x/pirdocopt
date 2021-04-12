@@ -654,9 +654,6 @@ def get_heads_and_dict(usages, options):
         for index, token in enumerate(pattern):
             token.post = pattern[index + 1] if index + \
                                                1 < len(pattern) else None
-    print(f"Usage_Dic: {usage_dic}\nTree Heads: {tree_heads}")
-    for head in tree_heads:
-        print(f"Head: {head}\tChildren: {head.children}")
     return usage_dic, tree_heads
 
 
@@ -726,6 +723,8 @@ def dict_populate_loop(pattern):
     for token in pattern:
         if isinstance(token, Branch):
             updated_dic.update(dict_populate_loop(token.tokens))
+        elif isinstance(token, SpecialToken):
+            continue
         else:
             updated_dic[token.text] = token.value
     return updated_dic
