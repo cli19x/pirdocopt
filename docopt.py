@@ -255,7 +255,6 @@ class Branch(Token):
 class Optional(Branch):
     """ Placeholder """
 
-    # Currently only implements all-or-nothing
     def match(self, args, index):
         """
 
@@ -350,7 +349,6 @@ class Repeating(Branch):
         return True, new_index, res_dict_full
 
 
-# Used for identifying branch tokens (Optional, Required, Mutex, Repeating)
 class SpecialToken(Token):
     """ Placeholder"""
 
@@ -750,14 +748,19 @@ def identify_tokens(pattern, options_pat):
             '[': OptionalOpen(),
             ']': OptionalClosed(),
             '|': Pipe(),
-            '...': Repeats(),
-            token.startswith('<') and token.endswith('>'): Argument(token),
-            token.isupper(): Argument(token),
-            token.startswith('--'): get_match_option(token, options_pat),
-            token.startswith('-'): get_match_option(token, options_pat)
+            '...': Repeats()
         }
-        token = switcher.get(token, Command(token))
-        print(token)
+        tmp_token = switcher.get(token)
+        if tmp_token:
+            token = tmp_token
+        else:
+            if (token.startswith('<') and token.endswith('>')) or token.isupper():
+                token = Argument(token)
+            elif token.startswith('--') or token.startswith('-'):
+                token = get_match_option(token, options_pat)
+            else:
+                token = Command(token)
+
         new_pat.append(token)
     for index, token in enumerate(new_pat):
         if index == 0:
