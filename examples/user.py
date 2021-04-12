@@ -26,7 +26,7 @@ from docopt import docopt
 
 # user.py mine (set|remove) <x> <y> [--moored | --drifting]
 if __name__ == '__main__':
-    arguments = docopt(__doc__, version="test 2.0", help_message=True,
+    arguments = docopt(__doc__, version="test 2.0", help_message=False,
                        argv=['mine', 'set', '50', '200', '--moored'])
     print("this is the total dictionary:")
     print(arguments)

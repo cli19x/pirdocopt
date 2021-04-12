@@ -64,19 +64,19 @@ def test_docopt():
 # Test function for building the usage patterns and a output dictionary from docstrings
 def test_get_heads_and_dict():
     usages = ['  user_program.py ship new <name>... ', '  \
-        user_program.py ship <name> move <x> <y> [--speed=<kn>]',\
-             '  user_program.py (-h | --help)']
-    options = ['Options:', '  -h --help Show this screen.', \
-        '  -o FILE --output=<value>  Speed in knots [default: ./test.txt].',\
-             '  --speed=<kn> -s KN  Speed in knots [default: 10].']
-    usage_dic, tree_heads = docopt.get_heads_and_dict(usages, options)
+        user_program.py ship <name> move <x> <y> [--speed=<kn>]',
+              '  user_program.py (-h | --help)']
+    options_list = ['Options:', '  -h --help Show this screen.',
+                    '  -o FILE --output=<value>  Speed in knots [default: ./test.txt].',
+                    '  --speed=<kn> -s KN  Speed in knots [default: 10].']
+    usage_dic, tree_heads = docopt.get_heads_and_dict(usages, options_list)
 
-    test_heads = [docopt.Command('ship', False), docopt.Required( \
-        [docopt.Mutex( [docopt.Option('--help', False), \
-            docopt.Option('--help', False)] )] )]
+    test_heads = [docopt.Command('ship', False), docopt.Required(
+        [docopt.Mutex([docopt.Option('--help', value=False),
+                       docopt.Option('--help', value=False)])])]
     test_children = [docopt.Command('new', False), docopt.Argument('<name>', None)]
-    test_dic = {'ship': False, 'new': False, '<name>': None, \
-        'move': False, '<x>': 0, '<y>': 0, '--speed': 10, '--help': False}
+    test_dic = {'ship': False, 'new': False, '<name>': None,
+                'move': False, '<x>': 0, '<y>': 0, '--speed': 10, '--help': False}
 
     check_loop(test_heads, tree_heads)
     check_loop(test_children, tree_heads[0].children)
@@ -130,8 +130,8 @@ def test_identify_tokens():
     test = [docopt.Command('mine', False), docopt.RequiredOpen(), docopt.Command('set', False),
             docopt.Pipe(), docopt.Command('remove', False), docopt.RequiredClosed(),
             docopt.Argument('<x>', 0), docopt.Argument('<y>', 0),
-            docopt.OptionalOpen(), docopt.Option('--moored', False),
-            docopt.Pipe(), docopt.Option('--drifting', False), docopt.OptionalClosed()]
+            docopt.OptionalOpen(), docopt.Option('--moored', value=False),
+            docopt.Pipe(), docopt.Option('--drifting', value=False), docopt.OptionalClosed()]
     opt_pat = ['Options:', '--moored      Moored (anchored) mine.',
                '  --drifting    Drifting mine.']
     opt_pat = docopt.check_option_lines(opt_pat)
@@ -221,7 +221,7 @@ def test_create_tmp_token():
 # Test function for paring the options lines into array of option tokens
 def test_check_option_lines():
     res = docopt.check_option_lines(options=['-h --help Show Help Message.'])
-    after = docopt.Option('--help', False, has_value=False, short='-h', long='--help')
+    after = docopt.Option('--help', value=False, has_value=False, short='-h', long='--help')
     assert after.text == res[0].text
     assert after.value == res[0].value
     assert after.has_value == res[0].has_value
@@ -229,7 +229,7 @@ def test_check_option_lines():
     assert after.long == res[0].long
 
     res = docopt.check_option_lines(options=['-v=<input> --value=<input> User input value.'])
-    after = docopt.Option('--value', None, has_value=True, short='-v', long='--value')
+    after = docopt.Option('--value', value=None, has_value=True, short='-v', long='--value')
     assert after.text == res[0].text
     assert after.value == res[0].value
     assert after.has_value == res[0].has_value
@@ -251,14 +251,14 @@ def test_check_option_lines_long():
     tmp_array = ['--help', '-h', 'Show', 'help', 'message']
     token = None
     res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=0, token=token)
-    after = docopt.Option('--help', False, has_value=False, short=None, long='--help')
+    after = docopt.Option('--help', value=False, has_value=False, short=None, long='--help')
     assert res.text == after.text
     assert res.long == after.long
     assert res.value == after.value
     assert res.has_value is False
 
     tmp_array = ['-h', '--help', 'Show', 'help', 'message']
-    token = docopt.Option('-h', False, has_value=False, short='-h', long=None)
+    token = docopt.Option('-h', value=False, has_value=False, short='-h', long=None)
     res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=1, token=token)
     assert res.long == '--help'
 
@@ -266,14 +266,14 @@ def test_check_option_lines_long():
     tmp_array = ['--value=<input>', '-v=<input>', 'User', 'input', 'value.']
     token = None
     res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=0, token=token)
-    after = docopt.Option('--value', None, has_value=True, short=None, long='--value')
+    after = docopt.Option('--value', value=None, has_value=True, short=None, long='--value')
     assert res.text == after.text
     assert res.long == after.long
     assert res.value == after.value
     assert res.has_value is True
 
     tmp_array = ['-v=<input>', '--value=<input>', 'User', 'input', 'value.']
-    token = docopt.Option('-v', None, has_value=True, short='-v', long=None)
+    token = docopt.Option('-v', value=None, has_value=True, short='-v', long=None)
     res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=1, token=token)
     assert res.long == '--value'
 
@@ -281,14 +281,14 @@ def test_check_option_lines_long():
     tmp_array = '--speed KN -s KN User input speed.'.split()
     token = None
     res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=0, token=token)
-    after = docopt.Option('--speed', None, has_value=True, short=None, long='--speed')
+    after = docopt.Option('--speed', value=None, has_value=True, short=None, long='--speed')
     assert res.text == after.text
     assert res.long == after.long
     assert res.value == after.value
     assert res.has_value is True
 
     tmp_array = '-s KN --speed KN User input speed.'.split()
-    token = docopt.Option('-s', None, has_value=True, short='-s', long='--speed')
+    token = docopt.Option('-s', value=None, has_value=True, short='-s', long='--speed')
     res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=1, token=token)
     assert res.long == '--speed'
 
@@ -300,14 +300,14 @@ def test_check_option_lines_short():
     token = None
     res = docopt.check_option_lines_short(element=element, tmp_array=tmp_array, count=0,
                                           token=token)
-    after = docopt.Option('-h', False, has_value=False, short='-h', long=None)
+    after = docopt.Option('-h', value=False, has_value=False, short='-h', long=None)
     assert res.text == after.text
     assert res.short == after.short
     assert res.value == after.value
     assert res.has_value is False
 
     tmp_array = ['--help', '-h', 'Show', 'help', 'message']
-    token = docopt.Option('--help', False, has_value=False, short=None, long='--help')
+    token = docopt.Option('--help', value=False, has_value=False, short=None, long='--help')
     res = docopt.check_option_lines_short(element=element, tmp_array=tmp_array, count=1,
                                           token=token)
     assert res.short == '-h'
@@ -317,14 +317,14 @@ def test_check_option_lines_short():
     token = None
     res = docopt.check_option_lines_short(element=element, tmp_array=tmp_array, count=0,
                                           token=token)
-    after = docopt.Option('-v', None, has_value=True, short='-v', long=None)
+    after = docopt.Option('-v', value=None, has_value=True, short='-v', long=None)
     assert res.text == after.text
     assert res.short == after.short
     assert res.value == after.value
     assert res.has_value is True
 
     tmp_array = ['--value=<input>', '-v=<input>', 'User', 'input', 'value.']
-    token = docopt.Option('--value', None, has_value=True, short=None, long='--value')
+    token = docopt.Option('--value', value=None, has_value=True, short=None, long='--value')
     res = docopt.check_option_lines_short(element=element, tmp_array=tmp_array, count=1,
                                           token=token)
     assert res.short == '-v'
@@ -334,14 +334,14 @@ def test_check_option_lines_short():
     token = None
     res = docopt.check_option_lines_short(element=element, tmp_array=tmp_array, count=0,
                                           token=token)
-    after = docopt.Option('-s', None, has_value=True, short='-s', long=None)
+    after = docopt.Option('-s', value=None, has_value=True, short='-s', long=None)
     assert res.text == after.text
     assert res.short == after.short
     assert res.value == after.value
     assert res.has_value is True
 
     tmp_array = '--speed KN -s KN User input speed [default: 10].'.split()
-    token = docopt.Option('--speed', 10, has_value=True, short=None, long='--speed')
+    token = docopt.Option('--speed', value=10, has_value=True, short=None, long='--speed')
     res = docopt.check_option_lines_short(element=element, tmp_array=tmp_array, count=1,
                                           token=token)
     assert res.short == '-s'
@@ -349,15 +349,17 @@ def test_check_option_lines_short():
 
 # Test function for finding and inserting the default value for option keyword
 def find_default_value():
-    tmp_token = docopt.Option('-v', None, True, '-v', None)
+    tmp_token = docopt.Option('-v', value=None, has_value=True, short='-v', long=None)
     tmp_token = docopt.find_default_value('-v FILE input file [default: ./test.txt].', tmp_token)
     assert tmp_token.value == './test.txt'
 
-    tmp_token = docopt.Option('--location', None, True, '-l', '--location')
+    tmp_token = docopt.Option('--location', value=None, has_value=True,
+                              short='-l', long='--location')
     tmp_token = docopt.find_default_value('-l=<location_value> --location=<location_value> '
                                           'insert coordinate [default: 10.88].', tmp_token)
     assert tmp_token.value == 10.88
 
-    tmp_token = docopt.Option('--speed', None, True, '-s', '--speed')
+    tmp_token = docopt.Option('--speed', value=None, has_value=True,
+                              short='-s', long='--speed')
     tmp_token = docopt.find_default_value('--speed KN -s KN input speed [default: 20].', tmp_token)
     assert tmp_token.value == 20

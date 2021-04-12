@@ -13,12 +13,31 @@ class Token:
     """
 
     def __init__(self, prev=None, post=None, children=None):
+        """
+        :param prev: the prev level node
+        :param post: the next following node
+        :param children: the list of tokens
+        """
         if children is None:
             children = []
         self.prev = prev
         self.post = post
         self.children = children
         self.index = 0
+
+    @property
+    def name(self):
+        """
+        :return: "Token"
+        """
+        return "Token"
+
+    @property
+    def get_class(self):
+        """
+        :return: class type
+        """
+        return Token
 
 
 class Leaf(Token):
@@ -27,35 +46,59 @@ class Leaf(Token):
     """
 
     def __init__(self, text, value=None, prev=None, post=None, children=None):
-        if children is None:
-            children = []
+        """
+        
+        :param text: 
+        :param value: 
+        :param prev: 
+        :param post: 
+        :param children: 
+        """
         self.text = text
-        self.value = value
-        self.post = post
-        super(Leaf, self).__init__(prev, post, children)
+        self.value, self.prev, self.post, self.children = (value, prev, post, children)
+        if self.children is None:
+            self.children = []
+        super().__init__(self.prev, self.post, self.children)
         self.index = 0
 
     def __repr__(self):
+        """
+        :return: return the formatted string of leaf
+        """
         return '%s(%r, %r)' % (self.__class__.__name__, self.text, self.value)
 
     def flat(self, *types):
-        return self if not types or type(self) in types else None
+        """
 
-    def match(self, left, index):
-        return bool(left)
+        :param types: check the type of argument
+        :return: return self is argument is self type else return None
+        """
+        return self if not types or type(self) in types else None
 
 
 class Argument(Leaf):
     """ Placeholder """
 
     def __init__(self, text, prev=None, post=None, children=None):
+        """
+            :param text: the keyword of current node
+            :param prev: the prev level node
+            :param post: the next following node
+            :param children: the list of tokens
+            """
         if children is None:
             children = []
         self.value = None if len(text.strip("<>")) > 1 else 0
-        super(Argument, self).__init__(text, self.value, prev, post, children)
+        super().__init__(text, value=self.value, prev=prev, post=post, children=children)
         self.index = 2
 
     def match(self, args, index):
+        """
+
+        :param args: the list of tokens for comparison
+        :param index: the index of token that will be compared
+        :return: return true, the next index of token list, and the dictionary if success
+        """
         is_match = False
         if index < len(args):
             if self.value != 0 or is_num(args[index]):
@@ -64,33 +107,48 @@ class Argument(Leaf):
         return is_match, index + 1, res_dict
 
     def get_res_dict(self, is_match):
+        """
+
+        :param is_match: boolean for if input is matching the pattern
+        :return: return the dictionary is success
+        """
         if not is_match:
             return dict()
-        else:
-            return dict({self.text: self.value})
+        return dict({self.text: self.value})
 
 
 class Option(Leaf):
     """ Placeholder """
 
-    def __init__(self, text, value=None, has_value=False, short=None, long=None,
-                 prev=None, post=None, children=None):
-        if children is None:
-            children = []
-        self.short = short
-        self.long = long
+    def __init__(self, text, value=None, has_value=False, short=None,
+                 long=None, prev=None, post=None, children=None):
+        self.text = text
         self.value = value
         self.has_value = has_value
+        self.short = short
+        self.long = long
+        self.prev = prev
+        self.post = post
+        self.children = children
+        if self.children is None:
+            self.children = []
         if '=' in text:
             arg = re.search('<\\S+>', text).group()
             text = re.search('\\S+=', text).group().strip("=")
             self.value = None if len(arg.strip("<>")) > 1 else 0
         else:
             self.value = None if '=' in text else False
-        super(Option, self).__init__(text, self.value, prev, post, children)
+        super().__init__(text, value=self.value, prev=self.prev,
+                         post=self.post, children=self.children)
         self.index = 3
 
     def match(self, args, index):
+        """
+
+        :param args:
+        :param index:
+        :return:
+        """
         is_match = False
         new_index = index + 1
         if index < len(args):
@@ -107,23 +165,41 @@ class Option(Leaf):
         return is_match, new_index, res_dict
 
     def get_res_dict(self, is_match):
+        """
+
+        :param is_match:
+        :return:
+        """
         if not is_match:
             return dict()
-        else:
-            return dict({self.text: self.value})
+        return dict({self.text: self.value})
 
 
 class Command(Leaf):
     """ Placeholder """
 
     def __init__(self, text, value=False, prev=None, post=None, children=None):
+        """
+
+        :param text:
+        :param value:
+        :param prev:
+        :param post:
+        :param children:
+        """
         if children is None:
             children = []
         self.value = value
-        super(Command, self).__init__(text, self.value, prev, post, children)
+        super().__init__(text, value=self.value, prev=prev, post=post, children=children)
         self.index = 1
 
     def match(self, args, index):
+        """
+
+        :param args:
+        :param index:
+        :return:
+        """
         is_match = False
         if index < len(args):
             if self.text == args[index]:
@@ -132,29 +208,45 @@ class Command(Leaf):
         return is_match, index + 1, res_dict
 
     def get_res_dict(self, is_match):
+        """
+
+        :param is_match:
+        :return:
+        """
         if not is_match:
             return dict()
-        else:
-            return dict({self.text: True})
+        return dict({self.text: True})
 
 
 # Used for grouping Tokens by optional, required, mutex, or repeating
-
-
 class Branch(Token):
+    """Branch class"""
+
     def __init__(self, tokens=None, prev=None, post=None, children=None):
+        """
+
+        :param tokens:
+        :param prev:
+        :param post:
+        :param children:
+        """
         if children is None:
             children = []
         if tokens is None:
             tokens = []
         self.tokens = tokens
-        super(Branch, self).__init__(prev, post, children)
+        super().__init__(prev, post, children)
 
     def __repr__(self):
         return '%s(%s)' % (self.__class__.__name__,
                            ', '.join(repr(a) for a in self.tokens))
 
     def flat(self, *types):
+        """
+
+        :param types:
+        :return:
+        """
         if type(self) in types:
             return self
         return [child.flat(*types) for child in self.tokens]
@@ -165,6 +257,12 @@ class Optional(Branch):
 
     # Currently only implements all-or-nothing
     def match(self, args, index):
+        """
+
+        :param args:
+        :param index:
+        :return:
+        """
         is_match, child_index, res_dict = True, index, dict()
         for child in self.tokens:
             old_index = child_index
@@ -181,6 +279,12 @@ class Required(Branch):
     """ Placeholder """
 
     def match(self, args, index):
+        """
+
+        :param args:
+        :param index:
+        :return:
+        """
         is_match, child_index, res_dict = True, index, dict()
         for child in self.tokens:
             old_index = child_index
@@ -188,9 +292,7 @@ class Required(Branch):
 
             if not is_match:
                 child_index = old_index
-                break
-            else:
-                res_dict.update(child_dict)
+            res_dict.update(child_dict)
         return is_match, child_index, res_dict
 
 
@@ -198,6 +300,12 @@ class Mutex(Branch):
     """ Placeholder """
 
     def match(self, args, index):
+        """
+
+        :param args:
+        :param index:
+        :return:
+        """
         is_match, new_index, res_dict = False, index, dict()
         for child in self.tokens:
             is_match, new_index, temp_dict = child.match(args, index)
@@ -212,6 +320,12 @@ class Repeating(Branch):
 
     # BUG: index 1 less than it should be when repeating pattern incomplete
     def match(self, args, index):
+        """
+
+        :param args:
+        :param index:
+        :return:
+        """
         res_dict_full = dict()
         res_list = []
         is_match, new_index, res_dict_item = self.tokens[0].match(args, index)
@@ -238,13 +352,28 @@ class Repeating(Branch):
 
 # Used for identifying branch tokens (Optional, Required, Mutex, Repeating)
 class SpecialToken(Token):
+    """ Placeholder"""
+
     def __init__(self, prev=None, post=None, children=None):
+        """
+
+        :param prev:
+        :param post:
+        :param children:
+        """
         if children is None:
             children = []
-        super(SpecialToken, self).__init__(prev, post, children)
+        super().__init__(prev, post, children)
 
     def __repr__(self):
         return self.__class__.__name__
+
+    @property
+    def get_class(self):
+        """
+        :return: class type
+        """
+        return SpecialToken
 
 
 class OptionalOpen(SpecialToken):
@@ -252,11 +381,43 @@ class OptionalOpen(SpecialToken):
 
     @property
     def closed_class(self):
+        """
+
+        :return: optional closed class type token
+        """
         return OptionalClosed
+
+    @property
+    def name(self):
+        """
+        :return: "OptionalOpen"
+        """
+        return "OptionalOpen"
+
+    @property
+    def get_class(self):
+        """
+        :return: class type
+        """
+        return OptionalOpen
 
 
 class OptionalClosed(SpecialToken):
     """ Placeholder """
+
+    @property
+    def name(self):
+        """
+        :return: "OptionalClosed"
+        """
+        return "OptionalClosed"
+
+    @property
+    def get_class(self):
+        """
+        :return: class type
+        """
+        return OptionalClosed
 
 
 class RequiredOpen(SpecialToken):
@@ -264,21 +425,78 @@ class RequiredOpen(SpecialToken):
 
     @property
     def closed_class(self):
+        """
+        :return: Required closed class token
+        """
         return RequiredClosed
+
+    @property
+    def name(self):
+        """
+        :return: "RequiredOpen"
+        """
+        return "RequiredOpen"
+
+    @property
+    def get_class(self):
+        """
+        :return: class type
+        """
+        return RequiredOpen
 
 
 class RequiredClosed(SpecialToken):
     """ Placeholder """
 
+    @property
+    def name(self):
+        """
+        :return: "RequiredClosed"
+        """
+        return "RequiredClosed"
+
+    @property
+    def get_class(self):
+        """
+        :return: class type
+        """
+        return RequiredClosed
+
 
 class Pipe(SpecialToken):
     """ Placeholder """
-    # Current limitations: tokens to left and right must be surrounded by own paren
-    #   E.g. (run [--fast]) | (jump [--high])
+
+    @property
+    def name(self):
+        """
+        :return: "Pipe"
+        """
+        return "Pipe"
+
+    @property
+    def get_class(self):
+        """
+        :return: class type
+        """
+        return Pipe
 
 
 class Repeats(SpecialToken):
     """ Placeholder """
+
+    @property
+    def name(self):
+        """
+        :return: "Repeats"
+        """
+        return "Repeats"
+
+    @property
+    def get_class(self):
+        """
+        :return: class type
+        """
+        return Repeats
 
 
 def docopt(doc, version=None, help_message=True, argv=None):
@@ -412,12 +630,10 @@ def get_heads_and_dict(usages, options):
         Args:
             usages: array of usage pattern from docstring.
             options: array of option keywords from docstring.
-
         Returns:
             return the usage pattern, keyword dictionary, and array of token of
             the first layer of the tree structure.
         """
-    print(f"Usages: {usages}\nOptions: {options}")
     new_usages = []
     usage_dic = {}
     tree_heads = []
@@ -528,26 +744,20 @@ def identify_tokens(pattern, options_pat):
         """
     new_pat = []
     for index, token in enumerate(pattern):
-        if token == '(':
-            token = RequiredOpen()
-        elif token == ')':
-            token = RequiredClosed()
-        elif token == '[':
-            token = OptionalOpen()
-        elif token == ']':
-            token = OptionalClosed()
-        elif token == '|':
-            token = Pipe()
-        elif token == '...':
-            token = Repeats()
-        elif (token.startswith('<') and token.endswith('>')) or token.isupper():
-            token = Argument(token)
-        elif token.startswith('--'):
-            token = get_match_option(token, options_pat)
-        elif token.startswith('-'):
-            token = get_match_option(token, options_pat)
-        else:
-            token = Command(token)
+        switcher = {
+            '(': RequiredOpen(),
+            ')': RequiredClosed(),
+            '[': OptionalOpen(),
+            ']': OptionalClosed(),
+            '|': Pipe(),
+            '...': Repeats(),
+            token.startswith('<') and token.endswith('>'): Argument(token),
+            token.isupper(): Argument(token),
+            token.startswith('--'): get_match_option(token, options_pat),
+            token.startswith('-'): get_match_option(token, options_pat)
+        }
+        token = switcher.get(token, Command(token))
+        print(token)
         new_pat.append(token)
     for index, token in enumerate(new_pat):
         if index == 0:
@@ -569,18 +779,18 @@ def create_opt_and_req(pattern):
     length = len(pattern) - 1
     for index, token in enumerate(pattern[::-1]):
         index = length - index
-        if isinstance(token, OptionalOpen) or isinstance(token, RequiredOpen):
+        if isinstance(token, (OptionalOpen, RequiredOpen)):
             closed_class = token.closed_class
             prev = token.prev if token.prev else None
             post = None
             collected = []
             del pattern[index]
-            for x in pattern[index:]:
-                if isinstance(x, closed_class):
-                    post = x.post if x.post else None
+            for content in pattern[index:]:
+                if isinstance(content, closed_class):
+                    post = content.post if content.post else None
                     del pattern[index]
                     break
-                collected.append(x)
+                collected.append(content)
                 del pattern[index]
             collected[0].prev = prev
             collected[-1].post = post
@@ -597,7 +807,7 @@ def create_mutex(pattern):
         """
 
     for index, token in enumerate(pattern):
-        if isinstance(token, (Optional, Required)):
+        if isinstance(token, Optional):
             create_mutex(token.tokens)
         elif isinstance(token, Pipe):
             prev = token.prev.prev if token.prev else None
@@ -632,7 +842,6 @@ def create_repeating(pattern):
             pattern.insert(index - 1, res)
 
 
-# Match token (keyword for option) with option object in the option pattern array
 def get_match_option(token, options_pat):
     """
         Args:
@@ -678,18 +887,15 @@ def create_tmp_token(token, has_value):
     if token.startswith('--'):
         if has_value:
             return Option(text=token, value=None, has_value=has_value, short=None, long=token)
-        return Option(token, False, has_value, None, token)
+        return Option(token, value=False, has_value=has_value, short=None, long=token)
 
     if token.startswith('-'):
         if has_value:
             return Option(text=token, value=None, has_value=has_value, short=token, long=None)
-
-        return Option(token, False, has_value, token, None)
+        return Option(token, value=False, has_value=has_value, short=token, long=None)
     return None
 
 
-# Process options from docstring, treat lines that
-# starts with '-' or '--' as options
 def check_option_lines(options):
     """
     Args:
@@ -721,8 +927,6 @@ def check_option_lines(options):
     return options_pat
 
 
-# create the Option with long keyword type if the current keyword is not exists.
-# else insert the long version of keyword into the existing keyword object.
 def check_option_lines_long(element, tmp_array, count, token):
     """
        Args:
@@ -744,28 +948,26 @@ def check_option_lines_long(element, tmp_array, count, token):
        """
     if len(tmp_array) > count + 1 and tmp_array[count + 1].isupper():
         if token is None:
-            token = Option(element, None, has_value=True, short=None, long=element)
+            token = Option(element, value=None, has_value=True, short=None, long=element)
         else:
             token.long = element
             token.text = element
     elif '=' in element:
         if token is None:
             text = re.search('\\S+=', element).group().strip("=")
-            token = Option(text, None, has_value=True, short=None, long=text)
+            token = Option(text, value=None, has_value=True, short=None, long=text)
         else:
             token.long = re.search('\\S+=', element).group().strip("=")
             token.text = re.search('\\S+=', element).group().strip("=")
     else:
         if token is None:
-            token = Option(element, False, has_value=False, short=None, long=element)
+            token = Option(element, value=False, has_value=False, short=None, long=element)
         else:
             token.long = element
             token.text = element
     return token
 
 
-# create the Option with short keyword type if the current keyword is not exists.
-# else insert the short version of keyword into the existing keyword object.
 def check_option_lines_short(element, tmp_array, count, token):
     """
     Args:
@@ -786,25 +988,23 @@ def check_option_lines_short(element, tmp_array, count, token):
     """
     if len(tmp_array) > count + 1 and tmp_array[count + 1].isupper():
         if token is None:
-            token = Option(element, None, has_value=True, short=element, long=None)
+            token = Option(element, value=None, has_value=True, short=element, long=None)
         else:
             token.short = element
     elif '=' in element:
         if token is None:
             text = re.search('\\S+=', element).group().strip("=")
-            token = Option(text, None, has_value=True, short=text, long=None)
+            token = Option(text, value=None, has_value=True, short=text, long=None)
         else:
             token.short = re.search('\\S+=', element).group().strip("=")
     else:
         if token is None:
-            token = Option(element, False, has_value=False, short=element, long=None)
+            token = Option(element, value=False, has_value=False, short=element, long=None)
         else:
             token.short = element
     return token
 
 
-# A function for finding whether the current line of option has
-# a default value that specify by the programmer
 def find_default_value(line, token):
     """
     Args:
