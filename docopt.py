@@ -1,500 +1,11 @@
 """
  Docopt is for making beautiful command line program for python.
 """
+import math
 import re
 import sys
-
+import warnings
 import docopt_util
-
-
-class Token:
-    """
-    class token
-    """
-
-    def __init__(self, prev=None, post=None, children=None):
-        """
-        :param prev: the prev level node
-        :param post: the next following node
-        :param children: the list of tokens
-        """
-        if children is None:
-            children = []
-        self.prev = prev
-        self.post = post
-        self.children = children
-        self.index = 0
-
-    @property
-    def name(self):
-        """
-        :return: "Token"
-        """
-        return "Token"
-
-    @property
-    def get_class(self):
-        """
-        :return: class type
-        """
-        return Token
-
-
-class Leaf(Token):
-    """
-    class leaf
-    """
-
-    def __init__(self, text, value=None, prev=None, post=None, children=None):
-        """
-        
-        :param text: 
-        :param value: 
-        :param prev: 
-        :param post: 
-        :param children: 
-        """
-        self.text = text
-        self.value, self.prev, self.post, self.children = (value, prev, post, children)
-        if self.children is None:
-            self.children = []
-        super().__init__(self.prev, self.post, self.children)
-        self.index = 0
-
-    def __repr__(self):
-        """
-        :return: return the formatted string of leaf
-        """
-        return '%s(%r, %r)' % (self.__class__.__name__, self.text, self.value)
-
-    def flat(self, *types):
-        """
-
-        :param types: check the type of argument
-        :return: return self is argument is self type else return None
-        """
-        return self if not types or type(self) in types else None
-
-
-class Argument(Leaf):
-    """ Placeholder """
-
-    def __init__(self, text, prev=None, post=None, children=None):
-        """
-            :param text: the keyword of current node
-            :param prev: the prev level node
-            :param post: the next following node
-            :param children: the list of tokens
-            """
-        if children is None:
-            children = []
-        self.value = None if len(text.strip("<>")) > 1 else 0
-        super().__init__(text, value=self.value, prev=prev, post=post, children=children)
-        self.index = 2
-
-    def match(self, args, index):
-        """
-
-        :param args: the list of tokens for comparison
-        :param index: the index of token that will be compared
-        :return: return true, the next index of token list, and the dictionary if success
-        """
-        is_match = False
-        if index < len(args):
-            if self.value != 0 or is_num(args[index]):
-                self.value, is_match = args[index], True
-        res_dict = self.get_res_dict(is_match)
-        return is_match, index + 1, res_dict
-
-    def get_res_dict(self, is_match):
-        """
-
-        :param is_match: boolean for if input is matching the pattern
-        :return: return the dictionary is success
-        """
-        if not is_match:
-            return dict()
-        return dict({self.text: self.value})
-
-
-class Option(Leaf):
-    """ Placeholder """
-
-    def __init__(self, text, value=None, has_value=False, short=None,
-                 long=None, prev=None, post=None, children=None):
-        self.text = text
-        self.value = value
-        self.has_value = has_value
-        self.short = short
-        self.long = long
-        self.prev = prev
-        self.post = post
-        self.children = children
-        if self.children is None:
-            self.children = []
-        if '=' in text:
-            arg = re.search('<\\S+>', text).group()
-            text = re.search('\\S+=', text).group().strip("=")
-            self.value = None if len(arg.strip("<>")) > 1 else 0
-        else:
-            self.value = None if '=' in text else False
-        super().__init__(text, value=self.value, prev=self.prev,
-                         post=self.post, children=self.children)
-        self.index = 3
-
-    def match(self, args, index):
-        """
-
-        :param args:
-        :param index:
-        :return:
-        """
-        is_match = False
-        new_index = index + 1
-        if index < len(args):
-            if self.text == args[index]:
-                if self.has_value:
-                    if index + 1 < len(args):
-                        self.value = args[index + 1]
-                        is_match = True
-                        new_index = index + 2
-                else:
-                    self.value = True
-                    is_match = True
-        res_dict = self.get_res_dict(is_match)
-        return is_match, new_index, res_dict
-
-    def get_res_dict(self, is_match):
-        """
-
-        :param is_match:
-        :return:
-        """
-        if not is_match:
-            return dict()
-        return dict({self.text: self.value})
-
-
-class Command(Leaf):
-    """ Placeholder """
-
-    def __init__(self, text, value=False, prev=None, post=None, children=None):
-        """
-
-        :param text:
-        :param value:
-        :param prev:
-        :param post:
-        :param children:
-        """
-        if children is None:
-            children = []
-        self.value = value
-        super().__init__(text, value=self.value, prev=prev, post=post, children=children)
-        self.index = 1
-
-    def match(self, args, index):
-        """
-
-        :param args:
-        :param index:
-        :return:
-        """
-        is_match = False
-        if index < len(args):
-            if self.text == args[index]:
-                self.value, is_match = True, True
-        res_dict = self.get_res_dict(is_match)
-        return is_match, index + 1, res_dict
-
-    def get_res_dict(self, is_match):
-        """
-
-        :param is_match:
-        :return:
-        """
-        if not is_match:
-            return dict()
-        return dict({self.text: True})
-
-
-# Used for grouping Tokens by optional, required, mutex, or repeating
-class Branch(Token):
-    """Branch class"""
-
-    def __init__(self, tokens=None, prev=None, post=None, children=None):
-        """
-
-        :param tokens:
-        :param prev:
-        :param post:
-        :param children:
-        """
-        if children is None:
-            children = []
-        if tokens is None:
-            tokens = []
-        self.tokens = tokens
-        super().__init__(prev, post, children)
-
-    def __repr__(self):
-        return '%s(%s)' % (self.__class__.__name__,
-                           ', '.join(repr(a) for a in self.tokens))
-
-    def flat(self, *types):
-        """
-
-        :param types:
-        :return:
-        """
-        if type(self) in types:
-            return self
-        return [child.flat(*types) for child in self.tokens]
-
-
-class Optional(Branch):
-    """ Placeholder """
-
-    def match(self, args, index):
-        """
-
-        :param args:
-        :param index:
-        :return:
-        """
-        is_match, child_index, res_dict = True, index, dict()
-        for child in self.tokens:
-            old_index = child_index
-            is_match, child_index, child_dict = child.match(args, child_index)
-            if not is_match:
-                child_index = old_index
-            else:
-                res_dict.update(child_dict)
-
-        return True, child_index, res_dict
-
-
-class Required(Branch):
-    """ Placeholder """
-
-    def match(self, args, index):
-        """
-
-        :param args:
-        :param index:
-        :return:
-        """
-        is_match, child_index, res_dict = True, index, dict()
-        for child in self.tokens:
-            old_index = child_index
-            is_match, child_index, child_dict = child.match(args, child_index)
-
-            if not is_match:
-                child_index = old_index
-            res_dict.update(child_dict)
-        return is_match, child_index, res_dict
-
-
-class Mutex(Branch):
-    """ Placeholder """
-
-    def match(self, args, index):
-        """
-
-        :param args:
-        :param index:
-        :return:
-        """
-        is_match, new_index, res_dict = False, index, dict()
-        for child in self.tokens:
-            is_match, new_index, temp_dict = child.match(args, index)
-            if is_match:
-                res_dict = temp_dict
-                break
-        return is_match, new_index, res_dict
-
-
-class Repeating(Branch):
-    """ Placeholder """
-
-    # BUG: index 1 less than it should be when repeating pattern incomplete
-    def match(self, args, index):
-        """
-
-        :param args:
-        :param index:
-        :return:
-        """
-        res_dict_full = dict()
-        res_list = []
-        is_match, new_index, res_dict_item = self.tokens[0].match(args, index)
-        res_list.append(res_dict_item)
-        if not is_match:
-            return False, new_index, dict()
-        while new_index < len(args):
-            is_match, new_index, res_dict_item = self.tokens[0].match(
-                args, new_index)
-            if not is_match:
-                new_index = new_index - 1
-                break
-            res_list.append(res_dict_item)
-        for item in res_list:
-            for key, val in zip(item.keys(), item.values()):
-                if key in res_dict_full.keys():
-                    if not isinstance(res_dict_full[key], list):
-                        res_dict_full[key] = [res_dict_full[key]]
-                    res_dict_full[key].append(val)
-                else:
-                    res_dict_full[key] = [val]
-        return True, new_index, res_dict_full
-
-
-class SpecialToken(Token):
-    """ Placeholder"""
-
-    def __init__(self, prev=None, post=None, children=None):
-        """
-
-        :param prev:
-        :param post:
-        :param children:
-        """
-        if children is None:
-            children = []
-        super().__init__(prev, post, children)
-
-    def __repr__(self):
-        return self.__class__.__name__
-
-    @property
-    def get_class(self):
-        """
-        :return: class type
-        """
-        return SpecialToken
-
-
-class OptionalOpen(SpecialToken):
-    """ Placeholder """
-
-    @property
-    def closed_class(self):
-        """
-
-        :return: optional closed class type token
-        """
-        return OptionalClosed
-
-    @property
-    def name(self):
-        """
-        :return: "OptionalOpen"
-        """
-        return "OptionalOpen"
-
-    @property
-    def get_class(self):
-        """
-        :return: class type
-        """
-        return OptionalOpen
-
-
-class OptionalClosed(SpecialToken):
-    """ Placeholder """
-
-    @property
-    def name(self):
-        """
-        :return: "OptionalClosed"
-        """
-        return "OptionalClosed"
-
-    @property
-    def get_class(self):
-        """
-        :return: class type
-        """
-        return OptionalClosed
-
-
-class RequiredOpen(SpecialToken):
-    """ Placeholder """
-
-    @property
-    def closed_class(self):
-        """
-        :return: Required closed class token
-        """
-        return RequiredClosed
-
-    @property
-    def name(self):
-        """
-        :return: "RequiredOpen"
-        """
-        return "RequiredOpen"
-
-    @property
-    def get_class(self):
-        """
-        :return: class type
-        """
-        return RequiredOpen
-
-
-class RequiredClosed(SpecialToken):
-    """ Placeholder """
-
-    @property
-    def name(self):
-        """
-        :return: "RequiredClosed"
-        """
-        return "RequiredClosed"
-
-    @property
-    def get_class(self):
-        """
-        :return: class type
-        """
-        return RequiredClosed
-
-
-class Pipe(SpecialToken):
-    """ Placeholder """
-
-    @property
-    def name(self):
-        """
-        :return: "Pipe"
-        """
-        return "Pipe"
-
-    @property
-    def get_class(self):
-        """
-        :return: class type
-        """
-        return Pipe
-
-
-class Repeats(SpecialToken):
-    """ Placeholder """
-
-    @property
-    def name(self):
-        """
-        :return: "Repeats"
-        """
-        return "Repeats"
-
-    @property
-    def get_class(self):
-        """
-        :return: class type
-        """
-        return Repeats
 
 
 def docopt(doc, version=None, help_message=True, argv=None):
@@ -531,7 +42,7 @@ def docopt(doc, version=None, help_message=True, argv=None):
         'x': 10, 'y': 90, '--helping': False, '--output': './test.txt', '--speed': 70}
         """
 
-    usages, options_array = docopt_util.processing_string(
+    usages, options_array = processing_string(
         doc, help_message, version)
     args = sys.argv[1:]
     if len(args) == 0 and argv is not None:
@@ -546,9 +57,172 @@ def docopt(doc, version=None, help_message=True, argv=None):
 
     output_dic, tree_heads = get_heads_and_dict(usages, options_array)
     output_dic = match_user_input(tree_heads, output_dic, args)
-    total_dic, output_string = docopt_util.print_output_dictionary(output_dic)
+    total_dic, output_string = print_output_dictionary(output_dic)
     print(output_string)
     return total_dic
+
+
+def processing_string(doc, help_message, version):
+    """
+     Args:
+        doc: docstring pass from the main function.
+        help_message: to tell docopt whether user want to display help message when
+                      the program executes.
+        version: the version string pass from main function.
+        version: programmers can specify the version of the project and display to user.
+    Returns:
+        usage.split("\n"): returns the array of usage patterns.
+        options.split("\n"): returns the array of options from docstring.
+
+    >>> doc1 = 'Perfect' \
+    >>>
+    >>>        'Usage:' \
+    >>>          'naval_fate.py ship new <name>...' \
+    >>>
+    >>>        'Options:' \
+    >>>           '-h --help --helping Show this screen.' \
+    >>>           '--sorted  Show sorted.'
+    >>>
+    >>> processing_string(doc=doc1, help_message=False, version="test 2.0")
+    ['Usage:', '  naval_fate.py ship new <name>...'], \
+    ['Options:', '  -h --help --helping Show this screen.', '  --sorted  Show sorted.']
+    """
+
+    if doc is None:
+        warnings.warn('No docstring found')
+        return None
+    _, usage, options, display_help = get_usage_and_options(doc, version)
+    check_warnings(usage, options)
+    if help_message:
+        print(display_help)
+    return usage.split("\n"), options.split("\n")
+
+
+# Helper function for getting usage, options and name strings from doc
+def get_usage_and_options(doc, version):
+    """
+     Args:
+        doc: docstring that passed from main function.
+        version: the version string pass from main function.
+    Returns:
+        name: returns the strings of name of program.
+        usage: returns the strings of usage patterns.
+        options: returns the strings of options that received from docstring
+
+    >>> doc1 = 'Perfect' \
+    >>>
+    >>>        'Usage:' \
+    >>>          'naval_fate.py ship new <name>...' \
+    >>>
+    >>>        'Options:' \
+    >>>           '-h --help --helping Show this screen.' \
+    >>>           '--sorted  Show sorted.'
+    >>>
+    >>> get_usage_and_options(doc1)
+    "Perfect",
+    "Usage: \
+    naval_fate.py ship new <name>...", \
+    "Options: \
+    -h --help --helping Show this screen. \
+    --sorted  Show sorted."
+    """
+
+    usage = ""
+    options = ""
+    partition_string = doc.strip().split('\n\n')
+    name = partition_string[0].strip()
+    partition_string.pop(0)
+
+    if name is not None and not isinstance(usage, str) or \
+            version is not None and not isinstance(version, str):
+        raise docopt_util.DocoptExit("Argument type error occur")
+
+    if "Usage:" in name:
+        usage = name
+        name = ""
+    else:
+        for element in partition_string:
+            if 'Usage:' in element.strip():
+                usage = element
+                partition_string.remove(element)
+
+    if version is not None and len(name) > 0:
+        display_help = name + "\n\n" + "Version:\n" + version + "\n\n" + usage + "\n\n" + \
+                       "\n\n".join(partition_string) + "\n\n"
+    elif version is not None:
+        display_help = "Version:\n  " + version + "\n\n" + usage + "\n\n" + "\n\n".join(
+            partition_string) + "\n\n"
+    elif len(name) > 0:
+        display_help = name + "\n\n" + usage + "\n\n" + "\n\n".join(
+            partition_string) + "\n\n"
+    else:
+        display_help = usage + "\n\n" + "\n\n".join(partition_string) + '\n\n'
+
+    for element in partition_string:
+        if element.strip()[:1] == '-' or 'Options:' in element.strip():
+            options = element
+            partition_string.remove(element)
+    return name, usage, options, display_help
+
+
+# Will display warning to the user program when missing parts
+def check_warnings(usage, options):
+    """ Function for testing whether the docstring contains a usage part and a options part.
+     Args:
+        usage: a string the retrieve from the docstring.
+        options: a string that retrieve from the docstring.
+    Returns:
+        returns 1 if no usage pattern found, returns 2 if no options found,
+        and returns 0 if everything is ok in docstring
+    Raises:
+        Warnings: If no usages or options contained in the docstring.
+
+    >>> check_warnings(usage="Usages: ...", options="")
+    0
+    >>> check_warnings(usage="", options="Options: ...")
+    1
+    >>> check_warnings(usage="Usages: ...", options="")
+    2
+    """
+    if len(usage) == 0:
+        warnings.warn('No usage indicated from docstring')
+        return 1
+    if len(options) == 0:
+        warnings.warn('No options indicated from docstring')
+        return 2
+    return 0
+
+
+# Main function for building output strings to user
+def print_output_dictionary(usage_dic):
+    """
+    Args:
+        usage_dic: the original usage dictionary from main function.
+    Returns:
+        dictionary_total: the final dictionary object that built from usage pattern and options.
+        return the formatted json like dictionary string to user.
+
+    >>> input1 = {'1': True, '2': 'haha', '3': False, '4': True, '5': 'haha'}
+    >>> u_dic = {'usage1': 'x', 'usage2': 'y'}
+    >>> dic_total, res = print_output_dictionary(usage_dic=u_dic, options_dic=input1)
+    >>> assert dic_total == {**usage_dic, **dic_total}
+    {'usage1': 'x'
+     'usage2': 'y'
+     '1': True
+     '2': 'haha'
+     '3': False
+     '4': True
+     '5': 'haha'}
+    """
+
+    dictionary_total = dict.copy(usage_dic)
+    dic_list = list(dictionary_total)
+    length = len(dictionary_total)
+    if length > 24:
+        rows = math.ceil(length / 3)
+    else:
+        rows = 8
+    return dictionary_total, output_formatter(rows, length, dic_list, dictionary_total)
 
 
 def match_user_input(tree_heads, usage_dic, args):
@@ -644,7 +318,7 @@ def get_heads_and_dict(usages, options):
         create_mutex(pattern)
         create_repeating(pattern)
         for index, token in enumerate(pattern):
-            if isinstance(token.post, SpecialToken) and index < len(pattern) - 1:
+            if isinstance(token.post, docopt_util.SpecialToken) and index < len(pattern) - 1:
                 token.post = pattern[index + 1]
         new_usages.append(pattern)
         usage_dic.update(dict_populate_loop(pattern))
@@ -693,9 +367,9 @@ def build_tree_heads(pattern, tree_heads):
         """
     token = pattern[0]
     tree_child = token.post if token.post else None
-    if isinstance(token, Leaf):
+    if isinstance(token, docopt_util.Leaf):
         in_set = False
-        test_set = [t for t in tree_heads if isinstance(t, Leaf)]
+        test_set = [t for t in tree_heads if isinstance(t, docopt_util.Leaf)]
         for test in test_set:
             if token.text == test.text:
                 token = test
@@ -721,9 +395,9 @@ def dict_populate_loop(pattern):
         """
     updated_dic = {}
     for token in pattern:
-        if isinstance(token, Branch):
+        if isinstance(token, docopt_util.Branch):
             updated_dic.update(dict_populate_loop(token.tokens))
-        elif isinstance(token, SpecialToken):
+        elif isinstance(token, docopt_util.SpecialToken):
             continue
         else:
             updated_dic[token.text] = token.value
@@ -742,23 +416,23 @@ def identify_tokens(pattern, options_pat):
     new_pat = []
     for index, token in enumerate(pattern):
         switcher = {
-            '(': RequiredOpen(),
-            ')': RequiredClosed(),
-            '[': OptionalOpen(),
-            ']': OptionalClosed(),
-            '|': Pipe(),
-            '...': Repeats()
+            '(': docopt_util.RequiredOpen(),
+            ')': docopt_util.RequiredClosed(),
+            '[': docopt_util.OptionalOpen(),
+            ']': docopt_util.OptionalClosed(),
+            '|': docopt_util.Pipe(),
+            '...': docopt_util.Repeats()
         }
         tmp_token = switcher.get(token)
         if tmp_token:
             token = tmp_token
         else:
             if (token.startswith('<') and token.endswith('>')) or token.isupper():
-                token = Argument(token)
+                token = docopt_util.Argument(token)
             elif token.startswith('--') or token.startswith('-'):
                 token = get_match_option(token, options_pat)
             else:
-                token = Command(token)
+                token = docopt_util.Command(token)
 
         new_pat.append(token)
     for index, token in enumerate(new_pat):
@@ -781,7 +455,7 @@ def create_opt_and_req(pattern):
     length = len(pattern) - 1
     for index, token in enumerate(pattern[::-1]):
         index = length - index
-        if isinstance(token, (OptionalOpen, RequiredOpen)):
+        if isinstance(token, (docopt_util.OptionalOpen, docopt_util.RequiredOpen)):
             closed_class = token.closed_class
             prev = token.prev if token.prev else None
             post = None
@@ -796,8 +470,8 @@ def create_opt_and_req(pattern):
                 del pattern[index]
             collected[0].prev = prev
             collected[-1].post = post
-            res = Required(collected, prev, post) if isinstance(
-                token, RequiredOpen) else Optional(collected, prev, post)
+            res = docopt_util.Required(collected, prev, post) if isinstance(
+                token, docopt_util.RequiredOpen) else docopt_util.Optional(collected, prev, post)
             pattern.insert(index, res)
 
 
@@ -809,9 +483,9 @@ def create_mutex(pattern):
         """
 
     for index, token in enumerate(pattern):
-        if isinstance(token, (Optional, Required)):
+        if isinstance(token, (docopt_util.Optional, docopt_util.Required)):
             create_mutex(token.tokens)
-        elif isinstance(token, Pipe):
+        elif isinstance(token, docopt_util.Pipe):
             prev = token.prev.prev if token.prev else None
             post = token.post.post if token.post else None
             collected = [token.prev, token.post]
@@ -820,7 +494,7 @@ def create_mutex(pattern):
                 tok.post = post
             for _ in range(index - 1, index + 2):
                 del pattern[index - 1]
-            res = Mutex(collected, prev, post)
+            res = docopt_util.Mutex(collected, prev, post)
             pattern.insert(index - 1, res)
 
 
@@ -833,12 +507,12 @@ def create_repeating(pattern):
     for index, token in enumerate(pattern):
         prev = token.prev if token.prev else None
         post = token.post if token.post else None
-        if isinstance(token, (Optional, Required, Mutex)):
+        if isinstance(token, (docopt_util.Optional, docopt_util.Required, docopt_util.Mutex)):
             create_repeating(token.tokens)
-        elif isinstance(token, Repeats):
+        elif isinstance(token, docopt_util.Repeats):
             token.prev.post = post
             collected = [token.prev]
-            res = Repeating(collected, prev, post)
+            res = docopt_util.Repeating(collected, prev, post)
             for _ in range(index - 1, index + 1):
                 del pattern[index - 1]
             pattern.insert(index - 1, res)
@@ -851,8 +525,8 @@ def get_match_option(token, options_pat):
             options_pat: Array of option objects
         Returns:
             option: return option object if found else return None
-        >>>pat = [Option('--help', False), Option('--sorted', False),
-        >>> Option('--output', './test.txt'), Option('--version', False)]
+        >>>pat = [docopt_util.Option('--help', False), docopt_util.Option('--sorted', False),
+        >>> docopt_util.Option('--output', './test.txt'), docopt_util.Option('--version', False)]
         >>> get_match_option('--help', pat)
         Option('--help', False)
         >>> get_match_option('--hello', pat)
@@ -888,13 +562,15 @@ def create_tmp_token(token, has_value):
         """
     if token.startswith('--'):
         if has_value:
-            return Option(text=token, value=None, has_value=has_value, short=None, long=token)
-        return Option(token, value=False, has_value=has_value, short=None, long=token)
+            return docopt_util.Option(text=token, value=None,
+                                      has_value=has_value, short=None, long=token)
+        return docopt_util.Option(token, value=False, has_value=has_value, short=None, long=token)
 
     if token.startswith('-'):
         if has_value:
-            return Option(text=token, value=None, has_value=has_value, short=token, long=None)
-        return Option(token, value=False, has_value=has_value, short=token, long=None)
+            return docopt_util.Option(text=token, value=None,
+                                      has_value=has_value, short=token, long=None)
+        return docopt_util.Option(token, value=False, has_value=has_value, short=token, long=None)
     return None
 
 
@@ -950,20 +626,22 @@ def check_option_lines_long(element, tmp_array, count, token):
        """
     if len(tmp_array) > count + 1 and tmp_array[count + 1].isupper():
         if token is None:
-            token = Option(element, value=None, has_value=True, short=None, long=element)
+            token = docopt_util.Option(element, value=None,
+                                       has_value=True, short=None, long=element)
         else:
             token.long = element
             token.text = element
     elif '=' in element:
         if token is None:
             text = re.search('\\S+=', element).group().strip("=")
-            token = Option(text, value=None, has_value=True, short=None, long=text)
+            token = docopt_util.Option(text, value=None, has_value=True, short=None, long=text)
         else:
             token.long = re.search('\\S+=', element).group().strip("=")
             token.text = re.search('\\S+=', element).group().strip("=")
     else:
         if token is None:
-            token = Option(element, value=False, has_value=False, short=None, long=element)
+            token = docopt_util.Option(element, value=False,
+                                       has_value=False, short=None, long=element)
         else:
             token.long = element
             token.text = element
@@ -990,18 +668,20 @@ def check_option_lines_short(element, tmp_array, count, token):
     """
     if len(tmp_array) > count + 1 and tmp_array[count + 1].isupper():
         if token is None:
-            token = Option(element, value=None, has_value=True, short=element, long=None)
+            token = docopt_util.Option(element, value=None, has_value=True, short=element,
+                                       long=None)
         else:
             token.short = element
     elif '=' in element:
         if token is None:
             text = re.search('\\S+=', element).group().strip("=")
-            token = Option(text, value=None, has_value=True, short=text, long=None)
+            token = docopt_util.Option(text, value=None, has_value=True, short=text, long=None)
         else:
             token.short = re.search('\\S+=', element).group().strip("=")
     else:
         if token is None:
-            token = Option(element, value=False, has_value=False, short=element, long=None)
+            token = docopt_util.Option(element, value=False, has_value=False, short=element,
+                                       long=None)
         else:
             token.short = element
     return token
@@ -1016,11 +696,11 @@ def find_default_value(line, token):
     Returns:
         token: the updated token accroding the existence of default value
 
-    >>> tmp_token = Option('-v', None, True, '-v', None)
+    >>> tmp_token = docopt_util.Option('-v', None, True, '-v', None)
     >>> find_default_value('-v FILE  input file [default: ./test.txt].', tmp_token)
     tmp_token = Option('-v', './test.txt', True, '-v', None)
 
-    >>> tmp_token = Option('--location', None, True, '-l', '--location')
+    >>> tmp_token = docopt_util.Option('--location', None, True, '-l', '--location')
     >>> find_default_value('-l=<location_value>  insert coordinate [default: 10.88].', tmp_token)
     tmp_token = Option('--location', 10.88, True, '-l', '--location')
     """
@@ -1041,3 +721,141 @@ def find_default_value(line, token):
                 except ValueError:
                     token.value = default_value.split()[1]
     return token
+
+
+# A helper function for display a nice looking dictionary to the user
+def output_formatter(rows, length, dic_list, dictionary_total):
+    """
+    Args:
+        rows: count for how many rows needed for output dictionary.
+        length: the total length for the output usage and options dictionary.
+        dic_list: reformat the dictionary into a array.
+        dictionary_total: combined dictionary (usage dic + options dic).
+    Returns:
+        returns the string from display or an array for testing.
+
+    >>> dic = {'--helping': True, '--sorted': True, '--output': 'ttt.pdf', '--version': False,
+    >>>        '--speed': 10, '--moored': True, '--drifting': None, '--rr': False, '--aaa': 20.9,
+    >>>        '--yyy': False}
+    >>> d_list = list(dic)
+    >>> output_formatter(rows=4, length=len(dic_list), dic_list=dic_list, dictionary_total=dic)
+    "{'--helping': True         '--speed': 10          '--aaa': 20.9\n" + \
+    " '--sorted': True          '--moored': True       '--yyy': False\n" + \
+    " '--output': 'ttt.pdf'     '--drifting': None\n" + \
+    " '--version': False        '--rr': False}\n"
+    """
+
+    col1 = [' '] * rows
+    col2 = [' '] * rows
+    col3 = [' '] * rows
+    for i in range(0, rows):
+        if length > i:
+            col1[i] += insert_content(dic_list, i, rows, 0, dictionary_total)
+        if length > i + rows:
+            col2[i] += insert_content(dic_list, i, rows, 1, dictionary_total)
+        if length > i + (2 * rows):
+            col3[i] += insert_content(dic_list, i, rows, 2, dictionary_total)
+
+    return print_output_from_rows(col1, col2, col3, rows)
+
+
+# Helper function for inserting the key value pairs into output dictionary
+def insert_content(dic_list, idx, rows, col_idx, dictionary_total):
+    """
+    Args:
+        dic_list:  a dictionary the built from user argument but reform to a list.
+        idx: the current row index.
+        rows: count of the rows.
+        col_idx: index of the col,
+        dictionary_total: the dictionary that includes both keywords for output patterns
+                          and options.
+    Returns:
+        returns the key value pair in a outputting form according to the type of values.
+
+    >>> dic = {'--helping': True, '--sorted': None, '--output': 'ttt.pdf',
+    >>>        '--speed': 10, '--aaa': 20.9}
+    >>> d_list = list(dic)
+
+    >>> insert_content(dic_list=dic_list, idx=0, rows=0, col_idx=0, dictionary_total=dic)
+    '--helping: True'
+    >>> insert_content(dic_list=dic_list, idx=1, rows=0, col_idx=0, dictionary_total=dic)
+    '--sorted: None'
+    >>> insert_content(dic_list=dic_list, idx=2, rows=0, col_idx=0, dictionary_total=dic)
+    '--output: ttt.pdf'
+    >>> insert_content(dic_list=dic_list, idx=3, rows=0, col_idx=0, dictionary_total=dic)
+    '--speed: 10'
+    >>> insert_content(dic_list=dic_list, idx=4, rows=0, col_idx=0, dictionary_total=dic)
+    '--aaa: 20.9'
+    """
+
+    if check_value_type(dictionary_total[dic_list[idx + (col_idx * rows)]]):
+        return '\'{}\': {}'.format(dic_list[idx + (col_idx * rows)],
+                                   dictionary_total[dic_list[idx + (col_idx * rows)]])
+
+    return '\'{}\': \'{}\''.format(dic_list[idx + (col_idx * rows)],
+                                   dictionary_total[dic_list[idx + (col_idx * rows)]])
+
+
+# Helper method for defining whether the value is a string or a primitive type
+def check_value_type(value):
+    """
+    Args:
+        value: the value for current key in the dictionary.
+    Returns:
+        returns a boolean value whether the value passed in is primitive.
+
+     >>> check_value_type('Perfect')
+    False
+    >>> check_value_type(10)
+    True
+    >>> check_value_type(3.1415)
+    True
+    >>> check_value_type(True)
+    True
+    >>> check_value_type(None)
+    True
+    """
+
+    return isinstance(value, (int, float, bool)) or value is None
+
+
+# Helper method for printing out dictionary as a json string to user
+def print_output_from_rows(col1, col2, col3, num_rows):
+    """
+    Args:
+        col1: holds the values for output column one.
+        col2: holds the values for output column two.
+        col3: holds the values for output column three.
+        num_rows: the number of rows
+    Returns:
+        final_output: returns output string
+
+    >>> first_row = [' 11', ' 2', ' 3', ' 4', ' 5']
+    >>> second_row = [' 1', ' 222', ' 3', ' 4', ' ']
+    >>> third_row = [' 1', ' 2', ' 3333', ' ', ' ']
+    >>> print_output_from_rows(col1=col1, col2=col2, col3=col3, num_rows=5)
+    "{11     1       1\n" + \
+    " 2      222     2\n" + \
+    " 3      3       3333\n" + \
+    " 4      4\n" + \
+    " 5}\n"
+    """
+    col1 = [i for i in col1 if len(i) > 1]
+    num_rows = min(len(col1), num_rows)
+    spaces1 = len(max(col1, key=len))
+    spaces2 = len(max(col2, key=len))
+    final_output = ""
+    for k in range(num_rows):
+        if k == 0:
+            out = '{' + col1[k].strip().ljust(spaces1) + ' ' * 4 \
+                  + col2[k].strip().ljust(spaces2) + ' ' * 4 \
+                  + col3[k].strip().ljust(spaces2)
+        else:
+            out = col1[k].ljust(spaces1) + ' ' * 4 \
+                  + col2[k].ljust(spaces2) + ' ' * 4 \
+                  + col3[k].ljust(spaces2)
+        if k == num_rows - 1:
+            final_output += (out.rstrip() + '}\n')
+        else:
+            final_output += (out.rstrip() + '\n')
+    return final_output
