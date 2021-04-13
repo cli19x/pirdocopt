@@ -227,12 +227,13 @@ def print_output_dictionary(usage_dic):
 
 def match_user_input(tree_heads, usage_dic, args):
     """
+       matching function for children nodes
 
-    :param tree_heads:
-    :param usage_dic:
-    :param args:
-    :return:
-    """
+       :param tree_heads: the head nodes of the matching token tree
+       :param usage_dic: the dictionary for holding all the keywords
+       :param args: list of incoming tokens
+       :return: return true is it is matching else return false
+       """
     index = 0
     for head in tree_heads:
         head_dict = dict()
@@ -250,12 +251,13 @@ def match_user_input(tree_heads, usage_dic, args):
 
 def get_child_match(children, args, index, head_dict):
     """
+    matching function for children nodes
 
-    :param children:
-    :param args:
-    :param index:
-    :param head_dict:
-    :return:
+    :param children: the list of tokens
+    :param args: the arguments that is used to compare
+    :param index: the index of arguments lists
+    :param head_dict: the dictionary that is going to be updated
+    :return: return true is it is matching else return false
     """
     children_match = False
     if not children:
@@ -278,12 +280,12 @@ def get_child_match(children, args, index, head_dict):
 
 def get_post_match(child, args, index, child_dict):
     """
-
-    :param child:
-    :param args:
-    :param index:
-    :param child_dict:
-    :return:
+    matching function for post node
+    :param child: the child node of current token
+    :param args: the arguments that is used to compare
+    :param index: the index of arguments lists
+    :param child_dict: the passed in dictionary that will be updated
+    :return: return true is it is matching else return false
     """
     post = child.post
     post_match = True
