@@ -256,10 +256,9 @@ def check_loop(test, pat):
 # Main function test
 def test_docopt():
     res = docopt.docopt(doc=doc0, version="test 2.0", help_message=False,
-                        argv=['ship', 'Titanic', 'move', 10, 90, '--speed', 70])
-    after = {'ship': True, 'new': False, '<name>': 'Titanic', 'move': True,
-             '<x>': 10, '<y>': 90, '--speed': 70, '--help': False}
-
+                        argv=[])
+    after = {'ship': False, 'new': False, '<name>': None, 'move': False,
+             '<x>': 0, '<y>': 0, '--speed': 10, '--help': False}
     assert after == res
 
 
@@ -622,7 +621,7 @@ def test_check_option_lines_short():
 
 
 # Test function for finding and inserting the default value for option keyword
-def find_default_value():
+def test_find_default_value():
     tmp_token = docopt_util.Option('-v', value=None, has_value=True, short='-v', long=None)
     tmp_token = docopt.find_default_value('-v FILE input file [default: ./test.txt].', tmp_token)
     assert tmp_token.value == './test.txt'
