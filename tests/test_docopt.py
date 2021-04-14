@@ -250,6 +250,11 @@ def check_loop(test, pat):
             assert x.text == y.text
             assert x.value == y.value
 
+def set_post(pat):
+    for i, p in enumerate(pat):
+        if i < len(pat)-1:
+            p.post = pat[i+1]
+
 
 #################################################################################
 #################################################################################
@@ -325,6 +330,47 @@ def test_check_warnings():
 
     res = docopt.check_warnings(usage=usage, options="")
     assert res == 2
+
+
+def test_get_child_match():
+    pat1 = [ docopt_util.Argument("<name>"), docopt_util.Command("move"), docopt_util.Argument("<x>"), \
+        docopt_util.Argument("<y>"), docopt_util.Optional([docopt_util.Option("--speed", 10, has_value=True)]) ]
+    pat2 = [ docopt_util.Command("new"), docopt_util.Repeating([docopt_util.Argument("<name>")])]
+    set_post(pat1)
+    set_post(pat2)
+    args1 = ['ship', 'Titanic', 'move', 10, 90, '--speed', 70]
+    args2 = ['ship', 'new', 'Boaty', 'Titanic', 'Boat2']
+    args3 = ['ship', 'Boat']
+    orig_head_dict = {'ship': True}
+
+    head_dict = orig_head_dict
+    assert docopt.get_child_match([pat1[0], pat2[0]], args1, 1, head_dict)
+    assert head_dict == {'ship': True, '<name>': 'Titanic', 'move': True, '<x>': 10, '<y>': 90, '--speed': 70}
+
+    head_dict = {'ship': True}
+    assert docopt.get_child_match([pat1[0], pat2[0]], args2, 1, head_dict)
+    assert head_dict == {'ship': True, 'new': True, '<name>': ['Boaty', 'Titanic', 'Boat2']}
+
+    head_dict = {'ship': True}
+    assert docopt.get_child_match([pat1[0], pat2[0]], args3, 1, head_dict) is False
+    assert head_dict == {'ship': True}
+
+
+def test_get_post_match():
+    pat = [ docopt_util.Argument("<name>"), docopt_util.Command("move"), docopt_util.Argument("<x>"), \
+        docopt_util.Argument("<y>"), docopt_util.Optional([docopt_util.Option("--speed", 10, has_value=True)]) ]
+    set_post(pat)
+    args1 = ['ship', 'Titanic', 'move', 10, 90, '--speed', 70]
+    orig_index = 2
+    index = 2
+    orig_child_dict = {'<name>': "Titanic"}
+    child_dict = orig_child_dict
+
+    assert docopt.get_post_match(pat[0], args1, index, child_dict)
+    assert child_dict == {'<name>': 'Titanic', 'move': True, '<x>': 10, '<y>': 90, '--speed': 70}
+
+    args2 = ['ship', 'Boaty', 'shoot', 10, 90]
+    assert docopt.get_post_match(pat[0], args2, orig_index, orig_child_dict) is False
 
 
 # Test function for building the usage patterns and a output dictionary from docstrings

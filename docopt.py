@@ -275,6 +275,7 @@ def get_child_match(children, args, index, head_dict):
             children_match = True
             head_dict.update(child_dict)
             break
+        index = old_index
     return children_match
 
 
