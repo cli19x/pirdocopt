@@ -9,6 +9,7 @@ class DocoptExit(Exception):
     """
     Exception class for docopt
     """
+
     def __init__(self, message="Exception occur."):
         self.message = message
         super().__init__(self.message)
@@ -47,6 +48,7 @@ class Token:
         return Token
 
 
+# pylint: disable=too-many-arguments
 class Leaf(Token):
     """
     class leaf
@@ -124,9 +126,11 @@ class Argument(Leaf):
         return dict({self.text: self.value})
 
 
+# pylint: disable=too-many-arguments
 class Option(Leaf):
     """ Placeholder """
 
+    # pylint: disable=too-many-instance-attributes
     def __init__(self, text, value=None, has_value=False, short=None,
                  long=None, prev=None, post=None, children=None):
         self.text = text
@@ -182,6 +186,7 @@ class Option(Leaf):
         return dict({self.text: self.value})
 
 
+# pylint: disable=too-many-arguments
 class Command(Leaf):
     """ Placeholder """
 
@@ -363,8 +368,12 @@ class SpecialToken(Token):
             children = []
         super().__init__(prev, post, children)
 
-    def __repr__(self):
-        return self.__class__.__name__
+    @property
+    def name(self):
+        """
+        :return: "SpecialToken"
+        """
+        return "SpecialToken"
 
     @property
     def get_class(self):

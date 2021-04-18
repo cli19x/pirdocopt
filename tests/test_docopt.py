@@ -4,7 +4,7 @@
 import pytest
 
 import docopt as docopt
-import docopt_util
+import docopt_util as du
 
 doc0 = """Perfect
 
@@ -225,6 +225,8 @@ testing
 
 other = "testing"
 
+min_case = """Usage: naval_fate.py ship new <name>..."""
+
 
 #################################################################################
 # Helper functions
@@ -242,20 +244,85 @@ def set_prev_post(pat):
 
 def check_loop(test, pat):
     for x, y in zip(test, pat):
-        # print(x, y)
         assert x.__class__ == y.__class__
-        if isinstance(x, docopt_util.Branch):
+        if isinstance(x, du.Branch):
             check_loop(x.tokens, y.tokens)
         else:
             assert x.text == y.text
             assert x.value == y.value
 
+
 def set_post(pat):
     for i, p in enumerate(pat):
-        if i < len(pat)-1:
-            p.post = pat[i+1]
+        if i < len(pat) - 1:
+            p.post = pat[i + 1]
 
 
+def test_class():
+    tk = du.Token(prev=None, post=None, children=None)
+    assert len(tk.children) == 0
+    assert tk.name == "Token"
+    assert tk.get_class == du.Token
+
+    lf = du.Leaf('test', value=None, prev=None, post=None, children=None)
+    assert len(lf.children) == 0
+    assert lf.flat().text == 'test'
+
+    ar = du.Argument('test', prev=None, post=None, children=None)
+    assert ar.get_res_dict(False) == {}
+
+    op = du.Option('test', value=None, has_value=False, short=None,
+                   long=None, prev=None, post=None, children=None)
+    op.match(['test', '2', '3'], 0)
+    assert op.value is True
+    assert op.get_res_dict(False) == {}
+
+    br = du.Branch(tokens=None, prev=None, post=None, children=None)
+    assert len(br.tokens) == 0
+    assert len(br.flat()) == 0
+    assert br.flat(du.Token()) == []
+    br.tokens.append('11')
+    assert br.__repr__() == 'Branch(\'11\')'
+
+    re = du.Required()
+    re.tokens = [du.Argument('test'), du.Argument('1'), du.Argument('2'), du.Argument('3')]
+    args = ['test', '1', '2', '3']
+    is_match, child_index, _ = re.match(args, 0)
+    assert is_match == True
+    assert child_index == 4
+
+    st = du.SpecialToken()
+    assert st.name == "SpecialToken"
+    assert st.get_class == du.SpecialToken
+
+    op = du.OptionalOpen()
+    assert op.name == "OptionalOpen"
+    assert op.get_class == du.OptionalOpen
+
+    oc = du.OptionalClosed()
+    assert oc.name == "OptionalClosed"
+    assert oc.get_class == du.OptionalClosed
+
+    ro = du.RequiredOpen()
+    assert ro.name == "RequiredOpen"
+    assert ro.get_class == du.RequiredOpen
+
+    rc = du.RequiredClosed()
+    assert rc.name == "RequiredClosed"
+    assert rc.get_class == du.RequiredClosed
+
+    pi = du.Pipe()
+    assert pi.name == "Pipe"
+    assert pi.get_class == du.Pipe
+
+    rp = du.Repeats()
+    assert rp.name == "Repeats"
+    assert rp.get_class == du.Repeats
+
+    assert du.is_num("ggggg") is False
+
+if __name__ == '__main__':
+    test_class()
 #################################################################################
 #################################################################################
 # Main function test
@@ -265,6 +332,12 @@ def test_docopt():
     after = {'ship': False, 'new': False, '<name>': None, 'move': False,
              '<x>': 0, '<y>': 0, '--speed': 10, '--help': False}
     assert after == res
+
+    res2 = docopt.docopt(doc=min_case, version="test 2.0", help_message=False,
+                         argv=[])
+    after = {'ship': False, 'new': False, '<name>': None}
+
+    assert after == res2
 
 
 # Test function for processing string
@@ -301,6 +374,18 @@ def test_get_usage_and_options():
     assert tmp_options == options
 
     tmp_name, tmp_usage, tmp_options, display = \
+        docopt.get_usage_and_options(doc=doc1, version=None)
+    assert tmp_name == name
+    assert tmp_usage == usage
+    assert tmp_options == options
+
+    tmp_name, tmp_usage, tmp_options, display = \
+        docopt.get_usage_and_options(doc=doc2, version=None)
+    assert tmp_name == ""
+    assert tmp_usage == usage
+    assert tmp_options == options
+
+    tmp_name, tmp_usage, tmp_options, display = \
         docopt.get_usage_and_options(doc=doc3, version=version)
     assert tmp_name == ""
     assert tmp_usage == usage
@@ -318,6 +403,9 @@ def test_get_usage_and_options():
     assert tmp_usage == usage
     assert tmp_options == options_2
 
+    with pytest.raises(du.DocoptExit):
+        docopt.get_usage_and_options(doc=doc5, version=[])
+
 
 # Test if the warnings will cause the function to return a correct integer value
 @pytest.mark.filterwarnings("ignore:api v1")
@@ -333,9 +421,11 @@ def test_check_warnings():
 
 
 def test_get_child_match():
-    pat1 = [ docopt_util.Argument("<name>"), docopt_util.Command("move"), docopt_util.Argument("<x>"), \
-        docopt_util.Argument("<y>"), docopt_util.Optional([docopt_util.Option("--speed", 10, has_value=True)]) ]
-    pat2 = [ docopt_util.Command("new"), docopt_util.Repeating([docopt_util.Argument("<name>")])]
+    pat1 = [du.Argument("<name>"), du.Command("move"),
+            du.Argument("<x>"),
+            du.Argument("<y>"),
+            du.Optional([du.Option("--speed", 10, has_value=True)])]
+    pat2 = [du.Command("new"), du.Repeating([du.Argument("<name>")])]
     set_post(pat1)
     set_post(pat2)
     args1 = ['ship', 'Titanic', 'move', 10, 90, '--speed', 70]
@@ -345,7 +435,8 @@ def test_get_child_match():
 
     head_dict = orig_head_dict
     assert docopt.get_child_match([pat1[0], pat2[0]], args1, 1, head_dict)
-    assert head_dict == {'ship': True, '<name>': 'Titanic', 'move': True, '<x>': 10, '<y>': 90, '--speed': 70}
+    assert head_dict == {'ship': True, '<name>': 'Titanic', 'move': True, '<x>': 10, '<y>': 90,
+                         '--speed': 70}
 
     head_dict = {'ship': True}
     assert docopt.get_child_match([pat1[0], pat2[0]], args2, 1, head_dict)
@@ -355,10 +446,23 @@ def test_get_child_match():
     assert docopt.get_child_match([pat1[0], pat2[0]], args3, 1, head_dict) is False
     assert head_dict == {'ship': True}
 
+    assert docopt.get_child_match([], args3, 1, head_dict) is True
+
+
+def test_match_user_input():
+    pat1 = [du.Argument("<name>"), du.Command("move"),
+            du.Argument("<x>"),
+            du.Argument("<y>"),
+            du.Optional([du.Option("--speed", 10, has_value=True)])]
+    pat2 = [du.Command("new"), du.Repeating([du.Argument("<name>")])]
+    res = docopt.match_user_input([pat1[0], pat2[0]], {}, ['new'])
+    assert res == {'<name>': 'new'}
+
 
 def test_get_post_match():
-    pat = [ docopt_util.Argument("<name>"), docopt_util.Command("move"), docopt_util.Argument("<x>"), \
-        docopt_util.Argument("<y>"), docopt_util.Optional([docopt_util.Option("--speed", 10, has_value=True)]) ]
+    pat = [du.Argument("<name>"), du.Command("move"), du.Argument("<x>"),
+           du.Argument("<y>"),
+           du.Optional([du.Option("--speed", 10, has_value=True)])]
     set_post(pat)
     args1 = ['ship', 'Titanic', 'move', 10, 90, '--speed', 70]
     orig_index = 2
@@ -383,10 +487,10 @@ def test_get_heads_and_dict():
                     '  --speed=<kn> -s KN  Speed in knots [default: 10].']
     usage_dic, tree_heads = docopt.get_heads_and_dict(usages, options_list)
 
-    test_heads = [docopt_util.Command('ship', False), docopt_util.Required(
-        [docopt_util.Mutex([docopt_util.Option('--help', value=False),
-                            docopt_util.Option('--help', value=False)])])]
-    test_children = [docopt_util.Command('new', False), docopt_util.Argument('<name>', None)]
+    test_heads = [du.Command('ship', False), du.Required(
+        [du.Mutex([du.Option('--help', value=False),
+                   du.Option('--help', value=False)])])]
+    test_children = [du.Command('new', False), du.Argument('<name>', None)]
     test_dic = {'ship': False, 'new': False, '<name>': None,
                 'move': False, '<x>': 0, '<y>': 0, '--speed': 10, '--help': False}
 
@@ -406,16 +510,16 @@ def test_is_num():
 
 # Test function for building correct tree structure for the matching process
 def test_build_tree_heads():
-    pat1 = [docopt_util.Command("ship"), docopt_util.Command("new"), docopt_util.Argument("<name>")]
-    pat2 = [docopt_util.Command("ship"), docopt_util.Argument("<name>"),
-            docopt_util.Command("move")]
-    pat3 = [docopt_util.Mutex([docopt_util.Option("-h"), docopt_util.Option("--help")])]
+    pat1 = [du.Command("ship"), du.Command("new"), du.Argument("<name>")]
+    pat2 = [du.Command("ship"), du.Argument("<name>"),
+            du.Command("move")]
+    pat3 = [du.Mutex([du.Option("-h"), du.Option("--help")])]
     pat1[0].post = pat1[1]
     pat2[0].post = pat2[1]
 
-    test = [docopt_util.Command("ship"), docopt_util.Mutex([docopt_util.Option("-h"),
-                                                            docopt_util.Option("--help")])]
-    test_children = [docopt_util.Command("new"), docopt_util.Argument("<name>")]
+    test = [du.Command("ship"), du.Mutex([du.Option("-h"),
+                                          du.Option("--help")])]
+    test_children = [du.Command("new"), du.Argument("<name>")]
 
     tree_heads = []
     tree_heads = docopt.build_tree_heads(pat1, tree_heads)
@@ -428,26 +532,30 @@ def test_build_tree_heads():
 
 # Test function for recursive function for building patterns
 def test_dict_populate_loop():
-    pat = [docopt_util.Command("set"), docopt_util.Mutex([docopt_util.Argument("<file>"),
-                                                          docopt_util.Option("--speed=<k>")]),
-           docopt_util.Option("--sort=<kn>"),
-           docopt_util.Optional([docopt_util.Option("-o")])]
+    pat = [du.Command("set"), du.Mutex([du.Argument("<file>"),
+                                        du.Option("--speed=<k>")]),
+           du.Option("--sort=<kn>"),
+           du.Optional([du.Option("-o")])]
     test = {"set": False, "<file>": None, "--speed": 0, "--sort": None, "-o": False}
     res = docopt.dict_populate_loop(pat)
     assert res == test
+
+    pat = [du.SpecialToken()]
+    res = docopt.dict_populate_loop(pat)
+    assert res == {}
 
 
 # Test function for identifying keywords and put them into tokens
 def test_identify_tokens():
     pat = ['mine', '(', 'set', '|', 'remove', ')',
            '<x>', '<y>', '[', '--moored', '|', '--drifting', ']']
-    test = [docopt_util.Command('mine', False), docopt_util.RequiredOpen(),
-            docopt_util.Command('set', False),
-            docopt_util.Pipe(), docopt_util.Command('remove', False), docopt_util.RequiredClosed(),
-            docopt_util.Argument('<x>', 0), docopt_util.Argument('<y>', 0),
-            docopt_util.OptionalOpen(), docopt_util.Option('--moored', value=False),
-            docopt_util.Pipe(), docopt_util.Option('--drifting', value=False),
-            docopt_util.OptionalClosed()]
+    test = [du.Command('mine', False), du.RequiredOpen(),
+            du.Command('set', False),
+            du.Pipe(), du.Command('remove', False), du.RequiredClosed(),
+            du.Argument('<x>', 0), du.Argument('<y>', 0),
+            du.OptionalOpen(), du.Option('--moored', value=False),
+            du.Pipe(), du.Option('--drifting', value=False),
+            du.OptionalClosed()]
     opt_pat = ['Options:', '--moored      Moored (anchored) mine.',
                '  --drifting    Drifting mine.']
     opt_pat = docopt.check_option_lines(opt_pat)
@@ -455,7 +563,7 @@ def test_identify_tokens():
 
     for x, y in zip(test, res):
         assert x.__class__ == y.__class__
-        if not isinstance(x, docopt_util.SpecialToken):
+        if not isinstance(x, du.SpecialToken):
             # print(x.__class__, x.text, x.value)
             assert x.text == y.text
             assert x.value == y.value
@@ -463,14 +571,14 @@ def test_identify_tokens():
 
 # Test function for creating options tokens and required tokens
 def test_create_opt_and_req():
-    pat = [docopt_util.RequiredOpen(), docopt_util.Command("set"), docopt_util.OptionalOpen(),
-           docopt_util.Command("remove"), docopt_util.OptionalClosed(),
-           docopt_util.RequiredClosed(),
-           docopt_util.Argument("<file>"), docopt_util.OptionalOpen(), docopt_util.Option("-o"),
-           docopt_util.OptionalClosed()]
-    test = [docopt_util.Required([docopt_util.Command("set"), docopt_util.Optional(
-        [docopt_util.Command("remove")])]), docopt_util.Argument("<file>"),
-            docopt_util.Optional([docopt_util.Option("-o")])]
+    pat = [du.RequiredOpen(), du.Command("set"), du.OptionalOpen(),
+           du.Command("remove"), du.OptionalClosed(),
+           du.RequiredClosed(),
+           du.Argument("<file>"), du.OptionalOpen(), du.Option("-o"),
+           du.OptionalClosed()]
+    test = [du.Required([du.Command("set"), du.Optional(
+        [du.Command("remove")])]), du.Argument("<file>"),
+            du.Optional([du.Option("-o")])]
     set_prev_post(pat)
     docopt.create_opt_and_req(pat)
     check_loop(test, pat)
@@ -478,13 +586,13 @@ def test_create_opt_and_req():
 
 # Test function for creating mutex tokens from options, command and other types of tokens
 def test_create_mutex():
-    pat = [docopt_util.Required(
-        [docopt_util.Required([docopt_util.Command("set"), docopt_util.Option("--aflame")]),
-         docopt_util.Pipe(), docopt_util.Command("cool")])]
-    test = [docopt_util.Required(
-        [docopt_util.Mutex(
-            [docopt_util.Required([docopt_util.Command("set"), docopt_util.Option("--aflame")]),
-             docopt_util.Command("cool")])])]
+    pat = [du.Required(
+        [du.Required([du.Command("set"), du.Option("--aflame")]),
+         du.Pipe(), du.Command("cool")])]
+    test = [du.Required(
+        [du.Mutex(
+            [du.Required([du.Command("set"), du.Option("--aflame")]),
+             du.Command("cool")])])]
     pat[0].tokens[1].prev = pat[0].tokens[0]
     pat[0].tokens[1].post = pat[0].tokens[2]
     docopt.create_mutex(pat)
@@ -493,11 +601,11 @@ def test_create_mutex():
 
 # Test function for repeat parameters
 def test_create_repeating():
-    pat = [docopt_util.Command("set"),
-           docopt_util.Required([docopt_util.Argument("<file1>"), docopt_util.Argument("<file2>")]),
-           docopt_util.Repeats()]
-    test = [docopt_util.Command("set"), docopt_util.Repeating(
-        [docopt_util.Required([docopt_util.Argument("<file1>"), docopt_util.Argument("<file2>")])])]
+    pat = [du.Command("set"),
+           du.Required([du.Argument("<file1>"), du.Argument("<file2>")]),
+           du.Repeats()]
+    test = [du.Command("set"), du.Repeating(
+        [du.Required([du.Argument("<file1>"), du.Argument("<file2>")])])]
     pat[2].prev = pat[1]
     docopt.create_repeating(pat)
     check_loop(test, pat)
@@ -512,6 +620,8 @@ def test_get_match_option():
 
     assert docopt.get_match_option('--www', options_pat) is not None
     assert docopt.get_match_option('--hello', options_pat) is not None
+    options_pat = [None]
+    assert docopt.get_match_option('--test_empty', options_pat) is not None
 
 
 # Test If matching option and keyword is working correctly
@@ -536,11 +646,14 @@ def test_create_tmp_token():
     assert res.short == '-h'
     assert res.has_value is True
 
+    res = docopt.create_tmp_token('hello', False)
+    assert res is None
+
 
 # Test function for paring the options lines into array of option tokens
 def test_check_option_lines():
     res = docopt.check_option_lines(options=['-h --help Show Help Message.'])
-    after = docopt_util.Option('--help', value=False, has_value=False, short='-h', long='--help')
+    after = du.Option('--help', value=False, has_value=False, short='-h', long='--help')
     assert after.text == res[0].text
     assert after.value == res[0].value
     assert after.has_value == res[0].has_value
@@ -548,7 +661,7 @@ def test_check_option_lines():
     assert after.long == res[0].long
 
     res = docopt.check_option_lines(options=['-v=<input> --value=<input> User input value.'])
-    after = docopt_util.Option('--value', value=None, has_value=True, short='-v', long='--value')
+    after = du.Option('--value', value=None, has_value=True, short='-v', long='--value')
     assert after.text == res[0].text
     assert after.value == res[0].value
     assert after.has_value == res[0].has_value
@@ -556,7 +669,7 @@ def test_check_option_lines():
     assert after.long == res[0].long
 
     res = docopt.check_option_lines(options=['-s KN --speed KN User input speed [default: 10].'])
-    after = docopt_util.Option('--speed', value=10, has_value=True, short='-s', long='--speed')
+    after = du.Option('--speed', value=10, has_value=True, short='-s', long='--speed')
     assert after.text == res[0].text
     assert 10 == res[0].value
     assert after.has_value == res[0].has_value
@@ -570,14 +683,14 @@ def test_check_option_lines_long():
     tmp_array = ['--help', '-h', 'Show', 'help', 'message']
     token = None
     res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=0, token=token)
-    after = docopt_util.Option('--help', value=False, has_value=False, short=None, long='--help')
+    after = du.Option('--help', value=False, has_value=False, short=None, long='--help')
     assert res.text == after.text
     assert res.long == after.long
     assert res.value == after.value
     assert res.has_value is False
 
     tmp_array = ['-h', '--help', 'Show', 'help', 'message']
-    token = docopt_util.Option('-h', value=False, has_value=False, short='-h', long=None)
+    token = du.Option('-h', value=False, has_value=False, short='-h', long=None)
     res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=1, token=token)
     assert res.long == '--help'
 
@@ -585,14 +698,14 @@ def test_check_option_lines_long():
     tmp_array = ['--value=<input>', '-v=<input>', 'User', 'input', 'value.']
     token = None
     res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=0, token=token)
-    after = docopt_util.Option('--value', value=None, has_value=True, short=None, long='--value')
+    after = du.Option('--value', value=None, has_value=True, short=None, long='--value')
     assert res.text == after.text
     assert res.long == after.long
     assert res.value == after.value
     assert res.has_value is True
 
     tmp_array = ['-v=<input>', '--value=<input>', 'User', 'input', 'value.']
-    token = docopt_util.Option('-v', value=None, has_value=True, short='-v', long=None)
+    token = du.Option('-v', value=None, has_value=True, short='-v', long=None)
     res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=1, token=token)
     assert res.long == '--value'
 
@@ -600,14 +713,14 @@ def test_check_option_lines_long():
     tmp_array = '--speed KN -s KN User input speed.'.split()
     token = None
     res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=0, token=token)
-    after = docopt_util.Option('--speed', value=None, has_value=True, short=None, long='--speed')
+    after = du.Option('--speed', value=None, has_value=True, short=None, long='--speed')
     assert res.text == after.text
     assert res.long == after.long
     assert res.value == after.value
     assert res.has_value is True
 
     tmp_array = '-s KN --speed KN User input speed.'.split()
-    token = docopt_util.Option('-s', value=None, has_value=True, short='-s', long='--speed')
+    token = du.Option('-s', value=None, has_value=True, short='-s', long='--speed')
     res = docopt.check_option_lines_long(element=element, tmp_array=tmp_array, count=1, token=token)
     assert res.long == '--speed'
 
@@ -619,14 +732,14 @@ def test_check_option_lines_short():
     token = None
     res = docopt.check_option_lines_short(element=element, tmp_array=tmp_array, count=0,
                                           token=token)
-    after = docopt_util.Option('-h', value=False, has_value=False, short='-h', long=None)
+    after = du.Option('-h', value=False, has_value=False, short='-h', long=None)
     assert res.text == after.text
     assert res.short == after.short
     assert res.value == after.value
     assert res.has_value is False
 
     tmp_array = ['--help', '-h', 'Show', 'help', 'message']
-    token = docopt_util.Option('--help', value=False, has_value=False, short=None, long='--help')
+    token = du.Option('--help', value=False, has_value=False, short=None, long='--help')
     res = docopt.check_option_lines_short(element=element, tmp_array=tmp_array, count=1,
                                           token=token)
     assert res.short == '-h'
@@ -636,14 +749,14 @@ def test_check_option_lines_short():
     token = None
     res = docopt.check_option_lines_short(element=element, tmp_array=tmp_array, count=0,
                                           token=token)
-    after = docopt_util.Option('-v', value=None, has_value=True, short='-v', long=None)
+    after = du.Option('-v', value=None, has_value=True, short='-v', long=None)
     assert res.text == after.text
     assert res.short == after.short
     assert res.value == after.value
     assert res.has_value is True
 
     tmp_array = ['--value=<input>', '-v=<input>', 'User', 'input', 'value.']
-    token = docopt_util.Option('--value', value=None, has_value=True, short=None, long='--value')
+    token = du.Option('--value', value=None, has_value=True, short=None, long='--value')
     res = docopt.check_option_lines_short(element=element, tmp_array=tmp_array, count=1,
                                           token=token)
     assert res.short == '-v'
@@ -653,14 +766,14 @@ def test_check_option_lines_short():
     token = None
     res = docopt.check_option_lines_short(element=element, tmp_array=tmp_array, count=0,
                                           token=token)
-    after = docopt_util.Option('-s', value=None, has_value=True, short='-s', long=None)
+    after = du.Option('-s', value=None, has_value=True, short='-s', long=None)
     assert res.text == after.text
     assert res.short == after.short
     assert res.value == after.value
     assert res.has_value is True
 
     tmp_array = '--speed KN -s KN User input speed [default: 10].'.split()
-    token = docopt_util.Option('--speed', value=10, has_value=True, short=None, long='--speed')
+    token = du.Option('--speed', value=10, has_value=True, short=None, long='--speed')
     res = docopt.check_option_lines_short(element=element, tmp_array=tmp_array, count=1,
                                           token=token)
     assert res.short == '-s'
@@ -668,18 +781,18 @@ def test_check_option_lines_short():
 
 # Test function for finding and inserting the default value for option keyword
 def test_find_default_value():
-    tmp_token = docopt_util.Option('-v', value=None, has_value=True, short='-v', long=None)
+    tmp_token = du.Option('-v', value=None, has_value=True, short='-v', long=None)
     tmp_token = docopt.find_default_value('-v FILE input file [default: ./test.txt].', tmp_token)
     assert tmp_token.value == './test.txt'
 
-    tmp_token = docopt_util.Option('--location', value=None, has_value=True,
-                                   short='-l', long='--location')
+    tmp_token = du.Option('--location', value=None, has_value=True,
+                          short='-l', long='--location')
     tmp_token = docopt.find_default_value('-l=<location_value> --location=<location_value> '
                                           'insert coordinate [default: 10.88].', tmp_token)
     assert tmp_token.value == 10.88
 
-    tmp_token = docopt_util.Option('--speed', value=None, has_value=True,
-                                   short='-s', long='--speed')
+    tmp_token = du.Option('--speed', value=None, has_value=True,
+                          short='-s', long='--speed')
     tmp_token = docopt.find_default_value('--speed KN -s KN input speed [default: 20].',
                                           tmp_token)
     assert tmp_token.value == 20

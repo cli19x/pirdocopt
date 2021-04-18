@@ -48,12 +48,12 @@ def docopt(doc, version=None, help_message=True, argv=None):
     if len(args) == 0 and argv is not None:
         args = argv
 
+    tmp = usages[0].split()
     if 'Usage:' in usages[0]:
-        tmp = usages[0].split()
         if len(tmp) == 1:
             usages.pop(0)
         else:
-            usages[0] = ' '.join(tmp.pop(0))
+            usages[0] = ' '.join(tmp[1:])
 
     output_dic, tree_heads = get_heads_and_dict(usages, options_array)
     output_dic = match_user_input(tree_heads, output_dic, args)
@@ -236,6 +236,7 @@ def match_user_input(tree_heads, usage_dic, args):
        """
     index = 0
     for head in tree_heads:
+        print(head)
         head_dict = dict()
         old_index = index
         is_match, index, dic_entry = head.match(args, index)
@@ -349,16 +350,6 @@ def is_num(arg):
         return False
 
 
-def set_children(pattern):
-    """
-        Args:
-            pattern: array of tokens that represents the tokens.
-        """
-    for token in pattern:
-        if token.post:
-            token.children.append(token.post)
-
-
 def build_tree_heads(pattern, tree_heads):
     """
         Args:
@@ -436,7 +427,6 @@ def identify_tokens(pattern, options_pat):
                 token = get_match_option(token, options_pat)
             else:
                 token = docopt_util.Command(token)
-
         new_pat.append(token)
     for index, token in enumerate(new_pat):
         if index == 0:
@@ -510,6 +500,7 @@ def create_repeating(pattern):
     for index, token in enumerate(pattern):
         prev = token.prev if token.prev else None
         post = token.post if token.post else None
+
         if isinstance(token, (docopt_util.Optional, docopt_util.Required, docopt_util.Mutex)):
             create_repeating(token.tokens)
         elif isinstance(token, docopt_util.Repeats):
