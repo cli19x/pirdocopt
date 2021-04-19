@@ -11,7 +11,7 @@ API
 
 How to Install
 ========================
-It is simple just include ``docopt.py`` and ``docopt_util.py`` in you project folder and import the module ``import docoopt``.
+It is simple just include ``docopt.py`` and ``docopt_util.py`` in you project folder and import the module ``import docopt from docopt``.
 
 Usages
 ========
