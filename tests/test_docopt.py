@@ -280,17 +280,69 @@ def test_class():
     br = du.Branch(tokens=None, prev=None, post=None, children=None)
     assert len(br.tokens) == 0
     assert len(br.flat()) == 0
+    assert isinstance(br.flat(du.Branch),  du.Branch)
     assert br.flat(du.Token()) == []
     br.tokens.append('11')
     assert br.__repr__() == 'Branch(\'11\')'
 
+
+def test_branch():
     re = du.Required()
     re.tokens = [du.Argument('test'), du.Argument('1'), du.Argument('2'), du.Argument('3')]
     args = ['test', '1', '2', '3']
     is_match, child_index, _ = re.match(args, 0)
-    assert is_match == True
+    assert is_match is True
     assert child_index == 4
+    re.tokens = [du.Argument('no'), du.Argument('5'), du.Argument('6'), du.Argument('7')]
+    args = []
+    is_match, child_index, _ = re.match(args, 0)
+    assert is_match is False
+    assert child_index == 0
 
+    mu = du.Mutex()
+    mu.tokens = [du.Argument('test'), du.Argument('1'), du.Argument('2'), du.Argument('3')]
+    args = ['test', '1', '2', '3']
+    is_match, child_index, _ = mu.match(args, 0)
+    assert is_match is True
+    assert child_index == 1
+    mu.tokens = [du.Argument('no'), du.Argument('5'), du.Argument('6'), du.Argument('7')]
+    args = []
+    is_match, child_index, _ = mu.match(args, 0)
+    assert is_match is False
+    assert child_index == 1
+
+    rs = du.Repeating()
+    rs.tokens = [du.Argument('test'), du.Argument('1'), du.Argument('2'), du.Argument('3')]
+    args = ['test', '1', '2', '3']
+    is_match, child_index, _ = rs.match(args, 0)
+    assert is_match is True
+    assert child_index == 4
+    rs.tokens = [du.Command('no'), du.Command('5'), du.Command('6'), du.Command('7')]
+    args = ['no', 777]
+    is_match, child_index, _ = rs.match(args, 0)
+    assert is_match is True
+    assert child_index == 1
+
+    rs.tokens = [du.Command('no'), du.Command('5'), du.Command('6'), du.Command('7')]
+    args = ['haha', '777']
+    is_match, child_index, _ = rs.match(args, 0)
+    assert is_match is False
+    assert child_index == 1
+
+    ol = du.Optional()
+    ol.tokens = [du.Argument('test'), du.Argument('1'), du.Argument('2'), du.Argument('3')]
+    args = ['test', '1', '2', '3']
+    is_match, child_index, _ = ol.match(args, 0)
+    assert is_match is True
+    assert child_index == 4
+    ol.tokens = [du.Argument('no'), du.Argument('5'), du.Argument('6'), du.Argument('7')]
+    args = []
+    is_match, child_index, _ = ol.match(args, 0)
+    assert is_match is True
+    assert child_index == 0
+
+
+def test_special_token():
     st = du.SpecialToken()
     assert st.name == "SpecialToken"
     assert st.get_class == du.SpecialToken
@@ -321,8 +373,7 @@ def test_class():
 
     assert du.is_num("ggggg") is False
 
-if __name__ == '__main__':
-    test_class()
+
 #################################################################################
 #################################################################################
 # Main function test
@@ -334,7 +385,7 @@ def test_docopt():
     assert after == res
 
     res2 = docopt.docopt(doc=min_case, version="test 2.0", help_message=False,
-                         argv=[])
+                         argv=['ship', 'new', 'Titanic'])
     after = {'ship': False, 'new': False, '<name>': None}
 
     assert after == res2
