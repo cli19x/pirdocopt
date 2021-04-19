@@ -475,6 +475,8 @@ def create_opt_and_req(pattern):
             collected[-1].post = post
             res = docopt_util.Required(collected, prev, post) if isinstance(
                 token, docopt_util.RequiredOpen) else docopt_util.Optional(collected, prev, post)
+            if prev: prev.post = res
+            if post: post.prev = res
             pattern.insert(index, res)
 
 
