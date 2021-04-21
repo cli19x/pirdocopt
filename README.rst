@@ -11,7 +11,17 @@ API
 
 How to Install
 ========================
-It is simple just include ``docopt.py`` and ``docopt_util.py`` in you project folder and import the module ``import docopt from docopt``.
+Use pip or easy_install:
+
+.. code:: python
+
+    pip install pirdocopt
+    
+Or just include ``docopt.py`` and ``docopt_util.py`` in you project folder and import the module ``import docopt from docopt``.
+
+Testing
+========
+All test cases are included in ``examples`` folder
 
 Usages
 ========
