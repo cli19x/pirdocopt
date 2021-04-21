@@ -11,36 +11,36 @@ import docopt_util
 def docopt(doc, version=None, help_message=True, argv=None):
     """ Main function for docopt program
 
-        Args:
-            doc: docstring that pass from the user program
+    Args:
+        doc: docstring that pass from the user program
 
-            argv: programmer can pre-pass some parameters into docopt and
-            those parameters is treat as default existing arguments
+        argv: programmer can pre-pass some parameters into docopt and
+        those parameters is treat as default existing arguments
 
-            help_message: user can specify whether they want docopt to display
-            the help message whenever user execute the program
+        help_message: user can specify whether they want docopt to display
+        the help message whenever user execute the program
 
-            version: programmers can specify the version of
-            the project and display to user
-        Returns:
-            total_dic: returns the complete dictionary from parameters passed in
+        version: programmers can specify the version of
+        the project and display to user
+    Returns:
+        total_dic: returns the complete dictionary from parameters passed in
 
-        >>>  doc0 = "Perfect" \
-        >>>
-        >>>         "Usage:" \
-        >>>           "naval_fate.py ship new <name>..." \
-        >>>           "naval_fate.py ship <name> move <x> <y> [--speed=<kn>]" \
-        >>>
-        >>>         "Options:" \
-        >>>           '-h --help --helping --haha -hhh Show this screen.' \
-        >>>           '-o FILE --output=<value>  Speed in knots [default: ./test.txt].' \
-        >>>           '--speed=<kn> -s KN  Speed in knots [default: 10].' \
-        >>>
-        >>>  docopt(doc=doc0, version="test 2.0", help_message=False,
-        >>>                    argv=['ship', 'Titanic', 'move', 10, 90, '--speed=70'])
-        {'ship': True, 'new': False, '<name>...': False, 'name': 'Titanic', 'move': True,
-        'x': 10, 'y': 90, '--helping': False, '--output': './test.txt', '--speed': 70}
-        """
+    >>>  doc0 = "Perfect" \
+    >>>
+    >>>         "Usage:" \
+    >>>           "naval_fate.py ship new <name>..." \
+    >>>           "naval_fate.py ship <name> move <x> <y> [--speed=<kn>]" \
+    >>>
+    >>>         "Options:" \
+    >>>           '-h --help --helping --haha -hhh Show this screen.' \
+    >>>           '-o FILE --output=<value>  Speed in knots [default: ./test.txt].' \
+    >>>           '--speed=<kn> -s KN  Speed in knots [default: 10].' \
+    >>>
+    >>>  docopt(doc=doc0, version="test 2.0", help_message=False,
+    >>>                    argv=['ship', 'Titanic', 'move', 10, 90, '--speed=70'])
+    {'ship': True, 'new': False, '<name>...': False, 'name': 'Titanic', 'move': True,
+    'x': 10, 'y': 90, '--helping': False, '--output': './test.txt', '--speed': 70}
+    """
 
     usages, options_array = processing_string(
         doc, help_message, version)
@@ -48,8 +48,8 @@ def docopt(doc, version=None, help_message=True, argv=None):
     if len(args) == 0 and argv is not None:
         args = argv
 
-    tmp = usages[0].split()
     if 'Usage:' in usages[0]:
+        tmp = usages[0].split()
         if len(tmp) == 1:
             usages.pop(0)
         else:
@@ -64,7 +64,7 @@ def docopt(doc, version=None, help_message=True, argv=None):
 
 def processing_string(doc, help_message, version):
     """
-     Args:
+    Args:
         doc: docstring pass from the main function.
         help_message: to tell docopt whether user want to display help message when
                       the program executes.
@@ -73,7 +73,6 @@ def processing_string(doc, help_message, version):
     Returns:
         usage.split("\n"): returns the array of usage patterns.
         options.split("\n"): returns the array of options from docstring.
-
     >>> doc1 = 'Perfect' \
     >>>
     >>>        'Usage:' \
@@ -101,14 +100,13 @@ def processing_string(doc, help_message, version):
 # Helper function for getting usage, options and name strings from doc
 def get_usage_and_options(doc, version):
     """
-     Args:
+    Args:
         doc: docstring that passed from main function.
         version: the version string pass from main function.
     Returns:
         name: returns the strings of name of program.
         usage: returns the strings of usage patterns.
         options: returns the strings of options that received from docstring
-
     >>> doc1 = 'Perfect' \
     >>>
     >>>        'Usage:' \
@@ -126,7 +124,6 @@ def get_usage_and_options(doc, version):
     -h --help --helping Show this screen. \
     --sorted  Show sorted."
     """
-
     usage = ""
     options = ""
     partition_string = doc.strip().split('\n\n')
@@ -168,7 +165,7 @@ def get_usage_and_options(doc, version):
 # Will display warning to the user program when missing parts
 def check_warnings(usage, options):
     """ Function for testing whether the docstring contains a usage part and a options part.
-     Args:
+    Args:
         usage: a string the retrieve from the docstring.
         options: a string that retrieve from the docstring.
     Returns:
@@ -176,7 +173,6 @@ def check_warnings(usage, options):
         and returns 0 if everything is ok in docstring
     Raises:
         Warnings: If no usages or options contained in the docstring.
-
     >>> check_warnings(usage="Usages: ...", options="")
     0
     >>> check_warnings(usage="", options="Options: ...")
@@ -201,7 +197,6 @@ def print_output_dictionary(usage_dic):
     Returns:
         dictionary_total: the final dictionary object that built from usage pattern and options.
         return the formatted json like dictionary string to user.
-
     >>> input1 = {'1': True, '2': 'haha', '3': False, '4': True, '5': 'haha'}
     >>> u_dic = {'usage1': 'x', 'usage2': 'y'}
     >>> dic_total, res = print_output_dictionary(usage_dic=u_dic, options_dic=input1)
@@ -214,7 +209,6 @@ def print_output_dictionary(usage_dic):
      '4': True
      '5': 'haha'}
     """
-
     dictionary_total = dict.copy(usage_dic)
     dic_list = list(dictionary_total)
     length = len(dictionary_total)
@@ -227,16 +221,16 @@ def print_output_dictionary(usage_dic):
 
 def match_user_input(tree_heads, usage_dic, args):
     """
-       matching function for children nodes
-
-       :param tree_heads: the head nodes of the matching token tree
-       :param usage_dic: the dictionary for holding all the keywords
-       :param args: list of incoming tokens
-       :return: return true is it is matching else return false
-       """
+    matches user input against usage patterns
+    Args:
+        tree_heads: the head nodes of the matching token tree
+        usage_dic: the dictionary for holding all the keywords
+        args: list of incoming tokens
+    Returns:
+        True if a match is found else False
+    """
     index = 0
     for head in tree_heads:
-        print(head)
         head_dict = dict()
         old_index = index
         is_match, index, dic_entry = head.match(args, index)
@@ -253,12 +247,13 @@ def match_user_input(tree_heads, usage_dic, args):
 def get_child_match(children, args, index, head_dict):
     """
     matching function for children nodes
-
-    :param children: the list of tokens
-    :param args: the arguments that is used to compare
-    :param index: the index of arguments lists
-    :param head_dict: the dictionary that is going to be updated
-    :return: return true is it is matching else return false
+    Args:
+        children: the list of children nodes for a head node
+        args: list of incoming tokens
+        index: position in args list where comparison continues
+        head_dict: the dictionary that is going to be updated
+    Returns:
+        True if a match is found else False
     """
     children_match = False
     if not children:
@@ -282,12 +277,14 @@ def get_child_match(children, args, index, head_dict):
 
 def get_post_match(child, args, index, child_dict):
     """
-    matching function for post node
-    :param child: the child node of current token
-    :param args: the arguments that is used to compare
-    :param index: the index of arguments lists
-    :param child_dict: the passed in dictionary that will be updated
-    :return: return true is it is matching else return false
+    matching function for post nodes
+    Args:
+        child: the matched child from which we check post tokens.
+        args: list of incoming tokens.
+        index: position in args list where comparison continues.
+        child_dict: the dictionary that is going to be updated.
+    Returns:
+        True if a match is found else False.
     """
     post = child.post
     post_match = True
@@ -303,13 +300,13 @@ def get_post_match(child, args, index, child_dict):
 
 def get_heads_and_dict(usages, options):
     """
-        Args:
-            usages: array of usage pattern from docstring.
-            options: array of option keywords from docstring.
-        Returns:
-            return the usage pattern, keyword dictionary, and array of token of
-            the first layer of the tree structure.
-        """
+    Args:
+        usages: array of usage pattern from docstring.
+        options: array of option keywords from docstring.
+    Returns:
+        usage pattern, keyword dictionary, and array of token of
+        the first layer of the tree structure.
+    """
     new_usages = []
     usage_dic = {}
     tree_heads = []
@@ -337,12 +334,11 @@ def get_heads_and_dict(usages, options):
 
 def is_num(arg):
     """
-        Args:
-            arg: input object that going to check if it is a number.
-
-        Returns:
-            true is input is number, else return false.
-        """
+    Args:
+        arg: input object that going to check if it is a number.
+    Returns:
+        true is input is number, else return false.
+    """
     try:
         float(arg)
         return True
@@ -350,15 +346,24 @@ def is_num(arg):
         return False
 
 
+def set_children(pattern):
+    """
+    Args:
+        pattern: array of tokens that represents the tokens.
+    """
+    for token in pattern:
+        if token.post:
+            token.children.append(token.post)
+
+
 def build_tree_heads(pattern, tree_heads):
     """
-        Args:
-            pattern: array of tokens that represents the tokens.
-            tree_heads: array of tokens of the first argument.
-
-        Returns:
-            tree_heads: updated array of tokens of the first argument.
-        """
+    Args:
+        pattern: array of tokens that represents the tokens.
+        tree_heads: array of tokens of the first argument.
+    Returns:
+        tree_heads: updated array of tokens of the first argument.
+    """
     token = pattern[0]
     tree_child = token.post if token.post else None
     if isinstance(token, docopt_util.Leaf):
@@ -381,12 +386,11 @@ def build_tree_heads(pattern, tree_heads):
 
 def dict_populate_loop(pattern):
     """
-        Args:
-            pattern: array of tokens that represents the tokens.
-
-        Returns:
-            updated_dic: a dictionary that contains all the keywords from docstrings.
-        """
+    Args:
+        pattern: array of tokens that represents the tokens.
+    Returns:
+        updated_dic: a dictionary that contains all the keywords from docstrings.
+    """
     updated_dic = {}
     for token in pattern:
         if isinstance(token, docopt_util.Branch):
@@ -400,13 +404,12 @@ def dict_populate_loop(pattern):
 
 def identify_tokens(pattern, options_pat):
     """
-        Args:
-            pattern: array of tokens that represents the tokens.
-            options_pat: array of option tokens.
-
-        Returns:
-            new_pat: array of tokens that contain the updated tokens for all types of keywords.
-        """
+    Args:
+        pattern: array of tokens that represents the tokens.
+        options_pat: array of option tokens.
+    Returns:
+        new_pat: array of tokens that contain the updated tokens for all types of keywords.
+    """
     new_pat = []
     for index, token in enumerate(pattern):
         switcher = {
@@ -427,6 +430,7 @@ def identify_tokens(pattern, options_pat):
                 token = get_match_option(token, options_pat)
             else:
                 token = docopt_util.Command(token)
+
         new_pat.append(token)
     for index, token in enumerate(new_pat):
         if index == 0:
@@ -441,10 +445,9 @@ def identify_tokens(pattern, options_pat):
 
 def create_opt_and_req(pattern):
     """
-        Args:
-            pattern: array of tokens that represents the tokens.
-
-        """
+    Args:
+        pattern: array of tokens that represents the tokens.
+    """
     length = len(pattern) - 1
     for index, token in enumerate(pattern[::-1]):
         index = length - index
@@ -472,11 +475,9 @@ def create_opt_and_req(pattern):
 
 def create_mutex(pattern):
     """
-        Args:
-            pattern: array of tokens that represents the tokens.
-
-        """
-
+    Args:
+        pattern: array of tokens that represents the tokens.
+    """
     for index, token in enumerate(pattern):
         if isinstance(token, (docopt_util.Optional, docopt_util.Required)):
             create_mutex(token.tokens)
@@ -495,14 +496,12 @@ def create_mutex(pattern):
 
 def create_repeating(pattern):
     """
-        Args:
-            pattern: array of tokens that represents the tokens
-
-        """
+    Args:
+        pattern: array of tokens that represents the tokens
+    """
     for index, token in enumerate(pattern):
         prev = token.prev if token.prev else None
         post = token.post if token.post else None
-
         if isinstance(token, (docopt_util.Optional, docopt_util.Required, docopt_util.Mutex)):
             create_repeating(token.tokens)
         elif isinstance(token, docopt_util.Repeats):
@@ -516,20 +515,20 @@ def create_repeating(pattern):
 
 def get_match_option(token, options_pat):
     """
-        Args:
-            token: A string that represent the keyword for option
-            options_pat: Array of option objects
-        Returns:
-            option: return option object if found else return None
-        >>>pat = [docopt_util.Option('--help', False), docopt_util.Option('--sorted', False),
-        >>> docopt_util.Option('--output', './test.txt'), docopt_util.Option('--version', False)]
-        >>> get_match_option('--help', pat)
-        Option('--help', False)
-        >>> get_match_option('--hello', pat)
-        Option('--hello', False)
-        >>> get_match_option('--hi', [None])
-        Option('--hi', False)
-        """
+    Args:
+        token: A string that represent the keyword for option
+        options_pat: Array of option objects
+    Returns:
+        option: return option object if found else return None
+    >>>pat = [docopt_util.Option('--help', False), docopt_util.Option('--sorted', False),
+    >>> docopt_util.Option('--output', './test.txt'), docopt_util.Option('--version', False)]
+    >>> get_match_option('--help', pat)
+    Option('--help', False)
+    >>> get_match_option('--hello', pat)
+    Option('--hello', False)
+    >>> get_match_option('--hi', [None])
+    Option('--hi', False)
+    """
     has_value = False
     if '=' in token:
         has_value = True
@@ -546,16 +545,16 @@ def get_match_option(token, options_pat):
 
 def create_tmp_token(token, has_value):
     """
-        Args:
-            token: A string that represent the keyword for option
-            has_value: Boolean value for check if keyword contain value
-        Returns:
-            option: return option object
-        >>> create_tmp_token('--hello', False)
-        Option('--hello', False)
-        >>> create_tmp_token('--hi', True)
-        Option('--hello', True)
-        """
+    Args:
+        token: A string that represent the keyword for option
+        has_value: Boolean value for check if keyword contain value
+    Returns:
+        option: return option object
+    >>> create_tmp_token('--hello', False)
+    Option('--hello', False)
+    >>> create_tmp_token('--hi', True)
+    Option('--hello', True)
+    """
     if token.startswith('--'):
         if has_value:
             return docopt_util.Option(text=token, value=None,
@@ -574,10 +573,8 @@ def check_option_lines(options):
     """
     Args:
         options: options the options strings from docstring.
-
     Returns:
         new_pat: the array that holds all options objects.
-
     >>> check_option_lines(options= "-h --help")
     [Option('-h')]
     >>> check_option_lines(options= "hello world")
@@ -603,23 +600,21 @@ def check_option_lines(options):
 
 def check_option_lines_long(element, tmp_array, count, token):
     """
-       Args:
-           element: the keyword of the current option.
-           tmp_array: the string the contains the current line of option description.
-           count: the index of current keyword in the option line.
-           token: the class object of Option that holds information of option. If object is None,
-                  then create a brand new object for the new keyword.
-
-       Returns:
-           token: the updated options object with long form of the keyword.
-
-       >>> check_option_lines_long('--value=<help>', ['--value=<help>', 'Input', 'value'], 0, None)
-       token = Option('--value', None, True, None, '--value')
-       >>> check_option_lines_long('--value', ['--value', 'HELP'], 0, None)
-       token = Option('--value', None, True, None, '--value')
-       >>> check_option_lines_long('--help', ['--help', 'show', 'help', 'message'], 0, None)
-       token = Option(''--help', False, False, None, ''--help')
-       """
+    Args:
+        element: the keyword of the current option.
+        tmp_array: the string the contains the current line of option description.
+        count: the index of current keyword in the option line.
+        token: the class object of Option that holds information of option. If object is None,
+                then create a brand new object for the new keyword.
+    Returns:
+        token: the updated options object with long form of the keyword.
+    >>> check_option_lines_long('--value=<help>', ['--value=<help>', 'Input', 'value'], 0, None)
+    token = Option('--value', None, True, None, '--value')
+    >>> check_option_lines_long('--value', ['--value', 'HELP'], 0, None)
+    token = Option('--value', None, True, None, '--value')
+    >>> check_option_lines_long('--help', ['--help', 'show', 'help', 'message'], 0, None)
+    token = Option(''--help', False, False, None, ''--help')
+    """
     if len(tmp_array) > count + 1 and tmp_array[count + 1].isupper():
         if token is None:
             token = docopt_util.Option(element, value=None,
@@ -651,16 +646,14 @@ def check_option_lines_short(element, tmp_array, count, token):
         tmp_array: the string the contains the current line of option description.
         count: the index of current keyword in the option line.
         token: the class object of Option that holds information of option.
-
-        Returns:
-            token: the updated options object with short form of the keyword.
-
-       >>> check_option_lines_long('-v=<help>', ['-v=<help>', 'Input', 'value'], 0, None)
-       token = Option('-v', None, True, '-v', None)
-       >>> check_option_lines_long('-v', ['-v', 'HELP'], 0, None)
-       token = Option('-v', None, True, '-v', None)
-       >>> check_option_lines_long('-h', ['-h', 'show', 'help', 'message'], 0, None)
-       token = Option('-h', False, False, '-h', None)
+    Returns:
+        token: the updated options object with short form of the keyword.
+    >>> check_option_lines_long('-v=<help>', ['-v=<help>', 'Input', 'value'], 0, None)
+    token = Option('-v', None, True, '-v', None)
+    >>> check_option_lines_long('-v', ['-v', 'HELP'], 0, None)
+    token = Option('-v', None, True, '-v', None)
+    >>> check_option_lines_long('-h', ['-h', 'show', 'help', 'message'], 0, None)
+    token = Option('-h', False, False, '-h', None)
     """
     if len(tmp_array) > count + 1 and tmp_array[count + 1].isupper():
         if token is None:
@@ -688,14 +681,11 @@ def find_default_value(line, token):
     Args:
         line: a string that holds the current line.
         token: The toekn object for holding option.
-
     Returns:
         token: the updated token accroding the existence of default value
-
     >>> tmp_token = docopt_util.Option('-v', None, True, '-v', None)
     >>> find_default_value('-v FILE  input file [default: ./test.txt].', tmp_token)
     tmp_token = Option('-v', './test.txt', True, '-v', None)
-
     >>> tmp_token = docopt_util.Option('--location', None, True, '-l', '--location')
     >>> find_default_value('-l=<location_value>  insert coordinate [default: 10.88].', tmp_token)
     tmp_token = Option('--location', 10.88, True, '-l', '--location')
@@ -729,7 +719,6 @@ def output_formatter(rows, length, dic_list, dictionary_total):
         dictionary_total: combined dictionary (usage dic + options dic).
     Returns:
         returns the string from display or an array for testing.
-
     >>> dic = {'--helping': True, '--sorted': True, '--output': 'ttt.pdf', '--version': False,
     >>>        '--speed': 10, '--moored': True, '--drifting': None, '--rr': False, '--aaa': 20.9,
     >>>        '--yyy': False}
@@ -767,11 +756,9 @@ def insert_content(dic_list, idx, rows, col_idx, dictionary_total):
                           and options.
     Returns:
         returns the key value pair in a outputting form according to the type of values.
-
     >>> dic = {'--helping': True, '--sorted': None, '--output': 'ttt.pdf',
     >>>        '--speed': 10, '--aaa': 20.9}
     >>> d_list = list(dic)
-
     >>> insert_content(dic_list=dic_list, idx=0, rows=0, col_idx=0, dictionary_total=dic)
     '--helping: True'
     >>> insert_content(dic_list=dic_list, idx=1, rows=0, col_idx=0, dictionary_total=dic)
@@ -799,8 +786,7 @@ def check_value_type(value):
         value: the value for current key in the dictionary.
     Returns:
         returns a boolean value whether the value passed in is primitive.
-
-     >>> check_value_type('Perfect')
+    >>> check_value_type('Perfect')
     False
     >>> check_value_type(10)
     True
@@ -825,7 +811,6 @@ def print_output_from_rows(col1, col2, col3, num_rows):
         num_rows: the number of rows
     Returns:
         final_output: returns output string
-
     >>> first_row = [' 11', ' 2', ' 3', ' 4', ' 5']
     >>> second_row = [' 1', ' 222', ' 3', ' 4', ' ']
     >>> third_row = [' 1', ' 2', ' 3333', ' ', ' ']
