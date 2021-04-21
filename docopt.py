@@ -320,6 +320,7 @@ def get_heads_and_dict(usages, options):
         create_repeating(pattern)
         for index, token in enumerate(pattern):
             if isinstance(token.post, docopt_util.SpecialToken) and index < len(pattern) - 1:
+                print('dsadasddadasd')
                 token.post = pattern[index + 1]
         new_usages.append(pattern)
         usage_dic.update(dict_populate_loop(pattern))

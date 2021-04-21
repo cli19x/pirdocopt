@@ -267,6 +267,7 @@ def test_class():
     lf = du.Leaf('test', value=None, prev=None, post=None, children=None)
     assert len(lf.children) == 0
     assert lf.flat().text == 'test'
+    assert lf.__repr__() == 'Leaf(\'test\', None)'
 
     ar = du.Argument('test', prev=None, post=None, children=None)
     assert ar.get_res_dict(False) == {}
@@ -277,16 +278,16 @@ def test_class():
     assert op.value is True
     assert op.get_res_dict(False) == {}
 
+
+def test_branch():
     br = du.Branch(tokens=None, prev=None, post=None, children=None)
     assert len(br.tokens) == 0
     assert len(br.flat()) == 0
-    assert isinstance(br.flat(du.Branch),  du.Branch)
+    assert isinstance(br.flat(du.Branch), du.Branch)
     assert br.flat(du.Token()) == []
     br.tokens.append('11')
     assert br.__repr__() == 'Branch(\'11\')'
 
-
-def test_branch():
     re = du.Required()
     re.tokens = [du.Argument('test'), du.Argument('1'), du.Argument('2'), du.Argument('3')]
     args = ['test', '1', '2', '3']
@@ -371,7 +372,7 @@ def test_special_token():
     assert rp.name == "Repeats"
     assert rp.get_class == du.Repeats
 
-    assert du.is_num("ggggg") is False
+    assert du.is_num("haha") is False
 
 
 #################################################################################
@@ -548,6 +549,9 @@ def test_get_heads_and_dict():
     check_loop(test_heads, tree_heads)
     check_loop(test_children, tree_heads[0].children)
     assert test_dic == usage_dic
+
+    usages = ['counted_example.py (--path=<path>)... (--location=<location>)...']
+    usage_dic, tree_heads = docopt.get_heads_and_dict(usages, [])
 
 
 # Test function for identifying if the input is a number
