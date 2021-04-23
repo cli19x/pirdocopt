@@ -394,7 +394,7 @@ def test_docopt():
 # Test function for processing string
 @pytest.mark.filterwarnings("ignore:api v1")
 def test_processing_string(capsys):
-    usage_array, options_array = docopt.processing_string(
+    usage_array, options_array, _ = docopt.processing_string(
         doc=doc1, help_message=False, version="test 2.0")
     assert usage.split('\n') == usage_array
     assert options.split('\n') == options_array
@@ -402,7 +402,7 @@ def test_processing_string(capsys):
     res = docopt.processing_string(doc=None, help_message=False, version="test 2.0")
     assert res is None
 
-    usage_array, options_array = docopt.processing_string(
+    usage_array, options_array, _ = docopt.processing_string(
         doc=doc1, help_message=True, version="test 2.0")
     assert usage.split('\n') == usage_array
     assert options.split('\n') == options_array
@@ -533,11 +533,13 @@ def test_get_heads_and_dict():
     usages = ['  user_program.py ship new <name>... ', '  \
         user_program.py ship <name> move <x> <y> [--speed=<kn>]',
               '  user_program.py (-h | --help)']
-    options_list = ['Options:', '  -h --help Show this screen.',
-                    '  -o FILE --output=<value>  Speed in knots [default: ./test.txt].',
-                    '  --speed=<kn> -s KN  Speed in knots [default: 10].']
-    usage_dic, tree_heads = docopt.get_heads_and_dict(usages, options_list)
 
+    speed = du.Option('--speed', False, has_value=True, short='-s', long='--speed')
+    speed.value = 10
+    options_pat = [du.Option('--help', value=False, has_value=False, short='-h', long='--help'),
+                   speed]
+
+    usage_dic, tree_heads = docopt.get_heads_and_dict(usages, options_pat)
     test_heads = [du.Command('ship', False), du.Required(
         [du.Mutex([du.Option('--help', value=False),
                    du.Option('--help', value=False)])])]
@@ -548,9 +550,6 @@ def test_get_heads_and_dict():
     check_loop(test_heads, tree_heads)
     check_loop(test_children, tree_heads[0].children)
     assert test_dic == usage_dic
-
-    usages = ['counted_example.py (--path=<path>)... (--location=<location>)...']
-    usage_dic, tree_heads = docopt.get_heads_and_dict(usages, [])
 
 
 # Test function for identifying if the input is a number
@@ -667,7 +666,14 @@ def test_create_repeating():
 
 # Test If matching option and keyword is working correctly
 def test_get_match_option():
-    options_pat = docopt.check_option_lines(options=options_3.split('\n'))
+    # text, value = None, has_value = False, short = None,
+    # long = None, prev = None, post = None, children = None
+    options_pat = [du.Option('--help', False, has_value=False, short='-h', long='--help'),
+                   du.Option('--sorted', False, has_value=False, short=None, long='--sorted'),
+                   du.Option('--output', './test.txt', has_value=True, short='-o', long='--output'),
+                   du.Option('--www', False, has_value=False, short='-w', long='--www'),
+                   du.Option('--hello', False, has_value=False, short=None, long='--hello')]
+
     assert docopt.get_match_option('--help', options_pat) is not None
     assert docopt.get_match_option('--output=<value>', options_pat) is not None
     assert docopt.get_match_option('-h', options_pat) is not None

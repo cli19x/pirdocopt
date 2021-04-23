@@ -50,6 +50,7 @@ def docopt(doc, version=None, help_message=True, argv=None):
         args = argv
 
     options_pat = check_option_lines(options_array)
+
     trigger_help = False
     for element in args:
         if '--help' in element or '-h' in element:
