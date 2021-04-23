@@ -6,7 +6,7 @@ API
 
 .. code:: python
 
-    from docopt import docopt
+    from pirdocopt import docopt
     arguments = docopt(__doc__, version="", help_message=Ture, argv=[])
 
 How to Install
@@ -48,7 +48,7 @@ and the options that provided by you program, you just need to call docopt.py:
          --drifting    Drifting mine.
          
     """
-    from docopt import docopt
+    from pirdocopt import docopt
     
     if __name__ == '__main__':
         res = docopt(__doc__, version="", help_message=False, argv=['mine', 'set', '50', '200', '--moored'])
