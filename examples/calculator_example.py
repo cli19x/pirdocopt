@@ -14,7 +14,7 @@ Options:
   -h, --help
 
 """
-from docopt import docopt
+from pirdocopt.docopt import docopt
 
 
 if __name__ == '__main__':

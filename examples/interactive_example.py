@@ -17,8 +17,8 @@ Options:
 
 import sys
 import cmd
-from docopt import docopt
-from docopt_util import DocoptExit
+from pirdocopt.docopt import docopt
+import pirdocopt.docopt_util as du
 
 
 def docopt_cmd(func):
@@ -30,7 +30,7 @@ def docopt_cmd(func):
         try:
             opt = docopt(fn.__doc__, arg)
 
-        except DocoptExit as e:
+        except du.DocoptExit as e:
             # The DocoptExit is thrown when the args do not match.
             # We print a message to the user and the usage block.
 

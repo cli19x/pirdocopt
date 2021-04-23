@@ -22,7 +22,7 @@ Options:
 
 """
 
-from docopt import docopt
+from pirdocopt.docopt import docopt
 
 # user.py mine (set|remove) <x> <y> [--moored | --drifting]
 if __name__ == '__main__':

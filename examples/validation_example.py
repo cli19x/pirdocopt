@@ -10,7 +10,7 @@ Options:
 """
 import os
 
-from docopt import docopt
+from pirdocopt.docopt import docopt
 
 try:
     from schema import Schema, And, Or, Use, SchemaError

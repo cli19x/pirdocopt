@@ -22,7 +22,7 @@ Options:
 
 """
 
-from docopt import docopt
+from pirdocopt.docopt import docopt
 
 # user2.py ship new <name>
 if __name__ == '__main__':
