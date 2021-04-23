@@ -5,7 +5,7 @@ import math
 import re
 import sys
 import warnings
-import docopt_util
+from pirdocopt import docopt_util
 
 
 def docopt(doc, version=None, help_message=True, argv=None):
@@ -42,11 +42,23 @@ def docopt(doc, version=None, help_message=True, argv=None):
     'x': 10, 'y': 90, '--helping': False, '--output': './test.txt', '--speed': 70}
     """
 
-    usages, options_array = processing_string(
+    usages, options_array, display_help = processing_string(
         doc, help_message, version)
+
     args = sys.argv[1:]
     if len(args) == 0 and argv is not None:
         args = argv
+
+    options_pat = check_option_lines(options_array)
+    trigger_help = False
+    for element in args:
+        if '--help' in element or '-h' in element:
+            trigger_help = True
+
+    if trigger_help:
+        for pattern in options_pat:
+            if pattern.short == '-h' or pattern.long == '--help':
+                print(display_help)
 
     if 'Usage:' in usages[0]:
         tmp = usages[0].split()
@@ -55,7 +67,7 @@ def docopt(doc, version=None, help_message=True, argv=None):
         else:
             usages[0] = ' '.join(tmp[1:])
 
-    output_dic, tree_heads = get_heads_and_dict(usages, options_array)
+    output_dic, tree_heads = get_heads_and_dict(usages, options_pat)
     output_dic = match_user_input(tree_heads, output_dic, args)
     total_dic, output_string = print_output_dictionary(output_dic)
     print(output_string)
@@ -94,7 +106,7 @@ def processing_string(doc, help_message, version):
     check_warnings(usage, options)
     if help_message:
         print(display_help)
-    return usage.split("\n"), options.split("\n")
+    return usage.split("\n"), options.split("\n"), display_help
 
 
 # Helper function for getting usage, options and name strings from doc
@@ -298,11 +310,11 @@ def get_post_match(child, args, index, child_dict):
     return post_match
 
 
-def get_heads_and_dict(usages, options):
+def get_heads_and_dict(usages, options_pat):
     """
     Args:
         usages: array of usage pattern from docstring.
-        options: array of option keywords from docstring.
+        options_pat: array of option objects from docstring.
     Returns:
         usage pattern, keyword dictionary, and array of token of
         the first layer of the tree structure.
@@ -310,7 +322,6 @@ def get_heads_and_dict(usages, options):
     new_usages = []
     usage_dic = {}
     tree_heads = []
-    options_pat = check_option_lines(options)
     for pattern in usages:
         pattern = re.sub(r'([\[\]()|]|\.\.\.)', r' \1 ', pattern).split()
         pattern.pop(0)
@@ -320,7 +331,6 @@ def get_heads_and_dict(usages, options):
         create_repeating(pattern)
         for index, token in enumerate(pattern):
             if isinstance(token.post, docopt_util.SpecialToken) and index < len(pattern) - 1:
-                print('dsadasddadasd')
                 token.post = pattern[index + 1]
         new_usages.append(pattern)
         usage_dic.update(dict_populate_loop(pattern))
@@ -469,8 +479,10 @@ def create_opt_and_req(pattern):
             collected[-1].post = post
             res = docopt_util.Required(collected, prev, post) if isinstance(
                 token, docopt_util.RequiredOpen) else docopt_util.Optional(collected, prev, post)
-            if prev: prev.post = res
-            if post: post.prev = res
+            if prev:
+                prev.post = res
+            if post:
+                post.prev = res
             pattern.insert(index, res)
 
 

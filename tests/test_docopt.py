@@ -3,8 +3,7 @@
 """
 import pytest
 
-import docopt as docopt
-import docopt_util as du
+from pirdocopt import docopt_util as du, docopt
 
 doc0 = """Perfect
 
