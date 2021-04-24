@@ -189,35 +189,6 @@ def check_warnings(usage, options):
     return 0
 
 
-# Main function for building output strings to user
-def print_output_dictionary(usage_dic):
-    """
-    :param usage_dic: the original usage dictionary from main function.
-    :return: the final dictionary object that built from usage pattern and options \
-    and the formatted json like dictionary string to user.
-
-    >>> input1 = {'1': True, '2': 'haha', '3': False, '4': True, '5': 'haha'}
-    >>> u_dic = {'usage1': 'x', 'usage2': 'y'}
-    >>> dic_total, res = print_output_dictionary(usage_dic=u_dic, options_dic=input1)
-    >>> assert dic_total == {**usage_dic, **dic_total}
-    {'usage1': 'x'
-     'usage2': 'y'
-     '1': True
-     '2': 'haha'
-     '3': False
-     '4': True
-     '5': 'haha'}
-    """
-    dictionary_total = dict.copy(usage_dic)
-    dic_list = list(dictionary_total)
-    length = len(dictionary_total)
-    if length > 24:
-        rows = math.ceil(length / 3)
-    else:
-        rows = 8
-    return dictionary_total, output_formatter(rows, length, dic_list, dictionary_total)
-
-
 def match_user_input(tree_heads, usage_dic, args):
     """
     matches user input against usage patterns
@@ -682,6 +653,35 @@ def find_default_value(line, token):
                 except ValueError:
                     token.value = default_value.split()[1]
     return token
+
+
+# Main function for building output strings to user
+def print_output_dictionary(usage_dic):
+    """
+    :param usage_dic: the original usage dictionary from main function.
+    :return: the final dictionary object that built from usage pattern and options \
+    and the formatted json like dictionary string to user.
+
+    >>> input1 = {'1': True, '2': 'haha', '3': False, '4': True, '5': 'haha'}
+    >>> u_dic = {'usage1': 'x', 'usage2': 'y'}
+    >>> dic_total, res = print_output_dictionary(usage_dic=u_dic, options_dic=input1)
+    >>> assert dic_total == {**usage_dic, **dic_total}
+    {'usage1': 'x'
+     'usage2': 'y'
+     '1': True
+     '2': 'haha'
+     '3': False
+     '4': True
+     '5': 'haha'}
+    """
+    dictionary_total = dict.copy(usage_dic)
+    dic_list = list(dictionary_total)
+    length = len(dictionary_total)
+    if length > 24:
+        rows = math.ceil(length / 3)
+    else:
+        rows = 8
+    return dictionary_total, output_formatter(rows, length, dic_list, dictionary_total)
 
 
 # A helper function for display a nice looking dictionary to the user

@@ -554,11 +554,11 @@ def test_get_heads_and_dict():
 
 # Test function for identifying if the input is a number
 def test_is_num():
-    assert docopt.is_num("5") is True
-    assert docopt.is_num("0.87") is True
-    assert docopt.is_num("-4.2") is True
-    assert docopt.is_num("x") is False
-    assert docopt.is_num("argument") is False
+    assert du.is_num("5") is True
+    assert du.is_num("0.87") is True
+    assert du.is_num("-4.2") is True
+    assert du.is_num("x") is False
+    assert du.is_num("argument") is False
 
 
 # Test function for building correct tree structure for the matching process
@@ -942,3 +942,5 @@ def test_print_output_from_rows():
                  " 5}\n"
     res = docopt.print_output_from_rows(col1=col1, col2=col2, col3=col3, num_rows=5)
     assert res == outputting
+
+
