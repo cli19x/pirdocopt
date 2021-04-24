@@ -45,15 +45,23 @@ def docopt(doc, version=None, help_message=True, argv=None):
     options_pat = check_option_lines(options_array)
 
     trigger_help = False
+    trigger_version = False
     for element in args:
         if '--help' in element or '-h' in element:
             trigger_help = True
+            break
+        if '--version' in element:
+            trigger_version = True
+            break
 
-    if trigger_help:
+    if trigger_help or trigger_version:
         for pattern in options_pat:
-            if pattern.short == '-h' or pattern.long == '--help':
+            if (pattern.short == '-h' or pattern.long == '--help') and trigger_help:
                 print(display_help)
                 return {'--help': True}
+            elif pattern.long == '--version' and trigger_version:
+                print(f'Version:\n{version}')
+                return {'--version': True}
 
     if 'Usage:' in usages[0]:
         tmp = usages[0].split()
