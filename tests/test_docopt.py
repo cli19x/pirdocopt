@@ -386,7 +386,7 @@ def test_docopt():
 
     res2 = docopt.docopt(doc=min_case, version="test 2.0", help_message=False,
                          argv=['ship', 'new', 'Titanic'])
-    after = {'ship': False, 'new': False, '<name>': None}
+    after = {'ship': True, 'new': True, '<name>': ['Titanic']}
     assert after == res2
 
 
