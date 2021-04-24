@@ -33,7 +33,6 @@ def docopt(doc, version=None, help_message=True, argv=None):
     {'ship': True, 'new': False, '<name>...': False, 'name': 'Titanic', 'move': True,
     'x': 10, 'y': 90, '--helping': False, '--output': './test.txt', '--speed': 70}
     """
-    print(argv)
     if argv is None:
         argv = list()
     usages, options_array, display_help = processing_string(
@@ -54,6 +53,7 @@ def docopt(doc, version=None, help_message=True, argv=None):
         for pattern in options_pat:
             if pattern.short == '-h' or pattern.long == '--help':
                 print(display_help)
+                return {'--help': True}
 
     if 'Usage:' in usages[0]:
         tmp = usages[0].split()
