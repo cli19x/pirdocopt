@@ -224,7 +224,7 @@ testing
 
 other = "testing"
 
-min_case = """Usage: naval_fate.py ship new <name>..."""
+min_case = """Usage: user_program.py ship new <name>..."""
 
 
 #################################################################################
@@ -387,7 +387,6 @@ def test_docopt():
     res2 = docopt.docopt(doc=min_case, version="test 2.0", help_message=False,
                          argv=['ship', 'new', 'Titanic'])
     after = {'ship': False, 'new': False, '<name>': None}
-
     assert after == res2
 
 
@@ -561,6 +560,23 @@ def test_is_num():
     assert du.is_num("argument") is False
 
 
+def test_set_children():
+    post1 = du.Command("post1")
+    post2 = du.Command("post2")
+    post3 = du.Command("post3")
+    pat1 = [du.Mutex([du.Option("-h"), du.Option("--help")])]
+    pat2 = [du.Mutex([du.Option("-h"), du.Option("--help")])]
+    pat3 = [du.Mutex([du.Option("-h"), du.Option("--help")])]
+    pat1 = [du.Command("ship", children=pat1, post=post1),
+            du.Command("new", children=pat2, post=post2),
+            du.Argument("<name>", children=pat3, post=post3)]
+    res = docopt.set_children(pat1)
+
+    assert res[0].children[-1].text == 'post1'
+    assert res[1].children[-1].text == 'post2'
+    assert res[2].children[-1].text == 'post3'
+
+
 # Test function for building correct tree structure for the matching process
 def test_build_tree_heads():
     pat1 = [du.Command("ship"), du.Command("new"), du.Argument("<name>")]
@@ -682,6 +698,9 @@ def test_get_match_option():
     assert docopt.get_match_option('--hello', options_pat) is not None
     options_pat = [None]
     assert docopt.get_match_option('--test_empty', options_pat) is not None
+
+    options_pat = []
+    assert docopt.get_match_option('--test_empty2', options_pat) is not None
 
 
 # Test If matching option and keyword is working correctly

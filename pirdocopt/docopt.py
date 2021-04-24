@@ -33,7 +33,9 @@ def docopt(doc, version=None, help_message=True, argv=None):
     {'ship': True, 'new': False, '<name>...': False, 'name': 'Titanic', 'move': True,
     'x': 10, 'y': 90, '--helping': False, '--output': './test.txt', '--speed': 70}
     """
-
+    print(argv)
+    if argv is None:
+        argv = list()
     usages, options_array, display_help = processing_string(
         doc, help_message, version)
 
@@ -75,7 +77,6 @@ def processing_string(doc, help_message, version):
     :param version: the version string pass from main function.
     :param version: programmers can specify the version of the project and display to user.
     :return: the array of usage patterns and the array of options from docstring.
-    
     >>> doc1 = 'Perfect' \
     >>>
     >>>        'Usage:' \
@@ -192,7 +193,7 @@ def check_warnings(usage, options):
 def match_user_input(tree_heads, usage_dic, args):
     """
     matches user input against usage patterns
-    
+
     :param tree_heads: the head nodes of the matching token tree
     :param usage_dic: the dictionary for holding all the keywords
     :param args: list of incoming tokens
@@ -300,6 +301,7 @@ def get_heads_and_dict(usages, options_pat):
                                                1 < len(pattern) else None
     return usage_dic, tree_heads
 
+
 def set_children(pattern):
     """
     :param pattern: array of tokens that represents the tokens.
@@ -308,6 +310,7 @@ def set_children(pattern):
     for token in pattern:
         if token.post:
             token.children.append(token.post)
+    return pattern
 
 
 def build_tree_heads(pattern, tree_heads):
