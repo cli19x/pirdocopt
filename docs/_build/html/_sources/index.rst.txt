@@ -1,9 +1,9 @@
-.. PIRDocopt documentation master file, created by
-   sphinx-quickstart on Mon Apr 19 17:05:59 2021.
+.. PirDocopt documentation master file, created by
+   sphinx-quickstart on Fri Apr 23 21:09:13 2021.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to PIRDocopt's documentation!
+Welcome to PirDocopt's documentation!
 =====================================
 
 .. toctree::
@@ -11,7 +11,6 @@ Welcome to PIRDocopt's documentation!
    :caption: Contents:
 
    modules
-
 
 Indices and tables
 ==================

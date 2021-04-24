@@ -36,22 +36,6 @@ examples.counted\_example module
    :undoc-members:
    :show-inheritance:
 
-examples.docopt module
-----------------------
-
-.. automodule:: examples.docopt
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-examples.docopt\_util module
-----------------------------
-
-.. automodule:: examples.docopt_util
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 examples.interactive\_example module
 ------------------------------------
 

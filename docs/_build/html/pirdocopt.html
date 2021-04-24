@@ -1,0 +1,1175 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pirdocopt package &#8212; PirDocopt 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="setup module" href="setup.html" />
+    <link rel="prev" title="examples package" href="examples.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="pirdocopt-package">
+<h1>pirdocopt package<a class="headerlink" href="#pirdocopt-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-pirdocopt.docopt">
+<span id="pirdocopt-docopt-module"></span><h2>pirdocopt.docopt module<a class="headerlink" href="#module-pirdocopt.docopt" title="Permalink to this headline">¶</a></h2>
+<p>Docopt is for making beautiful command line program for python.</p>
+<dl class="py function">
+<dt id="pirdocopt.docopt.build_tree_heads">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">build_tree_heads</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tree_heads</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.build_tree_heads" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pattern</strong> – array of tokens that represents the tokens.</p></li>
+<li><p><strong>tree_heads</strong> – array of tokens of the first argument.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>updated array of tokens of the first argument.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.check_option_lines">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">check_option_lines</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.check_option_lines" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>options</strong> – options the options strings from docstring.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>new_pat: the array that holds all options objects.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">check_option_lines</span><span class="p">(</span><span class="n">options</span><span class="o">=</span> <span class="s2">&quot;-h --help&quot;</span><span class="p">)</span>
+<span class="go">[Option(&#39;-h&#39;)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">check_option_lines</span><span class="p">(</span><span class="n">options</span><span class="o">=</span> <span class="s2">&quot;hello world&quot;</span><span class="p">)</span>
+<span class="go">[]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.check_option_lines_long">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">check_option_lines_long</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.check_option_lines_long" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>element</strong> – the keyword of the current option.</p></li>
+<li><p><strong>tmp_array</strong> – the string the contains the current line of option description.</p></li>
+<li><p><strong>count</strong> – the index of current keyword in the option line.</p></li>
+<li><p><strong>token</strong> – the class object of Option that holds information of option. If object is None,</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the updated options object with long form of the keyword.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">check_option_lines_long</span><span class="p">(</span><span class="s1">&#39;--value=&lt;help&gt;&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;--value=&lt;help&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;Input&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="go">token = Option(&#39;--value&#39;, None, True, None, &#39;--value&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">check_option_lines_long</span><span class="p">(</span><span class="s1">&#39;--value&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;--value&#39;</span><span class="p">,</span> <span class="s1">&#39;HELP&#39;</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="go">token = Option(&#39;--value&#39;, None, True, None, &#39;--value&#39;)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">check_option_lines_long</span><span class="p">(</span><span class="s1">&#39;--help&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;--help&#39;</span><span class="p">,</span> <span class="s1">&#39;show&#39;</span><span class="p">,</span> <span class="s1">&#39;help&#39;</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="go">token = Option(&#39;&#39;--help&#39;, False, False, None, &#39;&#39;--help&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.check_option_lines_short">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">check_option_lines_short</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">element</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmp_array</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.check_option_lines_short" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>element</strong> – the keyword of the current option.</p></li>
+<li><p><strong>tmp_array</strong> – the string the contains the current line of option description.</p></li>
+<li><p><strong>count</strong> – the index of current keyword in the option line.</p></li>
+<li><p><strong>token</strong> – the class object of Option that holds information of option.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the updated options object with short form of the keyword.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">check_option_lines_long</span><span class="p">(</span><span class="s1">&#39;-v=&lt;help&gt;&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;-v=&lt;help&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;Input&#39;</span><span class="p">,</span> <span class="s1">&#39;value&#39;</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="go">token = Option(&#39;-v&#39;, None, True, &#39;-v&#39;, None)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">check_option_lines_long</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="s1">&#39;HELP&#39;</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="go">token = Option(&#39;-v&#39;, None, True, &#39;-v&#39;, None)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">check_option_lines_long</span><span class="p">(</span><span class="s1">&#39;-h&#39;</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;-h&#39;</span><span class="p">,</span> <span class="s1">&#39;show&#39;</span><span class="p">,</span> <span class="s1">&#39;help&#39;</span><span class="p">,</span> <span class="s1">&#39;message&#39;</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="go">token = Option(&#39;-h&#39;, False, False, &#39;-h&#39;, None)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.check_value_type">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">check_value_type</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.check_value_type" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>value</strong> – the value for current key in the dictionary.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>boolean value whether the value passed in is primitive.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">check_value_type</span><span class="p">(</span><span class="s1">&#39;Perfect&#39;</span><span class="p">)</span>
+<span class="go">False</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">check_value_type</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">check_value_type</span><span class="p">(</span><span class="mf">3.1415</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">check_value_type</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="go">True</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">check_value_type</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+<span class="go">True</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.check_warnings">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">check_warnings</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">usage</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.check_warnings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Function for testing whether the docstring contains a usage part and a options part.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>usage</strong> – a string the retrieve from the docstring.</p></li>
+<li><p><strong>options</strong> – a string that retrieve from the docstring.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><strong>warning</strong> – If no usages or options contained in the docstring.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>1 if no usage pattern found, 2 if no options found,     0 if everything is ok in docstring</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">check_warnings</span><span class="p">(</span><span class="n">usage</span><span class="o">=</span><span class="s2">&quot;Usages: ...&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">check_warnings</span><span class="p">(</span><span class="n">usage</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="s2">&quot;Options: ...&quot;</span><span class="p">)</span>
+<span class="go">1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">check_warnings</span><span class="p">(</span><span class="n">usage</span><span class="o">=</span><span class="s2">&quot;Usages: ...&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="go">2</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.create_mutex">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">create_mutex</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.create_mutex" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pattern</strong> – array of tokens that represents the tokens.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.create_opt_and_req">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">create_opt_and_req</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.create_opt_and_req" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pattern</strong> – array of tokens that represents the tokens.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.create_repeating">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">create_repeating</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.create_repeating" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pattern</strong> – array of tokens that represents the tokens</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.create_tmp_token">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">create_tmp_token</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.create_tmp_token" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>token</strong> – A string that represent the keyword for option</p></li>
+<li><p><strong>has_value</strong> – Boolean value for check if keyword contain value</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>temporary option object</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">create_tmp_token</span><span class="p">(</span><span class="s1">&#39;--hello&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+<span class="go">Option(&#39;--hello&#39;, False)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">create_tmp_token</span><span class="p">(</span><span class="s1">&#39;--hi&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+<span class="go">Option(&#39;--hello&#39;, True)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.dict_populate_loop">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">dict_populate_loop</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.dict_populate_loop" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pattern</strong> – array of tokens that represents the tokens.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>a dictionary that contains all the keywords from docstrings.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.docopt">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">docopt</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">help_message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">argv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.docopt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main function for docopt program</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doc</strong> – docstring that pass from the user program</p></li>
+<li><p><strong>argv</strong> – default input arguments</p></li>
+<li><p><strong>help_message</strong> – bool denoting whether to display docstring</p></li>
+<li><p><strong>version</strong> – project version</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the complete dictionary from parameters passed in</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span> <span class="n">doc0</span> <span class="o">=</span> <span class="s2">&quot;Perfect&quot;</span>     <span class="o">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="s2">&quot;Usage:&quot;</span>     <span class="o">&gt;&gt;&gt;</span>           <span class="s2">&quot;naval_fate.py ship new &lt;name&gt;...&quot;</span>     <span class="o">&gt;&gt;&gt;</span>           <span class="s2">&quot;naval_fate.py ship &lt;name&gt; move &lt;x&gt; &lt;y&gt; [--speed=&lt;kn&gt;]&quot;</span>     <span class="o">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>        <span class="s2">&quot;Options:&quot;</span>     <span class="o">&gt;&gt;&gt;</span>           <span class="s1">&#39;-h --help --helping --haha -hhh Show this screen.&#39;</span>     <span class="o">&gt;&gt;&gt;</span>           <span class="s1">&#39;-o FILE --output=&lt;value&gt;  Speed in knots [default: ./test.txt].&#39;</span>     <span class="o">&gt;&gt;&gt;</span>           <span class="s1">&#39;--speed=&lt;kn&gt; -s KN  Speed in knots [default: 10].&#39;</span>     <span class="o">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span> <span class="n">docopt</span><span class="p">(</span><span class="n">doc</span><span class="o">=</span><span class="n">doc0</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;test 2.0&quot;</span><span class="p">,</span> <span class="n">help_message</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>                   <span class="n">argv</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;ship&#39;</span><span class="p">,</span> <span class="s1">&#39;Titanic&#39;</span><span class="p">,</span> <span class="s1">&#39;move&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="s1">&#39;--speed=70&#39;</span><span class="p">])</span>
+<span class="go">{&#39;ship&#39;: True, &#39;new&#39;: False, &#39;&lt;name&gt;...&#39;: False, &#39;name&#39;: &#39;Titanic&#39;, &#39;move&#39;: True,</span>
+<span class="go">&#39;x&#39;: 10, &#39;y&#39;: 90, &#39;--helping&#39;: False, &#39;--output&#39;: &#39;./test.txt&#39;, &#39;--speed&#39;: 70}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.find_default_value">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">find_default_value</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">line</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">token</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.find_default_value" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>line</strong> – a string that holds the current line.</p></li>
+<li><p><strong>token</strong> – The toekn object for holding option.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the updated token accroding the existence of default value</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">tmp_token</span> <span class="o">=</span> <span class="n">docopt_util</span><span class="o">.</span><span class="n">Option</span><span class="p">(</span><span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;-v&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">find_default_value</span><span class="p">(</span><span class="s1">&#39;-v FILE  input file [default: ./test.txt].&#39;</span><span class="p">,</span> <span class="n">tmp_token</span><span class="p">)</span>
+<span class="go">tmp_token = Option(&#39;-v&#39;, &#39;./test.txt&#39;, True, &#39;-v&#39;, None)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tmp_token</span> <span class="o">=</span> <span class="n">docopt_util</span><span class="o">.</span><span class="n">Option</span><span class="p">(</span><span class="s1">&#39;--location&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;-l&#39;</span><span class="p">,</span> <span class="s1">&#39;--location&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">find_default_value</span><span class="p">(</span><span class="s1">&#39;-l=&lt;location_value&gt;  insert coordinate [default: 10.88].&#39;</span><span class="p">,</span> <span class="n">tmp_token</span><span class="p">)</span>
+<span class="go">tmp_token = Option(&#39;--location&#39;, 10.88, True, &#39;-l&#39;, &#39;--location&#39;)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.get_child_match">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">get_child_match</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">children</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">head_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.get_child_match" title="Permalink to this definition">¶</a></dt>
+<dd><p>matching function for children nodes</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>children</strong> – the list of children nodes for a head node</p></li>
+<li><p><strong>args</strong> – list of incoming tokens</p></li>
+<li><p><strong>index</strong> – position in args list where comparison continues</p></li>
+<li><p><strong>head_dict</strong> – the dictionary that is going to be updated</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if a match is found else False</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.get_heads_and_dict">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">get_heads_and_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">usages</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options_pat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.get_heads_and_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>usages</strong> – array of usage pattern from docstring.</p></li>
+<li><p><strong>options_pat</strong> – array of option objects from docstring.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>usage pattern, keyword dictionary, and array of token of    the first layer of the tree structure.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.get_match_option">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">get_match_option</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">token</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options_pat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.get_match_option" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>token</strong> – A string that represent the keyword for option</p></li>
+<li><p><strong>options_pat</strong> – Array of option objects</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>option object if found else return None</p>
+</dd>
+</dl>
+<p>&gt;&gt;&gt;pat = [docopt_util.Option(‘–help’, False), docopt_util.Option(‘–sorted’, False),
+&gt;&gt;&gt; docopt_util.Option(‘–output’, ‘./test.txt’), docopt_util.Option(‘–version’, False)]
+&gt;&gt;&gt; get_match_option(‘–help’, pat)
+Option(‘–help’, False)
+&gt;&gt;&gt; get_match_option(‘–hello’, pat)
+Option(‘–hello’, False)
+&gt;&gt;&gt; get_match_option(‘–hi’, [None])
+Option(‘–hi’, False)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.get_post_match">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">get_post_match</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">child</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">child_dict</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.get_post_match" title="Permalink to this definition">¶</a></dt>
+<dd><p>matching function for post nodes
+:param child: the matched child from which we check post tokens.
+:param args: list of incoming tokens.
+:param index: position in args list where comparison continues.
+:param child_dict: the dictionary that is going to be updated.
+:return: True if a match is found else False.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.get_usage_and_options">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">get_usage_and_options</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.get_usage_and_options" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doc</strong> – docstring that passed from main function.</p></li>
+<li><p><strong>version</strong> – the version string pass from main function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the strings of name of program, the strings of usage patterns,     and the strings of options that received from docstring</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">doc1</span> <span class="o">=</span> <span class="s1">&#39;Perfect&#39;</span>     <span class="o">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>       <span class="s1">&#39;Usage:&#39;</span>     <span class="o">&gt;&gt;&gt;</span>          <span class="s1">&#39;naval_fate.py ship new &lt;name&gt;...&#39;</span>     <span class="o">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>       <span class="s1">&#39;Options:&#39;</span>     <span class="o">&gt;&gt;&gt;</span>           <span class="s1">&#39;-h --help --helping Show this screen.&#39;</span>     <span class="o">&gt;&gt;&gt;</span>           <span class="s1">&#39;--sorted  Show sorted.&#39;</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">get_usage_and_options</span><span class="p">(</span><span class="n">doc1</span><span class="p">)</span>
+<span class="go">&quot;Perfect&quot;,</span>
+<span class="go">&quot;Usage:     naval_fate.py ship new &lt;name&gt;...&quot;,     &quot;Options:     -h --help --helping Show this screen.     --sorted  Show sorted.&quot;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.identify_tokens">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">identify_tokens</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options_pat</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.identify_tokens" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>pattern</strong> – array of tokens that represents the tokens.</p></li>
+<li><p><strong>options_pat</strong> – array of option tokens.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>array of tokens that contain the updated tokens for all types of keywords.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.insert_content">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">insert_content</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dic_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dictionary_total</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.insert_content" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dic_list</strong> – a dictionary the built from user argument but reform to a list.</p></li>
+<li><p><strong>idx</strong> – the current row index.</p></li>
+<li><p><strong>rows</strong> – count of the rows.</p></li>
+<li><p><strong>col_idx</strong> – index of the col,</p></li>
+<li><p><strong>dictionary_total</strong> – the dictionary that includes both keywords for output patterns    and options.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>key value pair in a outputting form according to the type of values.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dic</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;--helping&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;--sorted&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;--output&#39;</span><span class="p">:</span> <span class="s1">&#39;ttt.pdf&#39;</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>       <span class="s1">&#39;--speed&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;--aaa&#39;</span><span class="p">:</span> <span class="mf">20.9</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dic</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">insert_content</span><span class="p">(</span><span class="n">dic_list</span><span class="o">=</span><span class="n">dic_list</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">col_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dictionary_total</span><span class="o">=</span><span class="n">dic</span><span class="p">)</span>
+<span class="go">&#39;--helping: True&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">insert_content</span><span class="p">(</span><span class="n">dic_list</span><span class="o">=</span><span class="n">dic_list</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">col_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dictionary_total</span><span class="o">=</span><span class="n">dic</span><span class="p">)</span>
+<span class="go">&#39;--sorted: None&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">insert_content</span><span class="p">(</span><span class="n">dic_list</span><span class="o">=</span><span class="n">dic_list</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">col_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dictionary_total</span><span class="o">=</span><span class="n">dic</span><span class="p">)</span>
+<span class="go">&#39;--output: ttt.pdf&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">insert_content</span><span class="p">(</span><span class="n">dic_list</span><span class="o">=</span><span class="n">dic_list</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">col_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dictionary_total</span><span class="o">=</span><span class="n">dic</span><span class="p">)</span>
+<span class="go">&#39;--speed: 10&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">insert_content</span><span class="p">(</span><span class="n">dic_list</span><span class="o">=</span><span class="n">dic_list</span><span class="p">,</span> <span class="n">idx</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">rows</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">col_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">dictionary_total</span><span class="o">=</span><span class="n">dic</span><span class="p">)</span>
+<span class="go">&#39;--aaa: 20.9&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.match_user_input">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">match_user_input</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tree_heads</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usage_dic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.match_user_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>matches user input against usage patterns</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tree_heads</strong> – the head nodes of the matching token tree</p></li>
+<li><p><strong>usage_dic</strong> – the dictionary for holding all the keywords</p></li>
+<li><p><strong>args</strong> – list of incoming tokens</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True if a match is found else False</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.output_formatter">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">output_formatter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rows</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dic_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dictionary_total</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.output_formatter" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">param rows</dt>
+<dd class="field-odd"><p>count for how many rows needed for output dictionary.</p>
+</dd>
+<dt class="field-even">param length</dt>
+<dd class="field-even"><p>the total length for the output usage and options dictionary.</p>
+</dd>
+<dt class="field-odd">param dic_list</dt>
+<dd class="field-odd"><p>reformat the dictionary into a array.</p>
+</dd>
+<dt class="field-even">param dictionary_total</dt>
+<dd class="field-even"><p>combined dictionary (usage dic + options dic).</p>
+</dd>
+<dt class="field-odd">return</dt>
+<dd class="field-odd"><p>the string from display or an array for testing.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dic</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;--helping&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;--sorted&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;--output&#39;</span><span class="p">:</span> <span class="s1">&#39;ttt.pdf&#39;</span><span class="p">,</span> <span class="s1">&#39;--version&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>       <span class="s1">&#39;--speed&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;--moored&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;--drifting&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;--rr&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;--aaa&#39;</span><span class="p">:</span> <span class="mf">20.9</span><span class="p">,</span>
+<span class="gp">&gt;&gt;&gt; </span>       <span class="s1">&#39;--yyy&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">d_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">dic</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">output_formatter</span><span class="p">(</span><span class="n">rows</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">dic_list</span><span class="p">),</span> <span class="n">dic_list</span><span class="o">=</span><span class="n">dic_list</span><span class="p">,</span> <span class="n">dictionary_total</span><span class="o">=</span><span class="n">dic</span><span class="p">)</span>
+<span class="go">&quot;{&#39;--helping&#39;: True         &#39;--speed&#39;: 10          &#39;--aaa&#39;: 20.9</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>” +     ” ‘–sorted’: True          ‘–moored’: True       ‘–yyy’: False
+” +     ” ‘–output’: ‘ttt.pdf’     ‘–drifting’: None
+” +     ” ‘–version’: False        ‘–rr’: False}
+“</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.print_output_dictionary">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">print_output_dictionary</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">usage_dic</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.print_output_dictionary" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>usage_dic</strong> – the original usage dictionary from main function.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the final dictionary object that built from usage pattern and options     and the formatted json like dictionary string to user.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">input1</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;1&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;2&#39;</span><span class="p">:</span> <span class="s1">&#39;haha&#39;</span><span class="p">,</span> <span class="s1">&#39;3&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;4&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;5&#39;</span><span class="p">:</span> <span class="s1">&#39;haha&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">u_dic</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;usage1&#39;</span><span class="p">:</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;usage2&#39;</span><span class="p">:</span> <span class="s1">&#39;y&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dic_total</span><span class="p">,</span> <span class="n">res</span> <span class="o">=</span> <span class="n">print_output_dictionary</span><span class="p">(</span><span class="n">usage_dic</span><span class="o">=</span><span class="n">u_dic</span><span class="p">,</span> <span class="n">options_dic</span><span class="o">=</span><span class="n">input1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">assert</span> <span class="n">dic_total</span> <span class="o">==</span> <span class="p">{</span><span class="o">**</span><span class="n">usage_dic</span><span class="p">,</span> <span class="o">**</span><span class="n">dic_total</span><span class="p">}</span>
+<span class="go">{&#39;usage1&#39;: &#39;x&#39;</span>
+<span class="go"> &#39;usage2&#39;: &#39;y&#39;</span>
+<span class="go"> &#39;1&#39;: True</span>
+<span class="go"> &#39;2&#39;: &#39;haha&#39;</span>
+<span class="go"> &#39;3&#39;: False</span>
+<span class="go"> &#39;4&#39;: True</span>
+<span class="go"> &#39;5&#39;: &#39;haha&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.print_output_from_rows">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">print_output_from_rows</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">col1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">col3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_rows</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.print_output_from_rows" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div><dl class="field-list simple">
+<dt class="field-odd">param col1</dt>
+<dd class="field-odd"><p>holds the values for output column one.</p>
+</dd>
+<dt class="field-even">param col2</dt>
+<dd class="field-even"><p>holds the values for output column two.</p>
+</dd>
+<dt class="field-odd">param col3</dt>
+<dd class="field-odd"><p>holds the values for output column three.</p>
+</dd>
+<dt class="field-even">param num_rows</dt>
+<dd class="field-even"><p>the number of rows.</p>
+</dd>
+<dt class="field-odd">return</dt>
+<dd class="field-odd"><p>output string</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">first_row</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39; 11&#39;</span><span class="p">,</span> <span class="s1">&#39; 2&#39;</span><span class="p">,</span> <span class="s1">&#39; 3&#39;</span><span class="p">,</span> <span class="s1">&#39; 4&#39;</span><span class="p">,</span> <span class="s1">&#39; 5&#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">second_row</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39; 1&#39;</span><span class="p">,</span> <span class="s1">&#39; 222&#39;</span><span class="p">,</span> <span class="s1">&#39; 3&#39;</span><span class="p">,</span> <span class="s1">&#39; 4&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">third_row</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39; 1&#39;</span><span class="p">,</span> <span class="s1">&#39; 2&#39;</span><span class="p">,</span> <span class="s1">&#39; 3333&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">print_output_from_rows</span><span class="p">(</span><span class="n">col1</span><span class="o">=</span><span class="n">col1</span><span class="p">,</span> <span class="n">col2</span><span class="o">=</span><span class="n">col2</span><span class="p">,</span> <span class="n">col3</span><span class="o">=</span><span class="n">col3</span><span class="p">,</span> <span class="n">num_rows</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="go">&quot;{11     1       1</span>
+</pre></div>
+</div>
+</div></blockquote>
+<p>” +     ” 2      222     2
+” +     ” 3      3       3333
+” +     ” 4      4
+” +     ” 5}
+“</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.processing_string">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">processing_string</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">help_message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">version</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.processing_string" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doc</strong> – docstring pass from the main function.</p></li>
+<li><p><strong>help_message</strong> – to tell docopt whether user want to display help message when     the program executes.</p></li>
+<li><p><strong>version</strong> – the version string pass from main function.</p></li>
+<li><p><strong>version</strong> – programmers can specify the version of the project and display to user.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the array of usage patterns and the array of options from docstring.</p>
+</dd>
+</dl>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">doc1</span> <span class="o">=</span> <span class="s1">&#39;Perfect&#39;</span>     <span class="o">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>       <span class="s1">&#39;Usage:&#39;</span>     <span class="o">&gt;&gt;&gt;</span>          <span class="s1">&#39;naval_fate.py ship new &lt;name&gt;...&#39;</span>     <span class="o">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span>       <span class="s1">&#39;Options:&#39;</span>     <span class="o">&gt;&gt;&gt;</span>           <span class="s1">&#39;-h --help --helping Show this screen.&#39;</span>     <span class="o">&gt;&gt;&gt;</span>           <span class="s1">&#39;--sorted  Show sorted.&#39;</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">processing_string</span><span class="p">(</span><span class="n">doc</span><span class="o">=</span><span class="n">doc1</span><span class="p">,</span> <span class="n">help_message</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">version</span><span class="o">=</span><span class="s2">&quot;test 2.0&quot;</span><span class="p">)</span>
+<span class="go">[&#39;Usage:&#39;, &#39;  naval_fate.py ship new &lt;name&gt;...&#39;],     [&#39;Options:&#39;, &#39;  -h --help --helping Show this screen.&#39;, &#39;  --sorted  Show sorted.&#39;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt.set_children">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt.</span></code><code class="sig-name descname"><span class="pre">set_children</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt.set_children" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pattern</strong> – array of tokens that represents the tokens.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pirdocopt.docopt_util">
+<span id="pirdocopt-docopt-util-module"></span><h2>pirdocopt.docopt_util module<a class="headerlink" href="#module-pirdocopt.docopt_util" title="Permalink to this headline">¶</a></h2>
+<p>This module is for holding all the class objects which used to create the tokens
+for each type of keywords in the usage pattern and options table in the docstrings.</p>
+<dl class="py class">
+<dt id="pirdocopt.docopt_util.Argument">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt_util.</span></code><code class="sig-name descname"><span class="pre">Argument</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Argument" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pirdocopt.docopt_util.Leaf" title="pirdocopt.docopt_util.Leaf"><code class="xref py py-class docutils literal notranslate"><span class="pre">pirdocopt.docopt_util.Leaf</span></code></a></p>
+<p>Positional arguments.</p>
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.Argument.get_res_dict">
+<code class="sig-name descname"><span class="pre">get_res_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_match</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Argument.get_res_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>is_match</strong> – boolean for if input is matching the pattern.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>return the dictionary is success.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.Argument.match">
+<code class="sig-name descname"><span class="pre">match</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Argument.match" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> – the list of tokens for comparison.</p></li>
+<li><p><strong>index</strong> – the index of token that will be compared.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>return true, the next index of token list, and the dictionary if success.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pirdocopt.docopt_util.Branch">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt_util.</span></code><code class="sig-name descname"><span class="pre">Branch</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Branch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pirdocopt.docopt_util.Token" title="pirdocopt.docopt_util.Token"><code class="xref py py-class docutils literal notranslate"><span class="pre">pirdocopt.docopt_util.Token</span></code></a></p>
+<p>Special nested groups of Leaf tokens.</p>
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.Branch.flat">
+<code class="sig-name descname"><span class="pre">flat</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">types</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Branch.flat" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>types</strong> – the class type of current keyword.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>return all the children’s class type.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pirdocopt.docopt_util.Command">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt_util.</span></code><code class="sig-name descname"><span class="pre">Command</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pirdocopt.docopt_util.Leaf" title="pirdocopt.docopt_util.Leaf"><code class="xref py py-class docutils literal notranslate"><span class="pre">pirdocopt.docopt_util.Leaf</span></code></a></p>
+<p>Command token.</p>
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.Command.get_res_dict">
+<code class="sig-name descname"><span class="pre">get_res_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_match</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Command.get_res_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>is_match</strong> – boolean value for checking if the token is matching argument.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>return the dictionary according to the boolean.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.Command.match">
+<code class="sig-name descname"><span class="pre">match</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Command.match" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> – the list of incoming argument that will be used to compare.</p></li>
+<li><p><strong>index</strong> – the index of element that needed to compare.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>return true and the new index skipping to and the dictionary for current keyword.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py exception">
+<dt id="pirdocopt.docopt_util.DocoptExit">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt_util.</span></code><code class="sig-name descname"><span class="pre">DocoptExit</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Exception</span> <span class="pre">occur.'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.DocoptExit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception class for docopt.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="pirdocopt.docopt_util.Leaf">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt_util.</span></code><code class="sig-name descname"><span class="pre">Leaf</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Leaf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pirdocopt.docopt_util.Token" title="pirdocopt.docopt_util.Token"><code class="xref py py-class docutils literal notranslate"><span class="pre">pirdocopt.docopt_util.Token</span></code></a></p>
+<p>Singular tokens (options, command, and arguments).</p>
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.Leaf.flat">
+<code class="sig-name descname"><span class="pre">flat</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">types</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Leaf.flat" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>types</strong> – check the type of argument.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>return self is argument is self type else return None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pirdocopt.docopt_util.Mutex">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt_util.</span></code><code class="sig-name descname"><span class="pre">Mutex</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Mutex" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pirdocopt.docopt_util.Branch" title="pirdocopt.docopt_util.Branch"><code class="xref py py-class docutils literal notranslate"><span class="pre">pirdocopt.docopt_util.Branch</span></code></a></p>
+<p>Mutually exclusive tokens.</p>
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.Mutex.match">
+<code class="sig-name descname"><span class="pre">match</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Mutex.match" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> – the list of incoming argument that will be used to compare.</p></li>
+<li><p><strong>index</strong> – the index of element that needed to compare.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>return true and the new index skipping to and the dictionary for current keyword.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pirdocopt.docopt_util.Option">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt_util.</span></code><code class="sig-name descname"><span class="pre">Option</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_value</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">short</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Option" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pirdocopt.docopt_util.Leaf" title="pirdocopt.docopt_util.Leaf"><code class="xref py py-class docutils literal notranslate"><span class="pre">pirdocopt.docopt_util.Leaf</span></code></a></p>
+<p>Option tokens.</p>
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.Option.get_res_dict">
+<code class="sig-name descname"><span class="pre">get_res_dict</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_match</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Option.get_res_dict" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>is_match</strong> – boolean value for checking if the token is matching argument.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>return the dictionary according to the boolean.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.Option.match">
+<code class="sig-name descname"><span class="pre">match</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Option.match" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> – the list of incoming argument that will be used to compare.</p></li>
+<li><p><strong>index</strong> – the index of element that needed to compare.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>return true and the new index skipping to and the dictionary for current keyword.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pirdocopt.docopt_util.Optional">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt_util.</span></code><code class="sig-name descname"><span class="pre">Optional</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Optional" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pirdocopt.docopt_util.Branch" title="pirdocopt.docopt_util.Branch"><code class="xref py py-class docutils literal notranslate"><span class="pre">pirdocopt.docopt_util.Branch</span></code></a></p>
+<p>Optional tokens.</p>
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.Optional.match">
+<code class="sig-name descname"><span class="pre">match</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Optional.match" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> – the list of incoming argument that will be used to compare.</p></li>
+<li><p><strong>index</strong> – the index of element that needed to compare.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>return true and the new index skipping to and the dictionary for current keyword.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pirdocopt.docopt_util.OptionalClosed">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt_util.</span></code><code class="sig-name descname"><span class="pre">OptionalClosed</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.OptionalClosed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pirdocopt.docopt_util.SpecialToken" title="pirdocopt.docopt_util.SpecialToken"><code class="xref py py-class docutils literal notranslate"><span class="pre">pirdocopt.docopt_util.SpecialToken</span></code></a></p>
+<p>Optional Closed.</p>
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.OptionalClosed.get_class">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">get_class</span></code><a class="headerlink" href="#pirdocopt.docopt_util.OptionalClosed.get_class" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>class type</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.OptionalClosed.name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name</span></code><a class="headerlink" href="#pirdocopt.docopt_util.OptionalClosed.name" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>“OptionalClosed”.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pirdocopt.docopt_util.OptionalOpen">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt_util.</span></code><code class="sig-name descname"><span class="pre">OptionalOpen</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.OptionalOpen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pirdocopt.docopt_util.SpecialToken" title="pirdocopt.docopt_util.SpecialToken"><code class="xref py py-class docutils literal notranslate"><span class="pre">pirdocopt.docopt_util.SpecialToken</span></code></a></p>
+<p>Optional Open.</p>
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.OptionalOpen.closed_class">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">closed_class</span></code><a class="headerlink" href="#pirdocopt.docopt_util.OptionalOpen.closed_class" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>optional closed class type token.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.OptionalOpen.get_class">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">get_class</span></code><a class="headerlink" href="#pirdocopt.docopt_util.OptionalOpen.get_class" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>class type.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.OptionalOpen.name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name</span></code><a class="headerlink" href="#pirdocopt.docopt_util.OptionalOpen.name" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>“OptionalOpen.”</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pirdocopt.docopt_util.Pipe">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt_util.</span></code><code class="sig-name descname"><span class="pre">Pipe</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Pipe" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pirdocopt.docopt_util.SpecialToken" title="pirdocopt.docopt_util.SpecialToken"><code class="xref py py-class docutils literal notranslate"><span class="pre">pirdocopt.docopt_util.SpecialToken</span></code></a></p>
+<p>Pipe (Denotes Mutex).</p>
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.Pipe.get_class">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">get_class</span></code><a class="headerlink" href="#pirdocopt.docopt_util.Pipe.get_class" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>class type.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.Pipe.name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name</span></code><a class="headerlink" href="#pirdocopt.docopt_util.Pipe.name" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>“Pipe”.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pirdocopt.docopt_util.Repeating">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt_util.</span></code><code class="sig-name descname"><span class="pre">Repeating</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Repeating" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pirdocopt.docopt_util.Branch" title="pirdocopt.docopt_util.Branch"><code class="xref py py-class docutils literal notranslate"><span class="pre">pirdocopt.docopt_util.Branch</span></code></a></p>
+<p>Repeating tokens.</p>
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.Repeating.match">
+<code class="sig-name descname"><span class="pre">match</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Repeating.match" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> – the list of incoming argument that will be used to compare.</p></li>
+<li><p><strong>index</strong> – the index of element that needed to compare.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>return true and the new index skipping to and the dictionary for current keyword.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pirdocopt.docopt_util.Repeats">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt_util.</span></code><code class="sig-name descname"><span class="pre">Repeats</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Repeats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pirdocopt.docopt_util.SpecialToken" title="pirdocopt.docopt_util.SpecialToken"><code class="xref py py-class docutils literal notranslate"><span class="pre">pirdocopt.docopt_util.SpecialToken</span></code></a></p>
+<p>Ellipsis (denotes Repeating).</p>
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.Repeats.get_class">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">get_class</span></code><a class="headerlink" href="#pirdocopt.docopt_util.Repeats.get_class" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>class type.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.Repeats.name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name</span></code><a class="headerlink" href="#pirdocopt.docopt_util.Repeats.name" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>“Repeats”.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pirdocopt.docopt_util.Required">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt_util.</span></code><code class="sig-name descname"><span class="pre">Required</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tokens</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Required" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pirdocopt.docopt_util.Branch" title="pirdocopt.docopt_util.Branch"><code class="xref py py-class docutils literal notranslate"><span class="pre">pirdocopt.docopt_util.Branch</span></code></a></p>
+<p>Required tokens.</p>
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.Required.match">
+<code class="sig-name descname"><span class="pre">match</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Required.match" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> – the list of incoming argument that will be used to compare.</p></li>
+<li><p><strong>index</strong> – the index of element that needed to compare.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>return true and the new index skipping to and the dictionary for current keyword.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pirdocopt.docopt_util.RequiredClosed">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt_util.</span></code><code class="sig-name descname"><span class="pre">RequiredClosed</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.RequiredClosed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pirdocopt.docopt_util.SpecialToken" title="pirdocopt.docopt_util.SpecialToken"><code class="xref py py-class docutils literal notranslate"><span class="pre">pirdocopt.docopt_util.SpecialToken</span></code></a></p>
+<p>Required Closed.</p>
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.RequiredClosed.get_class">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">get_class</span></code><a class="headerlink" href="#pirdocopt.docopt_util.RequiredClosed.get_class" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>class type.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.RequiredClosed.name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name</span></code><a class="headerlink" href="#pirdocopt.docopt_util.RequiredClosed.name" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>“RequiredClosed”.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pirdocopt.docopt_util.RequiredOpen">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt_util.</span></code><code class="sig-name descname"><span class="pre">RequiredOpen</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.RequiredOpen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pirdocopt.docopt_util.SpecialToken" title="pirdocopt.docopt_util.SpecialToken"><code class="xref py py-class docutils literal notranslate"><span class="pre">pirdocopt.docopt_util.SpecialToken</span></code></a></p>
+<p>Required Open.</p>
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.RequiredOpen.closed_class">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">closed_class</span></code><a class="headerlink" href="#pirdocopt.docopt_util.RequiredOpen.closed_class" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Required closed class token.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.RequiredOpen.get_class">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">get_class</span></code><a class="headerlink" href="#pirdocopt.docopt_util.RequiredOpen.get_class" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>class type.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.RequiredOpen.name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name</span></code><a class="headerlink" href="#pirdocopt.docopt_util.RequiredOpen.name" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>“RequiredOpen”.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pirdocopt.docopt_util.SpecialToken">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt_util.</span></code><code class="sig-name descname"><span class="pre">SpecialToken</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.SpecialToken" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pirdocopt.docopt_util.Token" title="pirdocopt.docopt_util.Token"><code class="xref py py-class docutils literal notranslate"><span class="pre">pirdocopt.docopt_util.Token</span></code></a></p>
+<p>Special non-leaf tokens indicating the presence of branch tokens.</p>
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.SpecialToken.get_class">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">get_class</span></code><a class="headerlink" href="#pirdocopt.docopt_util.SpecialToken.get_class" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>class type.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.SpecialToken.name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name</span></code><a class="headerlink" href="#pirdocopt.docopt_util.SpecialToken.name" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>“SpecialToken”.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="pirdocopt.docopt_util.Token">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt_util.</span></code><code class="sig-name descname"><span class="pre">Token</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prev</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">post</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">children</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.Token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>parent class for all different tokens.</p>
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.Token.get_class">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">get_class</span></code><a class="headerlink" href="#pirdocopt.docopt_util.Token.get_class" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>class type.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="pirdocopt.docopt_util.Token.name">
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name</span></code><a class="headerlink" href="#pirdocopt.docopt_util.Token.name" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>“Token”.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="pirdocopt.docopt_util.is_num">
+<code class="sig-prename descclassname"><span class="pre">pirdocopt.docopt_util.</span></code><code class="sig-name descname"><span class="pre">is_num</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pirdocopt.docopt_util.is_num" title="Permalink to this definition">¶</a></dt>
+<dd><p>param arg: input object that going to check if it is a number.
+:return: true if input is number, else return false.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-pirdocopt">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-pirdocopt" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">PirDocopt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Python_in_Real_Docopt</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="examples.html">examples package</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pirdocopt package</a></li>
+<li class="toctree-l2"><a class="reference internal" href="setup.html">setup module</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tests.html">tests package</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">Python_in_Real_Docopt</a><ul>
+      <li>Previous: <a href="examples.html" title="previous chapter">examples package</a></li>
+      <li>Next: <a href="setup.html" title="next chapter">setup module</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2021, Chengen Li, Kevin Williams.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/pirdocopt.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

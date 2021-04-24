@@ -1,13 +1,13 @@
 """
   This module is for holding all the class objects which used to create the tokens
-  for each type of keywords in the usage pattern and options table in the docstrings
+  for each type of keywords in the usage pattern and options table in the docstrings.
 """
 import re
 
 
 class DocoptExit(Exception):
     """
-    Exception class for docopt
+    Exception class for docopt.
     """
 
     def __init__(self, message="Exception occur."):
@@ -17,14 +17,14 @@ class DocoptExit(Exception):
 
 class Token:
     """
-    class token is the parent class for all different tokens
+    parent class for all different tokens.
     """
 
     def __init__(self, prev=None, post=None, children=None):
         """
-        :param prev: the prev level node
-        :param post: the next following node
-        :param children: the list of tokens
+        :param prev: the prev level node.
+        :param post: the next following node.
+        :param children: the list of tokens.
         """
         if children is None:
             children = []
@@ -36,14 +36,14 @@ class Token:
     @property
     def name(self):
         """
-        :return: "Token"
+        :return: "Token".
         """
         return "Token"
 
     @property
     def get_class(self):
         """
-        :return: class type
+        :return: class type.
         """
         return Token
 
@@ -51,17 +51,17 @@ class Token:
 # pylint: disable=too-many-arguments
 class Leaf(Token):
     """
-    class leaf
+    Singular tokens (options, command, and arguments).
     """
 
     def __init__(self, text, value=None, prev=None, post=None, children=None):
         """
 
-        :param text: the keyword for leaf token
-        :param value: the value of this token
-        :param prev: the prev object
-        :param post: the next linked object
-        :param children: the list of children of current keyword token
+        :param text: the keyword for leaf token.
+        :param value: the value of this token.
+        :param prev: the prev object.
+        :param post: the next linked object.
+        :param children: the list of children of current keyword token.
         """
         self.text = text
         self.value, self.prev, self.post, self.children = (value, prev, post, children)
@@ -72,29 +72,30 @@ class Leaf(Token):
 
     def __repr__(self):
         """
-        :return: return the formatted string of leaf
+        :return: return the formatted string of leaf.
         """
         return '%s(%r, %r)' % (self.__class__.__name__, self.text, self.value)
 
     def flat(self, *types):
         """
 
-        :param types: check the type of argument
-        :return: return self is argument is self type else return None
+        :param types: check the type of argument.
+        :return: return self is argument is self type else return None.
         """
         return self if not types or type(self) in types else None
 
 
 class Argument(Leaf):
-    """ Placeholder """
+    """ Positional arguments. """
 
     def __init__(self, text, prev=None, post=None, children=None):
         """
-            :param text: the keyword of current node
-            :param prev: the prev level node
-            :param post: the next following node
-            :param children: the list of tokens
-            """
+        :param text: the keyword of current token.
+        :param prev: the prev level token.
+        :param post: the next following token.
+        :param children: the list of tokens.
+
+        """
         if children is None:
             children = []
         self.value = None if len(text.strip("<>")) > 1 else 0
@@ -103,10 +104,10 @@ class Argument(Leaf):
 
     def match(self, args, index):
         """
+        :param args: the list of tokens for comparison.
+        :param index: the index of token that will be compared.
+        :return: return true, the next index of token list, and the dictionary if success.
 
-        :param args: the list of tokens for comparison
-        :param index: the index of token that will be compared
-        :return: return true, the next index of token list, and the dictionary if success
         """
         is_match = False
         if index < len(args):
@@ -117,9 +118,9 @@ class Argument(Leaf):
 
     def get_res_dict(self, is_match):
         """
+        :param is_match: boolean for if input is matching the pattern.
+        :return: return the dictionary is success.
 
-        :param is_match: boolean for if input is matching the pattern
-        :return: return the dictionary is success
         """
         if not is_match:
             return dict()
@@ -128,11 +129,22 @@ class Argument(Leaf):
 
 # pylint: disable=too-many-arguments
 class Option(Leaf):
-    """ Placeholder """
+    """ Option tokens. """
 
     # pylint: disable=too-many-instance-attributes
     def __init__(self, text, value=None, has_value=False, short=None,
                  long=None, prev=None, post=None, children=None):
+        '''
+        :param text: the keyword of current token.
+        :param value: value of current token.
+        :param has_value: bool denoting whether token has value.
+        :param short: short version of token.
+        :param long: long version of token.
+        :param prev: the prev level token.
+        :param post: the next following token.
+        :param children: the list next tokens.
+
+        '''
         self.text = text
         self.value = value
         self.has_value = has_value
@@ -155,10 +167,10 @@ class Option(Leaf):
 
     def match(self, args, index):
         """
+        :param args: the list of incoming argument that will be used to compare.
+        :param index: the index of element that needed to compare.
+        :return: return true and the new index skipping to and the dictionary for current keyword.
 
-        :param args: the list of incoming argument that will be used to compare
-        :param index: the index of element that needed to compare
-        :return: return true and the new index skipping to and the dictionary for current keyword
         """
         is_match = False
         new_index = index + 1
@@ -177,9 +189,9 @@ class Option(Leaf):
 
     def get_res_dict(self, is_match):
         """
+        :param is_match: boolean value for checking if the token is matching argument.
+        :return: return the dictionary according to the boolean.
 
-        :param is_match: boolean value for checking if the token is matching argument
-        :return: return the dictionary according to the boolean
         """
         if not is_match:
             return dict()
@@ -188,14 +200,16 @@ class Option(Leaf):
 
 # pylint: disable=too-many-arguments
 class Command(Leaf):
-    """ Placeholder """
+    """ Command token. """
 
     def __init__(self, text, value=False, prev=None, post=None, children=None):
         """
-            :param text: the keyword of current node
-            :param prev: the prev level node
-            :param post: the next following node
-            :param children: the list of tokens
+        :param text: the keyword of current token.
+        :param value: value of current token.
+        :param prev: the prev level token.
+        :param post: the next following token.
+        :param children: the list of token.
+
         """
         if children is None:
             children = []
@@ -205,9 +219,10 @@ class Command(Leaf):
 
     def match(self, args, index):
         """
-        :param args: the list of incoming argument that will be used to compare
-        :param index: the index of element that needed to compare
-        :return: return true and the new index skipping to and the dictionary for current keyword
+        :param args: the list of incoming argument that will be used to compare.
+        :param index: the index of element that needed to compare.
+        :return: return true and the new index skipping to and the dictionary for current keyword.
+
         """
         is_match = False
         if index < len(args):
@@ -218,26 +233,25 @@ class Command(Leaf):
 
     def get_res_dict(self, is_match):
         """
+        :param is_match: boolean value for checking if the token is matching argument.
+        :return: return the dictionary according to the boolean.
 
-        :param is_match: boolean value for checking if the token is matching argument
-        :return: return the dictionary according to the boolean
         """
         if not is_match:
             return dict()
         return dict({self.text: True})
 
 
-# Used for grouping Tokens by optional, required, mutex, or repeating
 class Branch(Token):
-    """Branch class"""
+    """Special nested groups of Leaf tokens."""
 
     def __init__(self, tokens=None, prev=None, post=None, children=None):
         """
+        :param tokens: the list of tokens of current branch.
+        :param prev: the previous linked object.
+        :param post: the post linked object.
+        :param children: the list of tokens.
 
-        :param tokens: the list of tokens of current branch
-        :param prev: the previous linked object
-        :param post: the post linked object
-        :param children: the list of tokens
         """
         if children is None:
             children = []
@@ -252,9 +266,8 @@ class Branch(Token):
 
     def flat(self, *types):
         """
-
-        :param types: the class type of current keyword
-        :return: return all the children's class type
+        :param types: the class type of current keyword.
+        :return: return all the children's class type.
         """
         if type(self) in types:
             return self
@@ -262,13 +275,13 @@ class Branch(Token):
 
 
 class Optional(Branch):
-    """ Placeholder """
+    """ Optional tokens. """
 
     def match(self, args, index):
         """
-        :param args: the list of incoming argument that will be used to compare
-        :param index: the index of element that needed to compare
-        :return: return true and the new index skipping to and the dictionary for current keyword
+        :param args: the list of incoming argument that will be used to compare.
+        :param index: the index of element that needed to compare.
+        :return: return true and the new index skipping to and the dictionary for current keyword.
         """
         is_match, child_index, res_dict = True, index, dict()
         for child in self.tokens:
@@ -283,13 +296,13 @@ class Optional(Branch):
 
 
 class Required(Branch):
-    """ Placeholder """
+    """ Required tokens. """
 
     def match(self, args, index):
         """
-        :param args: the list of incoming argument that will be used to compare
-        :param index: the index of element that needed to compare
-        :return: return true and the new index skipping to and the dictionary for current keyword
+        :param args: the list of incoming argument that will be used to compare.
+        :param index: the index of element that needed to compare.
+        :return: return true and the new index skipping to and the dictionary for current keyword.
         """
         is_match, child_index, res_dict = True, index, dict()
         for child in self.tokens:
@@ -303,13 +316,13 @@ class Required(Branch):
 
 
 class Mutex(Branch):
-    """ Placeholder """
+    """ Mutually exclusive tokens. """
 
     def match(self, args, index):
         """
-        :param args: the list of incoming argument that will be used to compare
-        :param index: the index of element that needed to compare
-        :return: return true and the new index skipping to and the dictionary for current keyword
+        :param args: the list of incoming argument that will be used to compare.
+        :param index: the index of element that needed to compare.
+        :return: return true and the new index skipping to and the dictionary for current keyword.
         """
         is_match, new_index, res_dict = False, index, dict()
         for child in self.tokens:
@@ -321,14 +334,14 @@ class Mutex(Branch):
 
 
 class Repeating(Branch):
-    """ Placeholder """
+    """ Repeating tokens. """
 
     # BUG: index 1 less than it should be when repeating pattern incomplete
     def match(self, args, index):
         """
-        :param args: the list of incoming argument that will be used to compare
-        :param index: the index of element that needed to compare
-        :return: return true and the new index skipping to and the dictionary for current keyword
+        :param args: the list of incoming argument that will be used to compare.
+        :param index: the index of element that needed to compare.
+        :return: return true and the new index skipping to and the dictionary for current keyword.
         """
         res_dict_full = dict()
         res_list = []
@@ -355,14 +368,13 @@ class Repeating(Branch):
 
 
 class SpecialToken(Token):
-    """ Placeholder"""
+    """ Special non-leaf tokens indicating the presence of branch tokens. """
 
     def __init__(self, prev=None, post=None, children=None):
         """
-
-        :param prev: the prev linked node
-        :param post: the next linked node
-        :param children: the list of tokens for holding the children nodes
+        :param prev: the prev linked node.
+        :param post: the next linked node.
+        :param children: the list of tokens for holding the children nodes.
         """
         if children is None:
             children = []
@@ -371,51 +383,50 @@ class SpecialToken(Token):
     @property
     def name(self):
         """
-        :return: "SpecialToken"
+        :return: "SpecialToken".
         """
         return "SpecialToken"
 
     @property
     def get_class(self):
         """
-        :return: class type
+        :return: class type.
         """
         return SpecialToken
 
 
 class OptionalOpen(SpecialToken):
-    """ Placeholder """
+    """ Optional Open. """
 
     @property
     def closed_class(self):
         """
-
-        :return: optional closed class type token
+        :return: optional closed class type token.
         """
         return OptionalClosed
 
     @property
     def name(self):
         """
-        :return: "OptionalOpen"
+        :return: "OptionalOpen."
         """
         return "OptionalOpen"
 
     @property
     def get_class(self):
         """
-        :return: class type
+        :return: class type.
         """
         return OptionalOpen
 
 
 class OptionalClosed(SpecialToken):
-    """ Placeholder """
+    """ Optional Closed. """
 
     @property
     def name(self):
         """
-        :return: "OptionalClosed"
+        :return: "OptionalClosed".
         """
         return "OptionalClosed"
 
@@ -428,92 +439,89 @@ class OptionalClosed(SpecialToken):
 
 
 class RequiredOpen(SpecialToken):
-    """ Placeholder """
+    """ Required Open. """
 
     @property
     def closed_class(self):
         """
-        :return: Required closed class token
+        :return: Required closed class token.
         """
         return RequiredClosed
 
     @property
     def name(self):
         """
-        :return: "RequiredOpen"
+        :return: "RequiredOpen".
         """
         return "RequiredOpen"
 
     @property
     def get_class(self):
         """
-        :return: class type
+        :return: class type.
         """
         return RequiredOpen
 
 
 class RequiredClosed(SpecialToken):
-    """ Placeholder """
+    """ Required Closed. """
 
     @property
     def name(self):
         """
-        :return: "RequiredClosed"
+        :return: "RequiredClosed".
         """
         return "RequiredClosed"
 
     @property
     def get_class(self):
         """
-        :return: class type
+        :return: class type.
         """
         return RequiredClosed
 
 
 class Pipe(SpecialToken):
-    """ Placeholder """
+    """ Pipe (Denotes Mutex). """
 
     @property
     def name(self):
         """
-        :return: "Pipe"
+        :return: "Pipe".
         """
         return "Pipe"
 
     @property
     def get_class(self):
         """
-        :return: class type
+        :return: class type.
         """
         return Pipe
 
 
 class Repeats(SpecialToken):
-    """ Placeholder """
+    """ Ellipsis (denotes Repeating). """
 
     @property
     def name(self):
         """
-        :return: "Repeats"
+        :return: "Repeats".
         """
         return "Repeats"
 
     @property
     def get_class(self):
         """
-        :return: class type
+        :return: class type.
         """
         return Repeats
 
 
 def is_num(arg):
     """
-        Args:
-            arg: input object that going to check if it is a number.
-
-        Returns:
-            true is input is number, else return false.
-        """
+    param arg: input object that going to check if it is a number.
+    :return: true if input is number, else return false.
+    """
     try:
         float(arg)
         return True
